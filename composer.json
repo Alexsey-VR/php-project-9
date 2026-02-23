@@ -1,0 +1,28 @@
+{
+    "name": "hexlet/code",
+    "description": "Page Analyzer",
+    "type": "project",
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^4.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Analyzer\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Alexsey-VR",
+            "email": "vityaz.iss@yandex.ru"
+        }
+    ],
+    "require": {
+        "slim/slim": "^4.15",
+        "slim/psr7": "^1.8",
+        "slim/http": "^1.4",
+        "slim/php-view": "^3.4",
+        "php-di/php-di": "^7.1",
+        "slim/flash": "^0.4.0"
+    }
+}

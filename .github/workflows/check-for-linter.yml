@@ -1,0 +1,30 @@
+name: check-for-linter
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup PHP with XDEBUG
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1
+        with:
+          php-version: '8.5'
+          coverage: xdebug
+            
+      - name: Install dependencies with composer
+        run: composer update --no-ansi --no-interaction --no-progress
+
+      - name: Install project
+        run: make install
+
+      - name: Validate files for linter
+        run: make lint
