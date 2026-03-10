@@ -1,2 +1,4 @@
 /html/
 /vendor/
+/reports/
+/.phpunit.cache/

@@ -3,12 +3,15 @@
     "description": "Page Analyzer",
     "type": "project",
     "require-dev": {
-        "squizlabs/php_codesniffer": "^4.0"
+        "squizlabs/php_codesniffer": "^4.0",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^13.0"
     },
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Analyzer\\": "src/"
+            "Analyzer\\": "src/",
+            "Analyzer\\Tests\\": "tests/"
         }
     },
     "authors": [
@@ -23,6 +26,7 @@
         "slim/http": "^1.4",
         "slim/php-view": "^3.4",
         "php-di/php-di": "^7.1",
-        "slim/flash": "^0.4.0"
+        "slim/flash": "^0.4.0",
+        "vlucas/valitron": "^1.4"
     }
 }

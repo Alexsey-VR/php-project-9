@@ -19,6 +19,26 @@ session_start();
 
 $container = new Container();
 
+$container->set(\PDO::class, function () {
+    $databaseUrl = getenv('DATABASE_URL');
+    $databaseInfo = parse_url(
+        htmlspecialchars(
+            $databaseUrl ? $databaseUrl : ''
+        )
+    );
+    $dbPort = $databaseInfo['port'] ?? '';
+    $dbHost = $databaseInfo['host'] ?? '';
+    $dbParsedPath = $databaseInfo['path'] ?? '';
+    $dbPath = ltrim($dbParsedPath, '/');
+    $dbUser = $databaseInfo['user'] ?? '';
+    $dbPasswd = $databaseInfo['pass'] ?? '';
+    $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbPath};user={$dbUser};password={$dbPasswd}";
+    $conn = new \PDO($dsn);
+    $conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+
+    return $conn;
+});
+
 $container->set('renderer', function () {
     // As a parameter the base directory is used to contain a templates
     return new PhpRenderer(__DIR__ . '/../templates');
@@ -32,7 +52,11 @@ $app->addErrorMiddleware(true, true, true);
 
 $router = $app->getRouteCollector()->getRouteParser();
 
-$app->get('/', function ($request, $response) {
+$conn = $container->get(\PDO::class);
+
+$app->get('/', function ($request, $response) use ($conn) {
+    $serverInfo = $conn->getAttribute(\PDO::ATTR_DRIVER_NAME);
+
     $param = [
         'greeting' => 'Hello, Render!',
         'errors' => []
