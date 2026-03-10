@@ -22,14 +22,37 @@
       </div>
     </nav>
 
+    <?php if (is_array($messages)): ?>
+      <?php foreach($messages as $key => $message): ?>
+        <?php foreach($message as $item): ?>
+          <?php if ($key === 'error'): ?>
+            <div class="alert alert-danger" role="alert">
+              <?= $item ?>
+            </div>
+          <?php elseif ($key === 'success'): ?>
+            <div class="alert alert-success" role="alert">
+              <?= $item ?>
+            </div>
+          <?php endif ?>
+        <?php endforeach ?>
+      <?php endforeach ?>
+    <?php endif ?>
+
     <div class="card-body sticky-xl-top">
       <div class="card text-start mb-3 container" style="width: 38rem; background: #f8f9fb">
         <div class="card-body">
           <h1 class="card-title">Анализатор страниц</h1>
           <p class="card-text">Бесплатно проверяйте сайты на SEO пригодность</p>
-          <form action="/check" method="post">
+          <form action="/" method="post">
             <div class="input-group mb-3">
-              <input type="text" class="form-control" placeholder="https://www.example.com" aria-label="Recipient’s username" aria-describedby="button-addon2">
+              <input type="text" class="form-control" name="url"
+              aria-label="Recipient’s username" aria-describedby="button-addon2"
+              <?php if (count($errors) > 0 && isset($errors['url'])): ?>
+                placeholder = <?= $errors['url'] ?>
+              <?php else: ?>
+                placeholder = "https://www.example.com"
+              <?php endif ?>
+              >
               <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Проверить</button>
             </div>
           </form>

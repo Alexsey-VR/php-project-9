@@ -34,7 +34,7 @@ class UrlRepository implements UrlRepositoryInterface
             is_int($id) ? $id : throw new \Exception("PDO error: found ID has wrond type")
         );
 
-        return false; 
+        return false;
     }
 
     public function save(UrlInterface $url): void
@@ -57,7 +57,7 @@ class UrlRepository implements UrlRepositoryInterface
 
             $stmt->bindParam(':name', $name);
             $stmt->bindParam(':created_at', $timestamp);
-            $stmt->execute();    
+            $stmt->execute();
 
             $id = intval($this->conn->lastInsertId());
 

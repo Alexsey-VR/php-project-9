@@ -16,7 +16,7 @@ class UrlTest extends TestCase
         $urlInfo = ['name' => 'https://mail.ru'];
         $url = Url::fromArray($urlInfo);
         $this->assertInstanceOf(Url::class, $url);
-        
+
         $name = $url->getUrl();
         $this->assertEquals($urlInfo['name'], $name);
     }
@@ -45,7 +45,6 @@ class UrlTest extends TestCase
         $timestamp = $url->getTimestamp($id);
 
         $this->assertEquals($testTimestamp, $timestamp);
-
     }
 
     public function testExists(): void

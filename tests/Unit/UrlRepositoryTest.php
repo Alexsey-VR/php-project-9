@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use Analyzer\Url\Url;
 use Analyzer\Repository\UrlRepository;
-use \PDO;
+use PDO;
 
 #[CoversClass(Url::class)]
 #[CoversClass(UrlRepository::class)]

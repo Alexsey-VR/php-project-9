@@ -14,6 +14,7 @@ use Slim\Factory\AppFactory;
 use DI\Container;
 use Slim\Views\PhpRenderer;
 use Slim\Flash\Messages;
+use Valitron\Validator;
 
 session_start();
 
@@ -55,13 +56,47 @@ $router = $app->getRouteCollector()->getRouteParser();
 $conn = $container->get(\PDO::class);
 
 $app->get('/', function ($request, $response) use ($conn) {
-    $serverInfo = $conn->getAttribute(\PDO::ATTR_DRIVER_NAME);
+    $messages = $this->get('flash')->getMessages();
+
+    $jsonErrors = $request->getCookieParam('errors', json_encode([]));
+    $errors = json_decode($jsonErrors, JSON_OBJECT_AS_ARRAY);
 
     $param = [
-        'greeting' => 'Hello, Render!',
-        'errors' => []
+        'messages' => $messages,
+        'errors' => $errors
     ];
     return $this->get('renderer')->render($response, 'index.phtml', $param);
 })->setName('mainPage');
+
+$app->post('/', function ($request, $response) use ($router) {
+    $urlInfo = $request->getParsedBodyParam("url");
+
+    $validator = new Validator(['url' => $urlInfo]);
+    $validator->rules(
+        [
+            'required' => ['url'],
+            'url' => ['url'],
+            'lengthMax' => [
+                ['url', 255]
+            ]
+        ]
+    );
+
+    $messages = $this->get('flash')->getMessages();
+    $url = $router->urlFor('mainPage');
+    if ($validator->validate()) {
+        $this->get('flash')->addMessage('success', 'URL успешно проверен');
+        return $response->withRedirect($url);
+    }
+
+    $this->get('flash')->addMessage('error', 'Введите корректный URL');
+    $errors = [
+        'url' => $urlInfo
+    ];
+
+    $jsonErrors = json_encode($errors);
+    return $response->withHeader('set-cookie', "errors={$jsonErrors}; MAX-AGE=1")
+                    ->withRedirect($url);
+})->setName('checkUrl');
 
 $app->run();

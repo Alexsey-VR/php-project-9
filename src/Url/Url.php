@@ -25,7 +25,7 @@ class Url implements UrlInterface
         $url->setUrl(
             is_string($urlData) ? $urlData : ''
         );
-        
+
 
         return $url;
     }
