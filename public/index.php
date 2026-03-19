@@ -15,12 +15,21 @@ use DI\Container;
 use Slim\Views\PhpRenderer;
 use Slim\Flash\Messages;
 use Valitron\Validator;
+use Analyzer\Url\Url;
+use Analyzer\Repository\UrlRepository;
 
 session_start();
 
 $container = new Container();
+$container->set('renderer', function () {
+    // As a parameter the base directory is used to contain a templates
+    return new PhpRenderer(__DIR__ . '/../templates');
+});
+$container->set('flash', function () {
+    return new Messages();
+});
 
-$container->set(\PDO::class, function () {
+$container->set('repo', function () {
     $databaseUrl = getenv('DATABASE_URL');
     $databaseInfo = parse_url(
         htmlspecialchars(
@@ -37,25 +46,16 @@ $container->set(\PDO::class, function () {
     $conn = new \PDO($dsn);
     $conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
 
-    return $conn;
+    return new UrlRepository($conn);
 });
 
-$container->set('renderer', function () {
-    // As a parameter the base directory is used to contain a templates
-    return new PhpRenderer(__DIR__ . '/../templates');
-});
-$container->set('flash', function () {
-    return new Messages();
-});
 
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
 
 $router = $app->getRouteCollector()->getRouteParser();
 
-$conn = $container->get(\PDO::class);
-
-$app->get('/', function ($request, $response) use ($conn) {
+$app->get('/', function ($request, $response) {
     $messages = $this->get('flash')->getMessages();
 
     $jsonErrors = $request->getCookieParam('errors', json_encode([]));
@@ -69,9 +69,10 @@ $app->get('/', function ($request, $response) use ($conn) {
 })->setName('mainPage');
 
 $app->post('/', function ($request, $response) use ($router) {
+    $repo = $this->get('repo');
     $urlInfo = $request->getParsedBodyParam("url");
 
-    $validator = new Validator(['url' => $urlInfo]);
+    $validator = new Validator(['url' => $urlInfo['name']]);
     $validator->rules(
         [
             'required' => ['url'],
@@ -83,20 +84,71 @@ $app->post('/', function ($request, $response) use ($router) {
     );
 
     $messages = $this->get('flash')->getMessages();
-    $url = $router->urlFor('mainPage');
+
+    $route = $router->urlFor('mainPage');
+
     if ($validator->validate()) {
-        $this->get('flash')->addMessage('success', 'URL успешно проверен');
-        return $response->withRedirect($url);
+        $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
+
+        $url = Url::fromArray(['name' => $urlInfo['name']]);
+        $repo->save($url);
+
+        $route = $router->urlFor('urlInfo', ['id' => $url->getId()]);
+
+        return $response->withRedirect($route);
     }
 
-    $this->get('flash')->addMessage('error', 'Введите корректный URL');
+    $this->get('flash')->addMessage('error', 'Введите корректный URL адрес');
     $errors = [
         'url' => $urlInfo
     ];
-
     $jsonErrors = json_encode($errors);
+
     return $response->withHeader('set-cookie', "errors={$jsonErrors}; MAX-AGE=1")
-                    ->withRedirect($url);
-})->setName('checkUrl');
+                    ->withRedirect($route);
+})->setName('saveUrl');
+
+$app->get('/urls', function ($request, $response) {
+    $repo = $this->get('repo');
+    $urls = $repo->getEntities();
+    $params = [
+        'urls' => $urls
+    ];
+
+    return $this->get('renderer')
+                ->render(
+                    $response,
+                    'Urls/urls.phtml',
+                    $params
+                );
+})->setName('urlsList');
+
+$app->get('/urls/{id}', function ($request, $response, array $args) {
+    $repo = $this->get('repo');
+    $id = $args['id'];
+
+    $url = $repo->find($id);
+    $messages = $this->get('flash')->getMessages();
+    $params = [
+        'url' => $url,
+        'messages' => $messages
+    ];
+
+    if (!is_null($url)) {
+        return $this->get('renderer')
+            ->render(
+                $response,
+                'Urls/url.phtml',
+                $params
+            );
+    }
+
+    return $response->withStatus(400);
+})->setName('urlInfo');
+
+$app->post('/urls/{id}', function ($request, $response, array $args) {
+    // ...
+    return $response->withRedirect('/');
+});
 
 $app->run();
