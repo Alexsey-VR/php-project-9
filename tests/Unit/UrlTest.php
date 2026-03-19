@@ -42,7 +42,7 @@ class UrlTest extends TestCase
 
         $testTimestamp = '2026-03-05 15:30:45';
         $url->setTimestamp($testTimestamp);
-        $timestamp = $url->getTimestamp($id);
+        $timestamp = $url->getTimestamp();
 
         $this->assertEquals($testTimestamp, $timestamp);
     }

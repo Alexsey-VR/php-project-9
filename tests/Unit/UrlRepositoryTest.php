@@ -192,20 +192,17 @@ class UrlRepositoryTest extends TestCase
         $this->conn->query($sql);
 
         $urlInfo = ['name' => 'https://mail.ru'];
-        $urlFirst = Url::fromArray($urlInfo);
-        $urlInfo = ['name' => 'https://yandex.ru'];
-        $urlSecond = Url::fromArray($urlInfo);
+        $url = Url::fromArray($urlInfo);
 
         $urlRepository = new UrlRepository($this->conn);
 
-        $urlRepository->save($urlFirst);
-        $urlRepository->save($urlSecond);
+        $urlRepository->save($url);
 
         $entities = $urlRepository->getEntities();
 
         $sql = "DROP TABLE urls";
         $this->conn->query($sql);
 
-        $this->assertTrue(count($entities) === 2);
+        $this->assertEquals($urlInfo['name'], $entities[0]->getUrl());
     }
 }

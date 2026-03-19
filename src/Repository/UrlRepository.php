@@ -93,9 +93,13 @@ class UrlRepository implements UrlRepositoryInterface
         $urlInfo = $stmt->fetch();
         if (is_array($urlInfo)) {
             $foundId = $urlInfo['id'];
+            $timestamp = $urlInfo['created_at'];
             $url = Url::fromArray($urlInfo);
             $url->setId(
-                is_int($foundId) ? $foundId : throw new \Exception("PDO error: found ID has wrond type")
+                is_int($foundId) ? $foundId : throw new \Exception("PDO error: found ID has a wrong type")
+            );
+            $url->setTimestamp(
+                is_string($timestamp) ? $timestamp : throw new \Exception("PDO error: timestamp has a wrong type")
             );
             return $url;
         }
@@ -113,21 +117,30 @@ class UrlRepository implements UrlRepositoryInterface
 
     public function getEntities(): array
     {
-        $sql = "SELECT * FROM urls";
+        $sql = "SELECT * FROM urls ORDER BY created_at DESC";
         $stmt = $this->conn->query($sql);
+
         $items = [];
         if ($stmt) {
-            while ($urlInfo = $stmt->fetch()) {
-                $url = Url::fromArray(
-                    is_array($urlInfo) ? $urlInfo : throw new \Exception("PDO error: row has wrong format")
-                );
-                $foundId = $urlInfo['id'];
+            $items = $stmt->fetchAll(\PDO::FETCH_DEFAULT);
+        }
+
+        $urls = [];
+        foreach ($items as $item) {
+            if (is_array($item)) {
+                $url = Url::fromArray($item);
+                $foundId = $item['id'];
+                $timestamp = $item['created_at'];
                 $url->setId(
-                    is_int($foundId) ? $foundId : throw new \Exception("PDO error: found ID has wrond type")
+                    is_int($foundId) ? $foundId : throw new \Exception("PDO error: found ID has a wrong type")
                 );
-                $items[] = $url;
+                $url->setTimestamp(
+                    is_string($timestamp) ? $timestamp : throw new \Exception("PDO error: timestamp has a wrong type")
+                );
+                $urls[] = $url;
             }
         }
-        return $items;
+
+        return $urls;
     }
 }

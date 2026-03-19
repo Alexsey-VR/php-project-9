@@ -55,7 +55,7 @@ class Url implements UrlInterface
         $this->timestamp = $timestamp;
     }
 
-    public function getTimestamp(int $id): ?string
+    public function getTimestamp(): ?string
     {
         return $this->timestamp;
     }

@@ -13,6 +13,6 @@ interface UrlInterface
     public function setUrl(string $url): void;
     public function getUrl(): ?string;
     public function setTimestamp(string $timestamp): void;
-    public function getTimestamp(int $id): ?string;
+    public function getTimestamp(): ?string;
     public function exists(): bool;
 }
