@@ -1,5 +1,15 @@
 CREATE TABLE urls (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    name VARCHAR(255) unique,
-    created_at VARCHAR(50)
+    name VARCHAR(255) UNIQUE,
+    created_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE checks (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    urls_id BIGINT REFERENCES urls(id) ON DELETE CASCADE,
+    status INTEGER,
+    h1 VARCHAR(255),
+    title VARCHAR(255),
+    description VARCHAR(255),
+    timestamp TIMESTAMP NOT NULL
 );
