@@ -5,7 +5,7 @@ namespace Analyzer\Interfaces;
 interface CheckInterface
 {
     /**
-     * @param array<string,mixed> $checkInfo
+     * @param array<mixed> $checkInfo
      */
     public static function fromArray(array $checkInfo): CheckInterface;
     public function setId(int $id): void;

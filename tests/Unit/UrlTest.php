@@ -3,8 +3,7 @@
 namespace Analyzer\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\{CoversClass, CoversMethod};
 use Analyzer\Url\Url;
 
 #[CoversClass(Url::class)]
@@ -16,20 +15,26 @@ use Analyzer\Url\Url;
 #[CoversMethod(Url::class, 'exists')]
 class UrlTest extends TestCase
 {
-    private const URL_INFO = ['name' => 'https://mail.ru'];
-
     public function testFromArray(): void
     {
-        $url = Url::fromArray(self::URL_INFO);
+        $urlInfo = json_decode(
+            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
+            JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
         $this->assertInstanceOf(Url::class, $url);
 
         $name = $url->getUrl();
-        $this->assertEquals(self::URL_INFO['name'], $name);
+        $this->assertEquals($urlInfo['mail']['name'], $name);
     }
 
     public function testId(): void
     {
-        $url = Url::fromArray(self::URL_INFO);
+        $urlInfo = json_decode(
+            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
+            JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
 
         $testId = 5;
         $url->setId($testId);
@@ -41,7 +46,11 @@ class UrlTest extends TestCase
 
     public function testTimestamp(): void
     {
-        $url = Url::fromArray(self::URL_INFO);
+        $urlInfo = json_decode(
+            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
+            JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
 
         $testTimestamp = '2026-03-05 15:30:45';
         $url->setTimestamp($testTimestamp);

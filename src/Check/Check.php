@@ -3,6 +3,7 @@
 namespace Analyzer\Check;
 
 use Analyzer\Interfaces\CheckInterface;
+use Exception;
 
 class Check implements CheckInterface
 {
@@ -28,7 +29,7 @@ class Check implements CheckInterface
     public static function fromArray(array $checkInfo): CheckInterface
     {
         [
-            'urlId' => $urlId,
+            'url_id' => $urlId,
             'status' => $status,
             'h1' => $h1,
             'title' => $title,
@@ -37,20 +38,20 @@ class Check implements CheckInterface
         $check = new Check();
 
         $check->setUrlId(
-            is_int($urlId) ? $urlId : throw new \Exception('Internal error: url ID has a wrong type')
+            is_int($urlId) ? $urlId : throw new Exception('Internal error: URL ID has a wrong type')
         );
         $check->setStatus(
-            is_int($status) ? $status : throw new \Exception('Internal error: check status has a wrong type')
+            is_int($status) ? $status : throw new Exception('Internal error: check status has a wrong type')
         );
         $check->setH1(
-            is_string($h1) ? $h1 : throw new \Exception('Internal error: h1 has a wrong type')
+            is_string($h1) ? $h1 : throw new Exception('Internal error: h1 has a wrong type')
         );
         $check->setTitle(
-            is_string($title) ? $title : throw new \Exception('Internal error: title has a wrong type')
+            is_string($title) ? $title : throw new Exception('Internal error: title has a wrong type')
         );
         $check->setDescription(
             is_string($description) ? $description
-            : throw new \Exception('Internal error: description has a wrong type')
+            : throw new Exception('Internal error: description has a wrong type')
         );
 
         return $check;

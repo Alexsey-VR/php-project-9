@@ -2,15 +2,16 @@
 
 namespace Analyzer\Repository;
 
-use Analyzer\Interfaces\UrlInterface;
-use Analyzer\Interfaces\UrlRepositoryInterface;
-use Analyzer\Url\Url;
+use Analyzer\Interfaces\{UrlInterface, UrlRepositoryInterface};
+use Analyzer\Url\Url as Url;
+use PDO as PDO;
+use Exception as Exception;
 
 class UrlRepository implements UrlRepositoryInterface
 {
-    private \PDO $conn;
+    private PDO $conn;
 
-    public function __construct(\PDO $conn)
+    public function __construct(PDO $conn)
     {
         $this->conn = $conn;
         date_default_timezone_set('UTC');
@@ -31,7 +32,7 @@ class UrlRepository implements UrlRepositoryInterface
 
         $id = $row['id'];
         $url->setId(
-            is_int($id) ? $id : throw new \Exception("PDO error: found ID has wrond type")
+            is_int($id) ? $id : throw new Exception("PDO error: found ID has wrond type")
         );
 
         return false;
@@ -62,7 +63,7 @@ class UrlRepository implements UrlRepositoryInterface
             $id = intval($this->conn->lastInsertId());
 
             $url->setId(
-                $id ? $id : throw new \Exception("PDO error: can't get last insert id")
+                $id ? $id : throw new Exception("PDO error: can't get last insert id")
             );
         }
     }
@@ -96,10 +97,10 @@ class UrlRepository implements UrlRepositoryInterface
             $timestamp = $urlInfo['created_at'];
             $url = Url::fromArray($urlInfo);
             $url->setId(
-                is_int($foundId) ? $foundId : throw new \Exception("PDO error: found ID has a wrong type")
+                is_int($foundId) ? $foundId : throw new Exception("PDO error: found ID has a wrong type")
             );
             $url->setTimestamp(
-                is_string($timestamp) ? $timestamp : throw new \Exception("PDO error: timestamp has a wrong type")
+                is_string($timestamp) ? $timestamp : throw new Exception("PDO error: timestamp has a wrong type")
             );
             return $url;
         }
@@ -109,7 +110,7 @@ class UrlRepository implements UrlRepositoryInterface
 
     public function delete(int $id): void
     {
-        $sql = "DELETE FROM urls WHERE id=:id";
+        $sql = "DELETE FROM urls WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
@@ -122,7 +123,7 @@ class UrlRepository implements UrlRepositoryInterface
 
         $items = [];
         if ($stmt) {
-            $items = $stmt->fetchAll(\PDO::FETCH_DEFAULT);
+            $items = $stmt->fetchAll(PDO::FETCH_DEFAULT);
         }
 
         $urls = [];
@@ -132,10 +133,10 @@ class UrlRepository implements UrlRepositoryInterface
                 $foundId = $item['id'];
                 $timestamp = $item['created_at'];
                 $url->setId(
-                    is_int($foundId) ? $foundId : throw new \Exception("PDO error: found ID has a wrong type")
+                    is_int($foundId) ? $foundId : throw new Exception("PDO error: found ID has a wrong type")
                 );
                 $url->setTimestamp(
-                    is_string($timestamp) ? $timestamp : throw new \Exception("PDO error: timestamp has a wrong type")
+                    is_string($timestamp) ? $timestamp : throw new Exception("PDO error: timestamp has a wrong type")
                 );
                 $urls[] = $url;
             }

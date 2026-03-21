@@ -3,11 +3,11 @@
 namespace Analyzer\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversMethod;
-use Analyzer\Url\Url;
+use PHPUnit\Framework\Attributes\{CoversClass, CoversMethod};
+use Analyzer\Url\Url as Url;
 use Analyzer\Repository\UrlRepository;
 use PDO;
+use Exception;
 
 #[CoversClass(Url::class)]
 #[CoversClass(UrlRepository::class)]
@@ -39,33 +39,35 @@ class UrlRepositoryTest extends TestCase
         $dbPasswd = $databaseInfo['pass'] ?? '';
 
         $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbPath};user={$dbUser};password={$dbPasswd}";
-        $this->conn = new \PDO($dsn);
-        $this->conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+        $this->conn = new PDO($dsn);
+        $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     }
 
     public function testCreate(): void
     {
-        $sql = "CREATE TABLE urls ( " .
-            "id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," .
-            "name VARCHAR(255) unique," .
-            "created_at VARCHAR(50)" .
-        ")";
-        $this->conn->query($sql);
+        $sqlInit = file_get_contents(
+            __DIR__ . "/../fixtures/urlRepositoryInit.sql"
+        );
+        $this->conn->query($sqlInit);
 
-        $nameToSave = 'https://mail.ru';
-        $urlInfo = ['name' => $nameToSave];
-        $url = Url::fromArray($urlInfo);
+        $urlInfo = json_decode(
+            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
+            JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
 
         $urlRepository = new UrlRepository($this->conn);
         $urlRepository->save($url);
         $id = $url->getId();
         $urlTemp = $urlRepository->find($id);
 
-        $sql = "DROP TABLE urls";
-        $this->conn->query($sql);
+        $sqlStop = file_get_contents(
+            __DIR__ . "/../fixtures/urlRepositoryStop.sql"
+        );
+        $this->conn->query($sqlStop);
 
         $this->assertTrue($urlTemp->exists());
-        $this->assertEquals($nameToSave, $urlTemp->getUrl());
+        $this->assertEquals($urlInfo['mail']['name'], $urlTemp->getUrl());
     }
 
     public function testCreateException(): void
@@ -90,11 +92,14 @@ class UrlRepositoryTest extends TestCase
 
         $urlRepository = new UrlRepository($connStub);
 
-        $urlInfo = ['name' => 'https://mail.ru'];
-        $url = Url::fromArray($urlInfo);
+        $urlInfo = json_decode(
+            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
+            JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
 
         $this->expectException(
-            \Exception::class
+            Exception::class
         );
 
         $urlRepository->save($url);
@@ -102,46 +107,50 @@ class UrlRepositoryTest extends TestCase
 
     public function testUpdate(): void
     {
-        $sql = "CREATE TABLE urls ( " .
-            "id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," .
-            "name VARCHAR(255) unique," .
-            "created_at VARCHAR(50)" .
-        ")";
-        $this->conn->query($sql);
+        $sqlInit = file_get_contents(
+            __DIR__ . "/../fixtures/urlRepositoryInit.sql"
+        );
+        $this->conn->query($sqlInit);
 
-        $nameToSave = 'https://mail.ru';
-        $urlInfo = ['name' => $nameToSave];
-        $url = Url::fromArray($urlInfo);
+        $urlInfo = json_decode(
+            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
+            JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
 
         $urlRepository = new UrlRepository($this->conn);
         $urlRepository->save($url);
         $id = $url->getId();
         $urlTemp = $urlRepository->find($id);
 
-        $nameToUpdate = 'https://yandex.ru';
-        $urlTemp->setUrl($nameToUpdate);
+        $urlTemp->setUrl($urlInfo['yandex']['name']);
         $urlRepository->save($urlTemp);
         $url = $urlRepository->find($id);
 
-        $sql = "DROP TABLE urls";
-        $this->conn->query($sql);
+        $sqlStop = file_get_contents(
+            __DIR__ . "/../fixtures/urlRepositoryStop.sql"
+        );
+        $this->conn->query($sqlStop);
 
-        $this->assertEquals($nameToUpdate, $url->getUrl());
+        $this->assertEquals(
+            $urlInfo['yandex']['name'],
+            $url->getUrl()
+        );
     }
 
     public function testUnique(): void
     {
-        $sql = "CREATE TABLE urls ( " .
-            "id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," .
-            "name VARCHAR(255) unique," .
-            "created_at VARCHAR(50)" .
-        ")";
-        $this->conn->query($sql);
+        $sqlInit = file_get_contents(
+            __DIR__ . "/../fixtures/urlRepositoryInit.sql"
+        );
+        $this->conn->query($sqlInit);
 
-        $nameToSave = 'https://mail.ru';
-        $urlInfo = ['name' => $nameToSave];
-        $url = Url::fromArray($urlInfo);
-        $sameUrl = Url::fromArray($urlInfo);
+        $urlInfo = json_decode(
+            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
+            JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
+        $sameUrl = Url::fromArray($urlInfo['mail']);
 
         $urlRepository = new UrlRepository($this->conn);
         $urlRepository->save($url);
@@ -150,23 +159,26 @@ class UrlRepositoryTest extends TestCase
         $urlRepository->save($sameUrl);
         $sameId = $url->getId();
 
-        $sql = "DROP TABLE urls";
-        $this->conn->query($sql);
+        $sqlStop = file_get_contents(
+            __DIR__ . "/../fixtures/urlRepositoryStop.sql"
+        );
+        $this->conn->query($sqlStop);
 
         $this->assertEquals($id, $sameId);
     }
 
     public function testDelete(): void
     {
-        $sql = "CREATE TABLE urls ( " .
-            "id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," .
-            "name VARCHAR(255) unique," .
-            "created_at VARCHAR(50)" .
-        ")";
-        $this->conn->query($sql);
+        $sqlInit = file_get_contents(
+            __DIR__ . "/../fixtures/urlRepositoryInit.sql"
+        );
+        $this->conn->query($sqlInit);
 
-        $urlInfo = ['name' => 'https://mail.ru'];
-        $url = Url::fromArray($urlInfo);
+        $urlInfo = json_decode(
+            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
+            JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
 
         $urlRepository = new UrlRepository($this->conn);
         $urlRepository->save($url);
@@ -176,23 +188,26 @@ class UrlRepositoryTest extends TestCase
         $urlRepository->delete($id);
         $urlDeleted = $urlRepository->find($id);
 
-        $sql = "DROP TABLE urls";
-        $this->conn->query($sql);
+        $sqlStop = file_get_contents(
+            __DIR__ . "/../fixtures/urlRepositoryStop.sql"
+        );
+        $this->conn->query($sqlStop);
 
         $this->assertTrue($urlFound->exists() && is_null($urlDeleted));
     }
 
     public function testGetEntities(): void
     {
-        $sql = "CREATE TABLE urls ( " .
-            "id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," .
-            "name VARCHAR(255) unique," .
-            "created_at VARCHAR(50)" .
-        ")";
-        $this->conn->query($sql);
+        $sqlInit = file_get_contents(
+            __DIR__ . "/../fixtures/urlRepositoryInit.sql"
+        );
+        $this->conn->query($sqlInit);
 
-        $urlInfo = ['name' => 'https://mail.ru'];
-        $url = Url::fromArray($urlInfo);
+        $urlInfo = json_decode(
+            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
+            JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
 
         $urlRepository = new UrlRepository($this->conn);
 
@@ -200,9 +215,14 @@ class UrlRepositoryTest extends TestCase
 
         $entities = $urlRepository->getEntities();
 
-        $sql = "DROP TABLE urls";
-        $this->conn->query($sql);
+        $sqlStop = file_get_contents(
+            __DIR__ . "/../fixtures/urlRepositoryStop.sql"
+        );
+        $this->conn->query($sqlStop);
 
-        $this->assertEquals($urlInfo['name'], $entities[0]->getUrl());
+        $this->assertEquals(
+            $urlInfo['mail']['name'],
+            $entities[0]->getUrl()
+        );
     }
 }
