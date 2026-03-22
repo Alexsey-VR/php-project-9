@@ -17,27 +17,6 @@ class UrlRepository implements UrlRepositoryInterface
         date_default_timezone_set('UTC');
     }
 
-    public function isUnique(UrlInterface $url): bool
-    {
-        $sql = "SELECT * FROM urls WHERE name=:name";
-        $stmt = $this->conn->prepare($sql);
-        $name = $url->getUrl();
-        $stmt->bindParam(':name', $name);
-        $stmt->execute();
-        $row = $stmt->fetch();
-
-        if (!is_array($row)) {
-            return true;
-        }
-
-        $id = $row['id'];
-        $url->setId(
-            is_int($id) ? $id : throw new Exception("PDO error: found ID has wrond type")
-        );
-
-        return false;
-    }
-
     public function save(UrlInterface $url): void
     {
         if ($url->exists()) {
@@ -49,23 +28,21 @@ class UrlRepository implements UrlRepositoryInterface
 
     public function create(UrlInterface $url): void
     {
-        if ($this->isUnique($url)) {
-            $sql = "INSERT INTO urls (name, created_at) VALUES (:name, :created_at)";
-            $stmt = $this->conn->prepare($sql);
+        $sql = "INSERT INTO urls (name, created_at) VALUES (:name, :created_at)";
+        $stmt = $this->conn->prepare($sql);
 
-            $name = $url->getUrl();
-            $timestamp = date('Y-m-d H:i:s');
+        $name = $url->getUrl();
+        $timestamp = date('Y-m-d H:i:s');
 
-            $stmt->bindParam(':name', $name);
-            $stmt->bindParam(':created_at', $timestamp);
-            $stmt->execute();
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':created_at', $timestamp);
+        $stmt->execute();
 
-            $id = intval($this->conn->lastInsertId());
+        $id = intval($this->conn->lastInsertId());
 
-            $url->setId(
-                $id ? $id : throw new Exception("PDO error: can't get last insert id")
-            );
-        }
+        $url->setId(
+            $id ? $id : throw new Exception("PDO error: can't get last insert id")
+        );
     }
 
     public function update(UrlInterface $url): void
@@ -143,5 +120,10 @@ class UrlRepository implements UrlRepositoryInterface
         }
 
         return $urls;
+    }
+
+    public function getConnection(): PDO
+    {
+        return $this->conn;
     }
 }

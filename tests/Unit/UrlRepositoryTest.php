@@ -5,18 +5,25 @@ namespace Analyzer\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\{CoversClass, CoversMethod};
 use Analyzer\Url\Url as Url;
-use Analyzer\Repository\UrlRepository;
+use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository};
 use PDO;
 use Exception;
 
 #[CoversClass(Url::class)]
 #[CoversClass(UrlRepository::class)]
+#[CoversClass(ValidatedUrlRepository::class)]
 #[CoversMethod(UrlRepository::class, 'create')]
 #[CoversMethod(UrlRepository::class, 'update')]
 #[CoversMethod(UrlRepository::class, 'save')]
 #[CoversMethod(UrlRepository::class, 'find')]
 #[CoversMethod(UrlRepository::class, 'delete')]
 #[CoversMethod(UrlRepository::class, 'getEntities')]
+#[CoversMethod(ValidatedUrlRepository::class, 'create')]
+#[CoversMethod(ValidatedUrlRepository::class, 'update')]
+#[CoversMethod(ValidatedUrlRepository::class, 'save')]
+#[CoversMethod(ValidatedUrlRepository::class, 'find')]
+#[CoversMethod(ValidatedUrlRepository::class, 'delete')]
+#[CoversMethod(ValidatedUrlRepository::class, 'getEntities')]
 class UrlRepositoryTest extends TestCase
 {
     private \PDO $conn;
@@ -56,7 +63,9 @@ class UrlRepositoryTest extends TestCase
         );
         $url = Url::fromArray($urlInfo['mail']);
 
-        $urlRepository = new UrlRepository($this->conn);
+        $urlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->conn)
+        );
         $urlRepository->save($url);
         $id = $url->getId();
         $urlTemp = $urlRepository->find($id);
@@ -91,6 +100,9 @@ class UrlRepositoryTest extends TestCase
         );
 
         $urlRepository = new UrlRepository($connStub);
+        $urlRepository = new ValidatedUrlRepository(
+            new UrlRepository($connStub)
+        );
 
         $urlInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
@@ -118,7 +130,9 @@ class UrlRepositoryTest extends TestCase
         );
         $url = Url::fromArray($urlInfo['mail']);
 
-        $urlRepository = new UrlRepository($this->conn);
+        $urlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->conn)
+        );
         $urlRepository->save($url);
         $id = $url->getId();
         $urlTemp = $urlRepository->find($id);
@@ -152,7 +166,9 @@ class UrlRepositoryTest extends TestCase
         $url = Url::fromArray($urlInfo['mail']);
         $sameUrl = Url::fromArray($urlInfo['mail']);
 
-        $urlRepository = new UrlRepository($this->conn);
+        $urlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->conn)
+        );
         $urlRepository->save($url);
         $id = $url->getId();
 
@@ -180,7 +196,9 @@ class UrlRepositoryTest extends TestCase
         );
         $url = Url::fromArray($urlInfo['mail']);
 
-        $urlRepository = new UrlRepository($this->conn);
+        $urlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->conn)
+        );
         $urlRepository->save($url);
         $id = $url->getId();
 
@@ -209,7 +227,9 @@ class UrlRepositoryTest extends TestCase
         );
         $url = Url::fromArray($urlInfo['mail']);
 
-        $urlRepository = new UrlRepository($this->conn);
+        $urlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->conn)
+        );
 
         $urlRepository->save($url);
 

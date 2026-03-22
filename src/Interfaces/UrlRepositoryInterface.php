@@ -3,6 +3,7 @@
 namespace Analyzer\Interfaces;
 
 use Analyzer\Interfaces\UrlInterface;
+use PDO;
 
 interface UrlRepositoryInterface
 {
@@ -16,4 +17,6 @@ interface UrlRepositoryInterface
      * @return array<int,UrlInterface>
      */
     public function getEntities(): array;
+
+    public function getConnection(): PDO;
 }

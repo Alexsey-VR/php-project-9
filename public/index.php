@@ -16,7 +16,7 @@ use Slim\Views\PhpRenderer;
 use Slim\Flash\Messages;
 use Valitron\Validator;
 use Analyzer\Url\Url;
-use Analyzer\Repository\UrlRepository;
+use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository};
 
 session_start();
 
@@ -46,7 +46,9 @@ $container->set('repo', function () {
     $conn = new \PDO($dsn);
     $conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
 
-    return new UrlRepository($conn);
+    return new ValidatedUrlRepository(
+        new UrlRepository($conn)
+    );
 });
 
 
@@ -72,40 +74,25 @@ $app->post('/', function ($request, $response) use ($router) {
     $repo = $this->get('repo');
     $urlInfo = $request->getParsedBodyParam("url");
 
-    $validator = new Validator(['url' => $urlInfo['name']]);
-    $validator->rules(
-        [
-            'required' => ['url'],
-            'url' => ['url'],
-            'lengthMax' => [
-                ['url', 255]
-            ]
-        ]
-    );
+    $url = Url::fromArray($urlInfo);
+    $repo->save($url);
 
-    $messages = $this->get('flash')->getMessages();
+    if ($repo->isValid()) {
+        $this->get('flash')->addMessage(
+            'success',
+            $repo->getMessage()
+        );
 
-    $route = $router->urlFor('mainPage');
-
-    if ($validator->validate()) {
-        $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
-
-        $url = Url::fromArray(['name' => $urlInfo['name']]);
-        $repo->save($url);
-
-        $route = $router->urlFor('urlInfo', ['id' => $url->getId()]);
-
-        return $response->withRedirect($route);
+        $toUrlInfo = $router->urlFor('urlInfo', ['id' => $url->getId()]);
+        return $response->withRedirect($toUrlInfo);
     }
 
-    $this->get('flash')->addMessage('error', 'Введите корректный URL адрес');
-    $errors = [
-        'url' => $urlInfo
-    ];
-    $jsonErrors = json_encode($errors);
-
-    return $response->withHeader('set-cookie', "errors={$jsonErrors}; MAX-AGE=1")
-                    ->withRedirect($route);
+    $toMainPage = $router->urlFor('mainPage');
+    $this->get('flash')->addMessage(
+        'error',
+        $repo->getMessage()
+    );
+    return $response->withRedirect($toMainPage);
 })->setName('saveUrl');
 
 $app->get('/urls', function ($request, $response) {

@@ -5,7 +5,8 @@
     "require-dev": {
         "squizlabs/php_codesniffer": "^4.0",
         "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^13.0"
+        "phpunit/phpunit": "^13.0",
+        "symfony/var-dumper": "^8.0"
     },
     "license": "MIT",
     "autoload": {
