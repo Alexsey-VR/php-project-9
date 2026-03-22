@@ -41,7 +41,7 @@
     <div class="card-body sticky-xl-top">
       <div class="text-start mb-2 container" style="width: 100vw">
         <h1>Сайт: <?= $url->getUrl() ?></h1>
-        <table class="table table-bordered border-primary">
+        <table class="table table-bordered border-primary" data-test="url">
           <tr>
             <td>ID</td>
             <td><?= $url->getId() ?></td>
@@ -62,7 +62,7 @@
         <form action="/urls/{<?= $url->getId() ?>}" method='post'>
           <input type='submit' class="btn btn-primary btn-sm" value='Запустить проверку'>
         </form>
-        <table class="table table-bordered border-primary">
+        <table class="table table-bordered border-primary" data-test="checks">
           <tr>
             <td>ID</td>
             <td>Код ответа</td>
