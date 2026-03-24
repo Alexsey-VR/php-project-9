@@ -21,7 +21,6 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         $this->conn = $repo->getConnection();
         $this->repo = $repo;
         $this->message = self::SUCCESS_MESSAGE;
-        date_default_timezone_set('UTC');
     }
 
     public function isUnique(UrlInterface $url): bool

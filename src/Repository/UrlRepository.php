@@ -43,6 +43,9 @@ class UrlRepository implements UrlRepositoryInterface
         $url->setId(
             $id ? $id : throw new Exception("PDO error: can't get last insert id")
         );
+        $url->setTimestamp(
+            is_string($timestamp) ? $timestamp : throw new Exception("PDO error: timestamp has a wrong type")
+        );
     }
 
     public function update(UrlInterface $url): void
@@ -51,7 +54,7 @@ class UrlRepository implements UrlRepositoryInterface
         $stmt = $this->conn->prepare($sql);
 
         $name = $url->getUrl();
-        $timestamp = date('Y-m-d H:i:s');
+        $timestamp = $url->getTimestamp();
         $id = $url->getId();
 
         $stmt->bindParam(':name', $name);

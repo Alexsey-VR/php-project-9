@@ -2,12 +2,15 @@
 
 namespace Analyzer\Interfaces;
 
-interface CheckInterface
+use Analyzer\Interfaces\UrlInterface;
+
+interface UrlCheckInterface
 {
     /**
-     * @param array<mixed> $checkInfo
+     * @param array<mixed> $urlCheckInfo
      */
-    public static function fromArray(array $checkInfo): CheckInterface;
+    public static function fromArray(array $urlCheckInfo): UrlCheckInterface;
+    public static function fromUrl(UrlInterface $url): UrlCheckInterface;
     public function setId(int $id): void;
     public function getId(): ?int;
     public function setUrlId(int $id): void;
@@ -23,4 +26,7 @@ interface CheckInterface
     public function setTimestamp(string $timestamp): void;
     public function getTimestamp(): ?string;
     public function exists(): bool;
+    public function normalize(string $info): string;
+    public function execute(): bool;
+    public function getMessage(): string;
 }

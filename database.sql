@@ -4,12 +4,12 @@ CREATE TABLE urls (
     created_at TIMESTAMP NOT NULL
 );
 
-CREATE TABLE checks (
+CREATE TABLE url_checks (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     url_id BIGINT REFERENCES urls(id) ON DELETE CASCADE,
     status INTEGER,
     h1 VARCHAR(255),
     title VARCHAR(255),
     description VARCHAR(255),
-    checked_at TIMESTAMP NOT NULL
+    created_at TIMESTAMP NOT NULL
 );

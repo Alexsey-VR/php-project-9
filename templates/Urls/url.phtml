@@ -59,7 +59,7 @@
 
       <div class="text-start mb-2 container" style="width: 100vw; margin-top: 4rem">
         <h1>Проверки</h1>
-        <form action="/urls/{<?= $url->getId() ?>}" method='post'>
+        <form action="/urls/<?= $url->getId() ?>/checks" method='post'>
           <input type='submit' class="btn btn-primary btn-sm" value='Запустить проверку'>
         </form>
         <table class="table table-bordered border-primary" data-test="checks">
@@ -72,7 +72,14 @@
             <td>Дата создания</td>
           </tr>
           <?php foreach ($checks as $check): ?>
-            <!-- данные проверок -->
+            <tr>
+              <td><?= $check->getId() ?></td>
+              <td><?= $check->getStatus() ?></td>
+              <td><?= $check->getH1() ?></td>
+              <td><?= $check->getTitle() ?></td>
+              <td><?= $check->getDescription() ?></td>
+              <td><?= $check->getTimestamp() ?></td>
+            </tr>
           <?php endforeach ?>
         </table>
       </div>

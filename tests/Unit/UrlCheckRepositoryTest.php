@@ -4,23 +4,23 @@ namespace Analyzer\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\{CoversClass, CoversMethod};
-use Analyzer\Check\Check as Check;
+use Analyzer\UrlCheck\UrlCheck as UrlCheck;
 use Analyzer\Url\Url as Url;
-use Analyzer\Repository\{UrlRepository, CheckRepository};
+use Analyzer\Repository\{UrlRepository, UrlCheckRepository};
 use PDO;
 use Exception;
 
 #[CoversClass(Url::class)]
-#[CoversClass(Check::class)]
+#[CoversClass(UrlCheck::class)]
 #[CoversClass(UrlRepository::class)]
-#[CoversClass(CheckRepository::class)]
-#[CoversMethod(CheckRepository::class, 'create')]
-#[CoversMethod(CheckRepository::class, 'update')]
-#[CoversMethod(CheckRepository::class, 'save')]
-#[CoversMethod(CheckRepository::class, 'find')]
-#[CoversMethod(CheckRepository::class, 'delete')]
-#[CoversMethod(CheckRepository::class, 'getEntities')]
-class CheckRepositoryTest extends TestCase
+#[CoversClass(UrlCheckRepository::class)]
+#[CoversMethod(UrlCheckRepository::class, 'create')]
+#[CoversMethod(UrlCheckRepository::class, 'update')]
+#[CoversMethod(UrlCheckRepository::class, 'save')]
+#[CoversMethod(UrlCheckRepository::class, 'find')]
+#[CoversMethod(UrlCheckRepository::class, 'delete')]
+#[CoversMethod(UrlCheckRepository::class, 'getEntities')]
+class UrlCheckRepositoryTest extends TestCase
 {
     public function setUp(): void
     {
@@ -50,10 +50,10 @@ class CheckRepositoryTest extends TestCase
             __DIR__ . "/../fixtures/urlRepositoryInit.sql"
         );
         $this->conn->query($urlSqlInit);
-        $checkSqlInit = file_get_contents(
-            __DIR__ . "/../fixtures/checkRepositoryInit.sql"
+        $urlCheckSqlInit = file_get_contents(
+            __DIR__ . "/../fixtures/urlCheckRepositoryInit.sql"
         );
-        $this->conn->query($checkSqlInit);
+        $this->conn->query($urlCheckSqlInit);
 
         $urlInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
@@ -63,29 +63,29 @@ class CheckRepositoryTest extends TestCase
         $urlRepository = new UrlRepository($this->conn);
         $urlRepository->save($url);
 
-        $checkInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/checkInfo.json"),
+        $urlCheckInfo = json_decode(
+            file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
             JSON_OBJECT_AS_ARRAY
         );
-        $checkInfo['first']['urlId'] = intval($url->getId());
-        $check = Check::fromArray($checkInfo['first']);
+        $urlCheckInfo['first']['urlId'] = intval($url->getId());
+        $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-        $checkRepository = new CheckRepository($this->conn);
-        $checkRepository->save($check);
-        $id = intval($check->getId());
-        $checkTemp = $checkRepository->find($id);
+        $urlCheckRepository = new UrlCheckRepository($this->conn);
+        $urlCheckRepository->save($urlCheck);
+        $id = intval($urlCheck->getId());
+        $urlCheckTemp = $urlCheckRepository->find($id);
 
-        $checkStopSql = file_get_contents(
-            __DIR__ . "/../fixtures/checkRepositoryStop.sql"
+        $urlCheckStopSql = file_get_contents(
+            __DIR__ . "/../fixtures/urlCheckRepositoryStop.sql"
         );
-        $this->conn->query($checkStopSql);
+        $this->conn->query($urlCheckStopSql);
         $urlStopSql = file_get_contents(
             __DIR__ . "/../fixtures/urlRepositoryStop.sql"
         );
         $this->conn->query($urlStopSql);
 
-        $this->assertTrue($checkTemp->exists());
-        $this->assertEquals($checkInfo['first']['status'], $checkTemp->getStatus());
+        $this->assertTrue($urlCheckTemp->exists());
+        $this->assertEquals($urlCheckInfo['first']['status'], $urlCheckTemp->getStatus());
     }
 
     public function testCreateException(): void
@@ -108,19 +108,19 @@ class CheckRepositoryTest extends TestCase
             ]
         );
 
-        $checkRepository = new CheckRepository($connStub);
+        $urlCheckRepository = new UrlCheckRepository($connStub);
 
-        $checkInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/checkInfo.json"),
+        $urlCheckInfo = json_decode(
+            file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
             JSON_OBJECT_AS_ARRAY
         );
-        $check = Check::fromArray($checkInfo['first']);
+        $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
         $this->expectException(
             Exception::class
         );
 
-        $checkRepository->save($check);
+        $urlCheckRepository->save($urlCheck);
     }
 
     public function testUpdate(): void
@@ -129,10 +129,10 @@ class CheckRepositoryTest extends TestCase
             __DIR__ . "/../fixtures/urlRepositoryInit.sql"
         );
         $this->conn->query($urlSqlInit);
-        $checkSqlInit = file_get_contents(
-            __DIR__ . "/../fixtures/checkRepositoryInit.sql"
+        $urlCheckSqlInit = file_get_contents(
+            __DIR__ . "/../fixtures/urlCheckRepositoryInit.sql"
         );
-        $this->conn->query($checkSqlInit);
+        $this->conn->query($urlCheckSqlInit);
 
         $urlInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
@@ -142,34 +142,34 @@ class CheckRepositoryTest extends TestCase
         $urlRepository = new UrlRepository($this->conn);
         $urlRepository->save($url);
 
-        $checkInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/checkInfo.json"),
+        $urlCheckInfo = json_decode(
+            file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
             JSON_OBJECT_AS_ARRAY
         );
-        $checkInfo['first']['url_id'] = intval($url->getId());
-        $check = Check::fromArray($checkInfo['first']);
+        $urlCheckInfo['first']['url_id'] = intval($url->getId());
+        $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-        $checkRepository = new CheckRepository($this->conn);
-        $checkRepository->save($check);
-        $id = $check->getId();
-        $checkTemp = $checkRepository->find($id);
+        $urlCheckRepository = new UrlCheckRepository($this->conn);
+        $urlCheckRepository->save($urlCheck);
+        $id = $urlCheck->getId();
+        $urlCheckTemp = $urlCheckRepository->find($id);
 
-        $checkTemp->setDescription($checkInfo['first']['description']);
-        $checkRepository->save($checkTemp);
-        $check = $checkRepository->find($id);
+        $urlCheckTemp->setDescription($urlCheckInfo['first']['description']);
+        $urlCheckRepository->save($urlCheckTemp);
+        $urlCheck = $urlCheckRepository->find($id);
 
-        $checkStopSql = file_get_contents(
-            __DIR__ . "/../fixtures/checkRepositoryStop.sql"
+        $urlCheckStopSql = file_get_contents(
+            __DIR__ . "/../fixtures/urlCheckRepositoryStop.sql"
         );
-        $this->conn->query($checkStopSql);
+        $this->conn->query($urlCheckStopSql);
         $urlStopSql = file_get_contents(
             __DIR__ . "/../fixtures/urlRepositoryStop.sql"
         );
         $this->conn->query($urlStopSql);
 
         $this->assertEquals(
-            $checkInfo['first']['description'],
-            $check->getDescription()
+            $urlCheckInfo['first']['description'],
+            $urlCheck->getDescription()
         );
     }
 
@@ -179,10 +179,10 @@ class CheckRepositoryTest extends TestCase
             __DIR__ . "/../fixtures/urlRepositoryInit.sql"
         );
         $this->conn->query($urlSqlInit);
-        $checkSqlInit = file_get_contents(
-            __DIR__ . "/../fixtures/checkRepositoryInit.sql"
+        $urlCheckSqlInit = file_get_contents(
+            __DIR__ . "/../fixtures/urlCheckRepositoryInit.sql"
         );
-        $this->conn->query($checkSqlInit);
+        $this->conn->query($urlCheckSqlInit);
 
         $urlInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
@@ -192,33 +192,33 @@ class CheckRepositoryTest extends TestCase
         $urlRepository = new UrlRepository($this->conn);
         $urlRepository->save($url);
 
-        $checkInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/checkInfo.json"),
+        $urlCheckInfo = json_decode(
+            file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
             JSON_OBJECT_AS_ARRAY
         );
-        $checkInfo['first']['url_id'] = intval($url->getId());
-        $check = Check::fromArray($checkInfo['first']);
+        $urlCheckInfo['first']['url_id'] = intval($url->getId());
+        $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-        $checkRepository = new CheckRepository($this->conn);
-        $checkRepository->save($check);
-        $id = $check->getId();
+        $urlCheckRepository = new UrlCheckRepository($this->conn);
+        $urlCheckRepository->save($urlCheck);
+        $id = $urlCheck->getId();
 
-        $checkFound = $checkRepository->find($id);
-        $this->assertInstanceOf(Check::class, $checkFound);
+        $urlCheckFound = $urlCheckRepository->find($id);
+        $this->assertInstanceOf(UrlCheck::class, $urlCheckFound);
 
-        $checkRepository->delete($id);
-        $checkDeleted = $checkRepository->find($id);
+        $urlCheckRepository->delete($id);
+        $urlCheckDeleted = $urlCheckRepository->find($id);
 
-        $checkStopSql = file_get_contents(
-            __DIR__ . "/../fixtures/checkRepositoryStop.sql"
+        $urlCheckStopSql = file_get_contents(
+            __DIR__ . "/../fixtures/urlCheckRepositoryStop.sql"
         );
-        $this->conn->query($checkStopSql);
+        $this->conn->query($urlCheckStopSql);
         $urlStopSql = file_get_contents(
             __DIR__ . "/../fixtures/urlRepositoryStop.sql"
         );
         $this->conn->query($urlStopSql);
 
-        $this->assertTrue($checkFound->exists() && is_null($checkDeleted));
+        $this->assertTrue($urlCheckFound->exists() && is_null($urlCheckDeleted));
     }
 
     public function testGetEntities(): void
@@ -227,10 +227,10 @@ class CheckRepositoryTest extends TestCase
             __DIR__ . "/../fixtures/urlRepositoryInit.sql"
         );
         $this->conn->query($urlSqlInit);
-        $checkSqlInit = file_get_contents(
-            __DIR__ . "/../fixtures/checkRepositoryInit.sql"
+        $urlCheckSqlInit = file_get_contents(
+            __DIR__ . "/../fixtures/urlCheckRepositoryInit.sql"
         );
-        $this->conn->query($checkSqlInit);
+        $this->conn->query($urlCheckSqlInit);
 
         $urlInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
@@ -240,30 +240,30 @@ class CheckRepositoryTest extends TestCase
         $urlRepository = new UrlRepository($this->conn);
         $urlRepository->save($url);
 
-        $checkInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/checkInfo.json"),
+        $urlCheckInfo = json_decode(
+            file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
             JSON_OBJECT_AS_ARRAY
         );
-        $checkInfo['first']['urlId'] = intval($url->getId());
-        $check = Check::fromArray($checkInfo['first']);
+        $urlCheckInfo['first']['urlId'] = intval($url->getId());
+        $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-        $checkRepository = new CheckRepository($this->conn);
+        $urlCheckRepository = new UrlCheckRepository($this->conn);
 
-        $checkRepository->save($check);
+        $urlCheckRepository->save($urlCheck);
 
-        $entities = $checkRepository->getEntities();
+        $entities = $urlCheckRepository->getEntities();
 
-        $checkStopSql = file_get_contents(
-            __DIR__ . "/../fixtures/checkRepositoryStop.sql"
+        $urlCheckStopSql = file_get_contents(
+            __DIR__ . "/../fixtures/urlCheckRepositoryStop.sql"
         );
-        $this->conn->query($checkStopSql);
+        $this->conn->query($urlCheckStopSql);
         $urlStopSql = file_get_contents(
             __DIR__ . "/../fixtures/urlRepositoryStop.sql"
         );
         $this->conn->query($urlStopSql);
 
         $this->assertEquals(
-            $checkInfo['first']['title'],
+            $urlCheckInfo['first']['title'],
             $entities[0]->getTitle()
         );
     }

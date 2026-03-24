@@ -16,7 +16,8 @@ use Slim\Views\PhpRenderer;
 use Slim\Flash\Messages;
 use Valitron\Validator;
 use Analyzer\Url\Url;
-use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository};
+use Analyzer\UrlCheck\UrlCheck;
+use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository, UrlCheckRepository};
 
 session_start();
 
@@ -29,7 +30,7 @@ $container->set('flash', function () {
     return new Messages();
 });
 
-$container->set('repo', function () {
+$container->set('conn', function () {
     $databaseUrl = getenv('DATABASE_URL');
     $databaseInfo = parse_url(
         htmlspecialchars(
@@ -46,11 +47,21 @@ $container->set('repo', function () {
     $conn = new \PDO($dsn);
     $conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
 
+    return $conn;
+});
+
+$container->set('urlRepo', function ($container) {
+    $conn = $container->get('conn');
     return new ValidatedUrlRepository(
         new UrlRepository($conn)
     );
 });
 
+$container->set('urlCheckRepo', function ($container) {
+    $conn = $container->get('conn');
+
+    return new UrlCheckRepository($conn);
+});
 
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
@@ -71,16 +82,16 @@ $app->get('/', function ($request, $response) {
 })->setName('mainPage');
 
 $app->post('/', function ($request, $response) use ($router) {
-    $repo = $this->get('repo');
+    $urlRepo = $this->get('urlRepo');
     $urlInfo = $request->getParsedBodyParam("url");
 
     $url = Url::fromArray($urlInfo);
-    $repo->save($url);
+    $urlRepo->save($url);
 
-    if ($repo->isValid()) {
+    if ($urlRepo->isValid()) {
         $this->get('flash')->addMessage(
             'success',
-            $repo->getMessage()
+            $urlRepo->getMessage()
         );
 
         $toUrlInfo = $router->urlFor('urlInfo', ['id' => $url->getId()]);
@@ -90,16 +101,18 @@ $app->post('/', function ($request, $response) use ($router) {
     $toMainPage = $router->urlFor('mainPage');
     $this->get('flash')->addMessage(
         'error',
-        $repo->getMessage()
+        $urlRepo->getMessage()
     );
     return $response->withRedirect($toMainPage);
 })->setName('saveUrl');
 
 $app->get('/urls', function ($request, $response) {
-    $repo = $this->get('repo');
-    $urls = $repo->getEntities();
+    $urlRepo = $this->get('urlRepo');
+    $urlCheckRepo = $this->get('urlCheckRepo');
+    $urls = $urlRepo->getEntities();
     $params = [
-        'urls' => $urls
+        'urls' => $urls,
+        'urlCheckRepo' => $urlCheckRepo
     ];
 
     return $this->get('renderer')
@@ -111,14 +124,17 @@ $app->get('/urls', function ($request, $response) {
 })->setName('urlsList');
 
 $app->get('/urls/{id}', function ($request, $response, array $args) {
-    $repo = $this->get('repo');
+    $urlRepo = $this->get('urlRepo');
+    $urlCheckRepo = $this->get('urlCheckRepo');
     $id = $args['id'];
 
-    $url = $repo->find($id);
+    $url = $urlRepo->find($id);
     $messages = $this->get('flash')->getMessages();
+    $checks = $urlCheckRepo->getEntitiesByUrlId($id);
     $params = [
         'url' => $url,
-        'messages' => $messages
+        'messages' => $messages,
+        'checks' => $checks
     ];
 
     if (!is_null($url)) {
@@ -133,9 +149,29 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
     return $response->withStatus(400);
 })->setName('urlInfo');
 
-$app->post('/urls/{id}', function ($request, $response, array $args) {
-    // ...
-    return $response->withRedirect('/');
+$app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
+    $urlRepo = $this->get('urlRepo');
+    $id = intval($args['id']);
+
+    $url = $urlRepo->find($id);
+    $urlCheckRepo = $this->get('urlCheckRepo');
+
+    $urlCheck = UrlCheck::fromUrl($url);
+    if ($urlCheck->execute()) {
+        $urlCheckRepo->save($urlCheck);
+
+        $url->setTimestamp(
+            $urlCheck->getTimestamp()
+        );
+        $urlRepo->save($url);
+
+        $this->get('flash')->addMessage('success', $urlCheck->getMessage());
+    } else {
+        $this->get('flash')->addMessage('error', $urlCheck->getMessage());
+    }
+    $toUrlInfo = $router->urlFor('urlInfo', ['id' => $url->getId()]);
+
+    return $response->withRedirect($toUrlInfo);
 });
 
 $app->run();
