@@ -13,3 +13,5 @@ CREATE TABLE url_checks (
     description VARCHAR(255),
     created_at TIMESTAMP NOT NULL
 );
+
+SET CLIENT_ENCODING TO 'UTF8';

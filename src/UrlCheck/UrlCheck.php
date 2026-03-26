@@ -5,6 +5,9 @@ namespace Analyzer\UrlCheck;
 use Analyzer\Interfaces\{UrlInterface, UrlCheckInterface};
 use Exception;
 use GuzzleHttp\Client as Client;
+use GuzzleHttp\Psr7;
+use Symfony\Component\DomCrawler\Crawler;
+use DomDocument;
 
 class UrlCheck implements UrlCheckInterface
 {
@@ -86,11 +89,28 @@ class UrlCheck implements UrlCheckInterface
 
     public function execute(): bool
     {
+        $status = 200;
+        $h1 = "";
+        $title = "";
+        $description = "";
         try {
-            $status = $this->client->request('GET')->getStatusCode();
+            $response = $this->client->request('GET');
+            $status = $response->getStatusCode();
+            $bodyContent = $response->getBody()->getContents();
+
+            $crawler = new Crawler();
+            $crawler->addHTMLContent($bodyContent, 'UTF-8');
+
+            $h1 = $crawler->filterXPath("//h1")->text();
+            $title = $crawler->filterXPath("//title")->text();
+            $description = "";
+            $content = $crawler->filterXPath('//meta[contains(@name, "description")]')->evaluate('@content');//->text();
+            if ($content instanceof Crawler) {
+                $description = $content->text();
+            }
+
             $this->message = self::SUCCESS_MESSAGE;
         } catch (Exception $e) {
-            $status = 0;
             $this->message = self::ERROR_MESSAGE;
 
             return false;
@@ -99,13 +119,13 @@ class UrlCheck implements UrlCheckInterface
         $this->setStatus($status);
 
         $this->setH1(
-            $this->normalize("...")
+            $this->normalize($h1)
         );
         $this->setTitle(
-            $this->normalize("...")
+            $this->normalize($title)
         );
         $this->setDescription(
-            $this->normalize("...")
+            $this->normalize($description)
         );
 
         return true;
@@ -189,11 +209,15 @@ class UrlCheck implements UrlCheckInterface
     public function normalize(string $info): string
     {
         $subInfo = $info;
-        if (strlen($info) > self::STORE_LEN) {
-            $subInfo = substr($info, 0, self::STORE_LEN);
+        if (mb_strlen($info) > self::STORE_LEN) {
+            $subInfo = mb_substr($info, 0, self::STORE_LEN);
             return "{$subInfo}...";
         }
-        return $subInfo;
+
+        $subInfoUTF8 = mb_convert_encoding($subInfo, 'UTF-8', 'UTF-8');
+        $cleanedSubInfo = preg_replace('/\x00-\x1F\x7F-\x9F/u', '', $subInfoUTF8);
+
+        return $cleanedSubInfo ?? "";
     }
 
     public function getMessage(): string

@@ -29,6 +29,7 @@
         "php-di/php-di": "^7.1",
         "slim/flash": "^0.4.0",
         "vlucas/valitron": "^1.4",
-        "guzzlehttp/guzzle": "^7.0"
+        "guzzlehttp/guzzle": "^7.0",
+        "symfony/dom-crawler": "^8.0"
     }
 }
