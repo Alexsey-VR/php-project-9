@@ -28,3 +28,7 @@ test:
 
 test-dev:
 	XDEBUG_MODE=coverage composer exec --verbose phpunit tests -- --coverage-html ./reports
+
+test-sonar:
+	XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover=coverage.xml tests
+
