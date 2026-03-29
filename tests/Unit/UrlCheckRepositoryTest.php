@@ -59,8 +59,9 @@ class UrlCheckRepositoryTest extends TestCase
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
             JSON_OBJECT_AS_ARRAY
         );
+        $isTest = true;
         $url = Url::fromArray($urlInfo['mail']);
-        $urlRepository = new UrlRepository($this->conn);
+        $urlRepository = new UrlRepository($this->conn, $isTest);
         $urlRepository->save($url);
 
         $urlCheckInfo = json_decode(
@@ -70,7 +71,7 @@ class UrlCheckRepositoryTest extends TestCase
         $urlCheckInfo['first']['urlId'] = intval($url->getId());
         $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-        $urlCheckRepository = new UrlCheckRepository($this->conn);
+        $urlCheckRepository = new UrlCheckRepository($this->conn, $isTest);
         $urlCheckRepository->save($urlCheck);
         $id = intval($urlCheck->getId());
         $urlCheckTemp = $urlCheckRepository->find($id);
@@ -108,7 +109,8 @@ class UrlCheckRepositoryTest extends TestCase
             ]
         );
 
-        $urlCheckRepository = new UrlCheckRepository($connStub);
+        $isTest = true;
+        $urlCheckRepository = new UrlCheckRepository($connStub, $isTest);
 
         $urlCheckInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
@@ -139,7 +141,8 @@ class UrlCheckRepositoryTest extends TestCase
             JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
-        $urlRepository = new UrlRepository($this->conn);
+        $isTest = true;
+        $urlRepository = new UrlRepository($this->conn, $isTest);
         $urlRepository->save($url);
 
         $urlCheckInfo = json_decode(
@@ -149,7 +152,7 @@ class UrlCheckRepositoryTest extends TestCase
         $urlCheckInfo['first']['url_id'] = intval($url->getId());
         $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-        $urlCheckRepository = new UrlCheckRepository($this->conn);
+        $urlCheckRepository = new UrlCheckRepository($this->conn, $isTest);
         $urlCheckRepository->save($urlCheck);
         $id = $urlCheck->getId();
         $urlCheckTemp = $urlCheckRepository->find($id);
@@ -189,7 +192,8 @@ class UrlCheckRepositoryTest extends TestCase
             JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
-        $urlRepository = new UrlRepository($this->conn);
+        $isTest = true;
+        $urlRepository = new UrlRepository($this->conn, $isTest);
         $urlRepository->save($url);
 
         $urlCheckInfo = json_decode(
@@ -199,7 +203,7 @@ class UrlCheckRepositoryTest extends TestCase
         $urlCheckInfo['first']['url_id'] = intval($url->getId());
         $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-        $urlCheckRepository = new UrlCheckRepository($this->conn);
+        $urlCheckRepository = new UrlCheckRepository($this->conn, $isTest);
         $urlCheckRepository->save($urlCheck);
         $id = $urlCheck->getId();
 
@@ -237,7 +241,8 @@ class UrlCheckRepositoryTest extends TestCase
             JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
-        $urlRepository = new UrlRepository($this->conn);
+        $isTest = true;
+        $urlRepository = new UrlRepository($this->conn, $isTest);
         $urlRepository->save($url);
 
         $urlCheckInfo = json_decode(
@@ -247,7 +252,7 @@ class UrlCheckRepositoryTest extends TestCase
         $urlCheckInfo['first']['urlId'] = intval($url->getId());
         $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-        $urlCheckRepository = new UrlCheckRepository($this->conn);
+        $urlCheckRepository = new UrlCheckRepository($this->conn, $isTest);
 
         $urlCheckRepository->save($urlCheck);
 

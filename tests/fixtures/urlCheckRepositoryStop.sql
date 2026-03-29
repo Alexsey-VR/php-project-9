@@ -1,1 +1,1 @@
-DROP TABLE url_checks;
+DROP TABLE url_checks_test;

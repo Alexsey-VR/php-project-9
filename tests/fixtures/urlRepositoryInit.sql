@@ -1,4 +1,4 @@
-CREATE TABLE urls (
+CREATE TABLE urls_test (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name VARCHAR(255) unique,
     created_at VARCHAR(50)

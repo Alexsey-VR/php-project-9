@@ -11,21 +11,28 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
 {
     private PDO $conn;
     private UrlRepositoryInterface $repo;
+    private bool $isTest;
     private string $message;
     private bool $status;
 
     private const string SUCCESS_MESSAGE = "Страница успешно добавлена";
 
-    public function __construct(UrlRepositoryInterface $repo)
+    public function __construct(UrlRepositoryInterface $repo, bool $isTest = false)
     {
         $this->conn = $repo->getConnection();
         $this->repo = $repo;
+        $this->isTest = $isTest;
         $this->message = self::SUCCESS_MESSAGE;
     }
 
     public function isUnique(UrlInterface $url): bool
     {
-        $sql = "SELECT * FROM urls WHERE name=:name";
+        if ($this->isTest) {
+            $tableName = "urls_test";
+        } else {
+            $tableName = "urls";
+        }
+        $sql = "SELECT * FROM {$tableName} WHERE name=:name";
         $stmt = $this->conn->prepare($sql);
         $name = $url->getUrl();
         $stmt->bindParam(':name', $name);

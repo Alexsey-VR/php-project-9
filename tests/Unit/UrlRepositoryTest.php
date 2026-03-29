@@ -63,8 +63,10 @@ class UrlRepositoryTest extends TestCase
         );
         $url = Url::fromArray($urlInfo['mail']);
 
+        $isTest = true;
         $urlRepository = new ValidatedUrlRepository(
-            new UrlRepository($this->conn)
+            new UrlRepository($this->conn, $isTest),
+            $isTest
         );
         $urlRepository->save($url);
         $id = $url->getId();
@@ -99,9 +101,10 @@ class UrlRepositoryTest extends TestCase
             ]
         );
 
-        $urlRepository = new UrlRepository($connStub);
+        $isTest = true;
         $urlRepository = new ValidatedUrlRepository(
-            new UrlRepository($connStub)
+            new UrlRepository($connStub, $isTest),
+            $isTest
         );
 
         $urlInfo = json_decode(
@@ -130,8 +133,10 @@ class UrlRepositoryTest extends TestCase
         );
         $url = Url::fromArray($urlInfo['mail']);
 
+        $isTest = true;
         $urlRepository = new ValidatedUrlRepository(
-            new UrlRepository($this->conn)
+            new UrlRepository($this->conn, $isTest),
+            $isTest
         );
         $urlRepository->save($url);
         $id = $url->getId();
@@ -166,8 +171,10 @@ class UrlRepositoryTest extends TestCase
         $url = Url::fromArray($urlInfo['mail']);
         $sameUrl = Url::fromArray($urlInfo['mail']);
 
+        $isTest = true;
         $urlRepository = new ValidatedUrlRepository(
-            new UrlRepository($this->conn)
+            new UrlRepository($this->conn, $isTest),
+            $isTest
         );
         $urlRepository->save($url);
         $id = $url->getId();
@@ -196,8 +203,10 @@ class UrlRepositoryTest extends TestCase
         );
         $url = Url::fromArray($urlInfo['mail']);
 
+        $isTest = true;
         $urlRepository = new ValidatedUrlRepository(
-            new UrlRepository($this->conn)
+            new UrlRepository($this->conn, $isTest),
+            $isTest
         );
         $urlRepository->save($url);
         $id = $url->getId();
@@ -227,8 +236,10 @@ class UrlRepositoryTest extends TestCase
         );
         $url = Url::fromArray($urlInfo['mail']);
 
+        $isTest = true;
         $urlRepository = new ValidatedUrlRepository(
-            new UrlRepository($this->conn)
+            new UrlRepository($this->conn, $isTest),
+            $isTest
         );
 
         $urlRepository->save($url);
