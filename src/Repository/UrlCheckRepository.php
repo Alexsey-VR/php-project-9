@@ -12,6 +12,17 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 {
     private PDO $conn;
 
+    private const string PARAM_ID = ":id";
+    private const string PARAM_URL_ID = ":url_id";
+    private const string PARAM_STATUS = ":status";
+    private const string PARAM_H1 = ":h1";
+    private const string PARAM_TITLE = ":title";
+    private const string PARAM_DESCRIPTION = ":description";
+    private const string PARAM_TIMESTAMP = ":timestamp";
+
+    private const string ERROR_MESSAGE_FOR_TIMESTAMP = "PDO error: timestamp has a wrong type";
+    private const string ERROR_MESSAGE_FOR_ID = "PDO error: can't get last insert id";
+
     public function __construct(PDO $conn)
     {
         $this->conn = $conn;
@@ -29,8 +40,16 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
     public function create(UrlCheckInterface $urlCheck): void
     {
+        $params = implode(',', [
+            self::PARAM_URL_ID,
+            self::PARAM_STATUS,
+            self::PARAM_H1,
+            self::PARAM_TITLE,
+            self::PARAM_DESCRIPTION,
+            self::PARAM_TIMESTAMP
+        ]);
         $sql = "INSERT INTO url_checks (url_id, status, h1, title, description, created_at) VALUES " .
-               "(:url_id, :status, :h1, :title, :description, :timestamp)";
+               "({$params})";
         $stmt = $this->conn->prepare($sql);
 
         $urlId = $urlCheck->getUrlId();
@@ -40,27 +59,30 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
         $description = $urlCheck->getDescription();
         $timestamp = date('Y-m-d H:i:s');
 
-        $stmt->bindParam(':url_id', $urlId);
-        $stmt->bindParam(':status', $status);
-        $stmt->bindParam(':h1', $h1);
-        $stmt->bindParam(':title', $title);
-        $stmt->bindParam(':description', $description);
-        $stmt->bindParam(':timestamp', $timestamp);
+        $stmt->bindParam(self::PARAM_URL_ID, $urlId);
+        $stmt->bindParam(self::PARAM_STATUS, $status);
+        $stmt->bindParam(self::PARAM_H1, $h1);
+        $stmt->bindParam(self::PARAM_TITLE, $title);
+        $stmt->bindParam(self::PARAM_DESCRIPTION, $description);
+        $stmt->bindParam(self::PARAM_TIMESTAMP, $timestamp);
         $stmt->execute();
 
         $id = intval($this->conn->lastInsertId());
         $urlCheck->setId(
-            $id ? $id : throw new Exception("PDO error: can't get last insert id")
+            $id ? $id : throw new Exception(self::ERROR_MESSAGE_FOR_ID)
         );
         $urlCheck->setTimestamp(
-            is_string($timestamp) ? $timestamp : throw new Exception("PDO error: timestamp has a wrong type")
+            is_string($timestamp) ? $timestamp : throw new Exception(self::ERROR_MESSAGE_FOR_TIMESTAMP)
         );
     }
 
     public function update(UrlCheckInterface $urlCheck): void
     {
-        $sql = "UPDATE url_checks SET url_id=:url_id, status=:status, h1=:h1, " .
-               "title=:title, description=:description, created_at=:timestamp WHERE id=:id";
+        $sql = "UPDATE url_checks SET url_id = " . self::PARAM_URL_ID . ", status = " . self::PARAM_STATUS .
+               ", h1 = " . self::PARAM_H1 . ", " . "title = " . self::PARAM_TITLE .
+               ", description = " . self::PARAM_DESCRIPTION .
+               ", created_at = " . self::PARAM_TIMESTAMP .
+               " WHERE id = " . self::PARAM_ID;
         $stmt = $this->conn->prepare($sql);
 
         $urlId = $urlCheck->getUrlId();
@@ -72,21 +94,21 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
         $id = $urlCheck->getId();
 
-        $stmt->bindParam(':url_id', $urlId);
-        $stmt->bindParam(':status', $status);
-        $stmt->bindParam(':h1', $h1);
-        $stmt->bindParam(':title', $title);
-        $stmt->bindParam(':description', $description);
-        $stmt->bindParam(':timestamp', $timestamp);
-        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(self::PARAM_URL_ID, $urlId);
+        $stmt->bindParam(self::PARAM_STATUS, $status);
+        $stmt->bindParam(self::PARAM_H1, $h1);
+        $stmt->bindParam(self::PARAM_TITLE, $title);
+        $stmt->bindParam(self::PARAM_DESCRIPTION, $description);
+        $stmt->bindParam(self::PARAM_TIMESTAMP, $timestamp);
+        $stmt->bindParam(self::PARAM_ID, $id);
         $stmt->execute();
     }
 
     public function find(int $id): ?UrlCheckInterface
     {
-        $sql = "SELECT * FROM url_checks WHERE id=:id";
+        $sql = "SELECT * FROM url_checks WHERE id = " . self::PARAM_ID;
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(self::PARAM_ID, $id);
         $stmt->execute();
 
         $urlCheckInfo = $stmt->fetch();
@@ -95,10 +117,10 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
             $timestamp = $urlCheckInfo['created_at'];
             $urlCheck = UrlCheck::fromArray($urlCheckInfo);
             $urlCheck->setId(
-                is_int($foundId) ? $foundId : throw new Exception("PDO error: found ID has a wrong type")
+                is_int($foundId) ? $foundId : throw new Exception(self::ERROR_MESSAGE_FOR_ID)
             );
             $urlCheck->setTimestamp(
-                is_string($timestamp) ? $timestamp : throw new Exception("PDO error: timestamp has a wrong type")
+                is_string($timestamp) ? $timestamp : throw new Exception(self::ERROR_MESSAGE_FOR_TIMESTAMP)
             );
 
             return $urlCheck;
@@ -109,9 +131,9 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
     public function delete(int $id): void
     {
-        $sql = "DELETE FROM url_checks WHERE id = :id";
+        $sql = "DELETE FROM url_checks WHERE id = " . self::PARAM_ID;
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(self::PARAM_ID, $id);
         $stmt->execute();
     }
 
@@ -132,10 +154,10 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
                 $foundId = $item['id'];
                 $timestamp = $item['created_at'];
                 $urlCheck->setId(
-                    is_int($foundId) ? $foundId : throw new Exception("PDO error: found ID has a wrong type")
+                    is_int($foundId) ? $foundId : throw new Exception(self::ERROR_MESSAGE_FOR_ID)
                 );
                 $urlCheck->setTimestamp(
-                    is_string($timestamp) ? $timestamp : throw new Exception("PDO error: timestamp has a wrong type")
+                    is_string($timestamp) ? $timestamp : throw new Exception(self::ERROR_MESSAGE_FOR_TIMESTAMP)
                 );
                 $urlChecks[] = $urlCheck;
             }
@@ -146,9 +168,9 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
     public function getEntitiesByUrlId(int $urlId): array
     {
-        $sql = "SELECT * FROM url_checks WHERE url_id = :url_id ORDER BY created_at DESC";
+        $sql = "SELECT * FROM url_checks WHERE url_id = " . self::PARAM_URL_ID . " ORDER BY created_at DESC";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':url_id', $urlId);
+        $stmt->bindParam(self::PARAM_URL_ID, $urlId);
         $stmt->execute();
 
         $items = [];
@@ -163,10 +185,10 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
                 $foundId = $item['id'];
                 $timestamp = $item['created_at'];
                 $urlCheck->setId(
-                    is_int($foundId) ? $foundId : throw new Exception("PDO error: found ID has a wrong type")
+                    is_int($foundId) ? $foundId : throw new Exception(self::ERROR_MESSAGE_FOR_ID)
                 );
                 $urlCheck->setTimestamp(
-                    is_string($timestamp) ? $timestamp : throw new Exception("PDO error: timestamp has a wrong type")
+                    is_string($timestamp) ? $timestamp : throw new Exception(self::ERROR_MESSAGE_FOR_TIMESTAMP)
                 );
                 $urlChecks[] = $urlCheck;
             }
