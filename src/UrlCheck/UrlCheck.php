@@ -215,9 +215,8 @@ class UrlCheck implements UrlCheckInterface
         }
 
         $subInfoUTF8 = mb_convert_encoding($subInfo, 'UTF-8', 'UTF-8');
-        $cleanedSubInfo = preg_replace('/\x00-\x1F\x7F-\x9F/u', '', $subInfoUTF8);
 
-        return $cleanedSubInfo ?? "";
+        return $subInfoUTF8;
     }
 
     public function getMessage(): string
