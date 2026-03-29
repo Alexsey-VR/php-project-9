@@ -11,6 +11,13 @@ class UrlRepository implements UrlRepositoryInterface
 {
     private PDO $conn;
 
+    private const string PARAM_ID = ":id";
+    private const string PARAM_NAME = ":name";
+    private const string PARAM_TIMESTAMP = ":timestamp";
+
+    private const string ERROR_MESSAGE_FOR_TIMESTAMP = "PDO error: timestamp has a wrong type";
+    private const string ERROR_MESSAGE_FOR_ID = "PDO error: can't get last insert id";
+
     public function __construct(PDO $conn)
     {
         $this->conn = $conn;
@@ -28,47 +35,53 @@ class UrlRepository implements UrlRepositoryInterface
 
     public function create(UrlInterface $url): void
     {
-        $sql = "INSERT INTO urls (name, created_at) VALUES (:name, :created_at)";
+        $params = implode(',', [
+            self::PARAM_NAME,
+            self::PARAM_TIMESTAMP
+        ]);
+        $sql = "INSERT INTO urls (name, created_at) VALUES ({$params})";
         $stmt = $this->conn->prepare($sql);
 
         $name = $url->getUrl();
         $timestamp = date('Y-m-d H:i:s');
 
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':created_at', $timestamp);
+        $stmt->bindParam(self::PARAM_NAME, $name);
+        $stmt->bindParam(self::PARAM_TIMESTAMP, $timestamp);
         $stmt->execute();
 
         $id = intval($this->conn->lastInsertId());
 
         $url->setId(
-            $id ? $id : throw new Exception("PDO error: can't get last insert id")
+            $id ? $id : throw new Exception(self::ERROR_MESSAGE_FOR_ID)
         );
         $url->setTimestamp(
-            is_string($timestamp) ? $timestamp : throw new Exception("PDO error: timestamp has a wrong type")
+            is_string($timestamp) ? $timestamp : throw new Exception(self::ERROR_MESSAGE_FOR_TIMESTAMP)
         );
     }
 
     public function update(UrlInterface $url): void
     {
-        $sql = "UPDATE urls SET name=:name, created_at=:created_at WHERE id=:id";
+        $sql = "UPDATE urls SET name = " . self::PARAM_NAME .
+               ", created_at = " . self::PARAM_TIMESTAMP .
+               " WHERE id = " . self::PARAM_ID;
         $stmt = $this->conn->prepare($sql);
 
         $name = $url->getUrl();
         $timestamp = $url->getTimestamp();
         $id = $url->getId();
 
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':created_at', $timestamp);
-        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(self::PARAM_NAME, $name);
+        $stmt->bindParam(self::PARAM_TIMESTAMP, $timestamp);
+        $stmt->bindParam(self::PARAM_ID, $id);
 
         $stmt->execute();
     }
 
     public function find(int $id): ?UrlInterface
     {
-        $sql = "SELECT * FROM urls WHERE id=:id";
+        $sql = "SELECT * FROM urls WHERE id = " . self::PARAM_ID;
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(self::PARAM_ID, $id);
         $stmt->execute();
 
         $urlInfo = $stmt->fetch();
@@ -77,10 +90,10 @@ class UrlRepository implements UrlRepositoryInterface
             $timestamp = $urlInfo['created_at'];
             $url = Url::fromArray($urlInfo);
             $url->setId(
-                is_int($foundId) ? $foundId : throw new Exception("PDO error: found ID has a wrong type")
+                is_int($foundId) ? $foundId : throw new Exception(self::ERROR_MESSAGE_FOR_ID)
             );
             $url->setTimestamp(
-                is_string($timestamp) ? $timestamp : throw new Exception("PDO error: timestamp has a wrong type")
+                is_string($timestamp) ? $timestamp : throw new Exception(self::ERROR_MESSAGE_FOR_TIMESTAMP)
             );
             return $url;
         }
@@ -90,9 +103,9 @@ class UrlRepository implements UrlRepositoryInterface
 
     public function delete(int $id): void
     {
-        $sql = "DELETE FROM urls WHERE id = :id";
+        $sql = "DELETE FROM urls WHERE id = " . self::PARAM_ID;
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(self::PARAM_ID, $id);
         $stmt->execute();
     }
 
@@ -113,10 +126,10 @@ class UrlRepository implements UrlRepositoryInterface
                 $foundId = $item['id'];
                 $timestamp = $item['created_at'];
                 $url->setId(
-                    is_int($foundId) ? $foundId : throw new Exception("PDO error: found ID has a wrong type")
+                    is_int($foundId) ? $foundId : throw new Exception(self::ERROR_MESSAGE_FOR_ID)
                 );
                 $url->setTimestamp(
-                    is_string($timestamp) ? $timestamp : throw new Exception("PDO error: timestamp has a wrong type")
+                    is_string($timestamp) ? $timestamp : throw new Exception(self::ERROR_MESSAGE_FOR_TIMESTAMP)
                 );
                 $urls[] = $url;
             }
