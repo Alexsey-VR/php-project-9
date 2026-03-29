@@ -30,6 +30,8 @@ jobs:
         run: make lint
         
       - name: Run unit tests
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: make test-sonar
 
       - name: SonarQube Scan
