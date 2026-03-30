@@ -9,6 +9,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    environment: sonar-qube-test
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,12 +30,6 @@ jobs:
 
       - name: Validate files for linter
         run: make lint
-
-      - name: Print test secret
-        shell: bash
-        env:
-          TEST_SECRET: ${{ secrets.TEST_SECRET }}
-        run: echo "$TEST_SECRET_ENV"
         
       - name: Run unit tests
         env:
