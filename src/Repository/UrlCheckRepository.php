@@ -12,7 +12,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 {
     private PDO $conn;
 
-    private bool $isTest;
+    private string $tableName;
 
     private const string PARAM_ID = ":id";
     private const string PARAM_URL_ID = ":url_id";
@@ -28,7 +28,11 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
     public function __construct(PDO $conn, bool $isTest = false)
     {
         $this->conn = $conn;
-        $this->isTest = $isTest;
+        if ($isTest) {
+            $this->tableName = "url_checks_test";
+        } else {
+            $this->tableName = "url_checks";
+        }
         date_default_timezone_set('UTC');
     }
 
@@ -51,12 +55,8 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
             self::PARAM_DESCRIPTION,
             self::PARAM_TIMESTAMP
         ]);
-        if ($this->isTest) {
-            $tableName = "url_checks_test";
-        } else {
-            $tableName = "url_checks";
-        }
-        $sql = "INSERT INTO {$tableName} (url_id, status, h1, title, description, created_at) VALUES " .
+        
+        $sql = "INSERT INTO {$this->tableName} (url_id, status, h1, title, description, created_at) VALUES " .
                "({$params})";
         $stmt = $this->conn->prepare($sql);
 
@@ -86,12 +86,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
     public function update(UrlCheckInterface $urlCheck): void
     {
-        if ($this->isTest) {
-            $tableName = "url_checks_test";
-        } else {
-            $tableName = "url_checks";
-        }
-        $sql = "UPDATE {$tableName} SET url_id = " . self::PARAM_URL_ID . ", status = " . self::PARAM_STATUS .
+        $sql = "UPDATE {$this->tableName} SET url_id = " . self::PARAM_URL_ID . ", status = " . self::PARAM_STATUS .
                ", h1 = " . self::PARAM_H1 . ", " . "title = " . self::PARAM_TITLE .
                ", description = " . self::PARAM_DESCRIPTION .
                ", created_at = " . self::PARAM_TIMESTAMP .
@@ -119,12 +114,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
     public function find(int $id): ?UrlCheckInterface
     {
-        if ($this->isTest) {
-            $tableName = "url_checks_test";
-        } else {
-            $tableName = "url_checks";
-        }
-        $sql = "SELECT * FROM {$tableName} WHERE id = " . self::PARAM_ID;
+        $sql = "SELECT * FROM {$this->tableName} WHERE id = " . self::PARAM_ID;
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(self::PARAM_ID, $id);
         $stmt->execute();
@@ -149,12 +139,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
     public function delete(int $id): void
     {
-        if ($this->isTest) {
-            $tableName = "url_checks_test";
-        } else {
-            $tableName = "url_checks";
-        }
-        $sql = "DELETE FROM {$tableName} WHERE id = " . self::PARAM_ID;
+        $sql = "DELETE FROM {$this->tableName} WHERE id = " . self::PARAM_ID;
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(self::PARAM_ID, $id);
         $stmt->execute();
@@ -162,12 +147,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
     public function getEntities(): array
     {
-        if ($this->isTest) {
-            $tableName = "url_checks_test";
-        } else {
-            $tableName = "url_checks";
-        }
-        $sql = "SELECT * FROM {$tableName} ORDER BY created_at DESC";
+        $sql = "SELECT * FROM {$this->tableName} ORDER BY created_at DESC";
         $stmt = $this->conn->query($sql);
 
         $items = [];
@@ -196,12 +176,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
     public function getEntitiesByUrlId(int $urlId): array
     {
-        if ($this->isTest) {
-            $tableName = "url_checks_test";
-        } else {
-            $tableName = "url_checks";
-        }
-        $sql = "SELECT * FROM {$tableName} WHERE url_id = " . self::PARAM_URL_ID . " ORDER BY created_at DESC";
+        $sql = "SELECT * FROM {$this->tableName} WHERE url_id = " . self::PARAM_URL_ID . " ORDER BY created_at DESC";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(self::PARAM_URL_ID, $urlId);
         $stmt->execute();
