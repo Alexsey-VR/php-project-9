@@ -55,7 +55,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
             self::PARAM_DESCRIPTION,
             self::PARAM_TIMESTAMP
         ]);
-        
+
         $sql = "INSERT INTO {$this->tableName} (url_id, status, h1, title, description, created_at) VALUES " .
                "({$params})";
         $stmt = $this->conn->prepare($sql);

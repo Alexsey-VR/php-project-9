@@ -31,7 +31,6 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
 
     public function isUnique(UrlInterface $url): bool
     {
-        
         $sql = "SELECT * FROM {$this->tableName} WHERE name=:name";
         $stmt = $this->conn->prepare($sql);
         $name = $url->getUrl();
