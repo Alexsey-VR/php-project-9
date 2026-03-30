@@ -11,7 +11,7 @@ class UrlRepository implements UrlRepositoryInterface
 {
     private PDO $conn;
 
-    private bool $isTest;
+    private string $tableName;
 
     private const string PARAM_ID = ":id";
     private const string PARAM_NAME = ":name";
@@ -23,7 +23,11 @@ class UrlRepository implements UrlRepositoryInterface
     public function __construct(PDO $conn, bool $isTest = false)
     {
         $this->conn = $conn;
-        $this->isTest = $isTest;
+        if ($isTest) {
+            $this->tableName = "urls_test";
+        } else {
+            $this->tableName = "urls";
+        }
         date_default_timezone_set('UTC');
     }
 
@@ -42,12 +46,8 @@ class UrlRepository implements UrlRepositoryInterface
             self::PARAM_NAME,
             self::PARAM_TIMESTAMP
         ]);
-        if ($this->isTest) {
-            $tableName = "urls_test";
-        } else {
-            $tableName = "urls";
-        }
-        $sql = "INSERT INTO {$tableName} (name, created_at) VALUES ({$params})";
+
+        $sql = "INSERT INTO {$this->tableName} (name, created_at) VALUES ({$params})";
         $stmt = $this->conn->prepare($sql);
 
         $name = $url->getUrl();
@@ -69,12 +69,7 @@ class UrlRepository implements UrlRepositoryInterface
 
     public function update(UrlInterface $url): void
     {
-        if ($this->isTest) {
-            $tableName = "urls_test";
-        } else {
-            $tableName = "urls";
-        }
-        $sql = "UPDATE {$tableName} SET name = " . self::PARAM_NAME .
+        $sql = "UPDATE {$this->tableName} SET name = " . self::PARAM_NAME .
                ", created_at = " . self::PARAM_TIMESTAMP .
                " WHERE id = " . self::PARAM_ID;
         $stmt = $this->conn->prepare($sql);
@@ -92,12 +87,7 @@ class UrlRepository implements UrlRepositoryInterface
 
     public function find(int $id): ?UrlInterface
     {
-        if ($this->isTest) {
-            $tableName = "urls_test";
-        } else {
-            $tableName = "urls";
-        }
-        $sql = "SELECT * FROM {$tableName} WHERE id = " . self::PARAM_ID;
+        $sql = "SELECT * FROM {$this->tableName} WHERE id = " . self::PARAM_ID;
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(self::PARAM_ID, $id);
         $stmt->execute();
@@ -121,12 +111,7 @@ class UrlRepository implements UrlRepositoryInterface
 
     public function delete(int $id): void
     {
-        if ($this->isTest) {
-            $tableName = "urls_test";
-        } else {
-            $tableName = "urls";
-        }
-        $sql = "DELETE FROM {$tableName} WHERE id = " . self::PARAM_ID;
+        $sql = "DELETE FROM {$this->tableName} WHERE id = " . self::PARAM_ID;
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(self::PARAM_ID, $id);
         $stmt->execute();
@@ -134,12 +119,7 @@ class UrlRepository implements UrlRepositoryInterface
 
     public function getEntities(): array
     {
-        if ($this->isTest) {
-            $tableName = "urls_test";
-        } else {
-            $tableName = "urls";
-        }
-        $sql = "SELECT * FROM {$tableName} ORDER BY created_at DESC";
+        $sql = "SELECT * FROM {$this->tableName} ORDER BY created_at DESC";
         $stmt = $this->conn->query($sql);
 
         $items = [];
