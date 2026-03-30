@@ -28,17 +28,17 @@ jobs:
 
       - name: Validate files for linter
         run: make lint
-        
-      - name: Run unit tests
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: make test-sonar
 
       - name: Print test secret
         shell: bash
         env:
           TEST_SECRET: ${{ secrets.TEST_SECRET }}
         run: echo $TEST_SECRET
+        
+      - name: Run unit tests
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: make test-sonar
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9
