@@ -33,7 +33,7 @@ jobs:
         shell: bash
         env:
           TEST_SECRET: ${{ secrets.TEST_SECRET }}
-        run: echo $TEST_SECRET
+        run: echo "$TEST_SECRET_ENV"
         
       - name: Run unit tests
         env:
