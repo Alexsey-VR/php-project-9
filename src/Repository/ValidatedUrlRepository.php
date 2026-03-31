@@ -30,6 +30,17 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         $this->message = self::SUCCESS_MESSAGE;
     }
 
+    private function normalize(string $urlName): string
+    {
+        $urlNameUTF8 = mb_convert_encoding($urlName, 'UTF-8', 'UTF-8');
+        $trimmedUrlName = mb_ltrim($urlNameUTF8);
+        $lowercaseUrlName = mb_strtolower($trimmedUrlName);
+        $urlShortName = mb_ereg_replace("(?<=://)www\.", '', $lowercaseUrlName);
+
+        return is_string($urlShortName) ?
+            $urlShortName : throw new Exception("Internal error: can't get a short URL name");
+    }
+
     public function isUnique(UrlInterface $url): bool
     {
         $param = self::PARAM_URL_NAME;
@@ -58,7 +69,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         $this->status = true;
 
         if (!$this->isUnique($url)) {
-            $this->message = 'Такой адрес уже существует';
+            $this->message = 'Страница уже существует';
             $this->status = false;
         }
 
@@ -102,6 +113,10 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
     public function create(UrlInterface $url): void
     {
         if ($this->validate($url)) {
+            $normalizedUrlName = $this->normalize(
+                $url->getUrl() ?? ''
+            );
+            $url->setUrl($normalizedUrlName);
             $this->repo->create($url);
         }
     }

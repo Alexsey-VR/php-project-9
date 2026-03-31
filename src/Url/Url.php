@@ -17,13 +17,6 @@ class Url implements UrlInterface
         $this->timestamp = null;
     }
 
-    private function normalize(string $urlName): string
-    {
-        $trimmedUrlName = mb_ltrim($urlName);
-
-        return mb_strtolower($trimmedUrlName);
-    }
-
     public static function fromArray(array $urlInfo): UrlInterface
     {
         ['name' => $urlData] = $urlInfo;
@@ -48,7 +41,7 @@ class Url implements UrlInterface
 
     public function setUrl(string $url): void
     {
-        $this->url = $this->normalize($url);
+        $this->url = $url;
     }
 
     public function getUrl(): ?string
