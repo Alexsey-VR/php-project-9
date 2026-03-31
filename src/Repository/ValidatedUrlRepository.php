@@ -36,7 +36,11 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         $trimmedUrlName = mb_ltrim($urlNameUTF8);
         $lowercaseUrlName = mb_strtolower($trimmedUrlName);
         $urlShortName = mb_ereg_replace("(?<=://)www\.", '', $lowercaseUrlName);
-        $urlSecureName = mb_ereg_replace("\Ahttp:", "https:", $urlShortName);
+        $urlSecureName = mb_ereg_replace(
+            "\Ahttp:",
+            "https:",
+            is_string($urlShortName) ? $urlShortName : ''
+        );
 
         return is_string($urlSecureName) ?
             $urlSecureName : throw new Exception("Internal error: can't get a short URL name");
@@ -48,7 +52,9 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         $sql = "SELECT * FROM {$this->tableName} WHERE name={$param}";
         $stmt = $this->conn->prepare($sql);
         $name = $url->getUrl();
-        $normalizedName = $this->normalize($name);
+        $normalizedName = $this->normalize(
+            is_string($name) ? $name : ''
+        );
         $stmt->bindParam($param, $normalizedName);
         $stmt->execute();
         $row = $stmt->fetch();
