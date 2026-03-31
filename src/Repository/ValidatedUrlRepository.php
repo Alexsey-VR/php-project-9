@@ -16,6 +16,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
     private bool $status;
 
     private const string SUCCESS_MESSAGE = "Страница успешно добавлена";
+    private const string PARAM_URL_NAME = ":name";
 
     public function __construct(UrlRepositoryInterface $repo, bool $isTest = false)
     {
@@ -31,10 +32,11 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
 
     public function isUnique(UrlInterface $url): bool
     {
-        $sql = "SELECT * FROM {$this->tableName} WHERE name=:name";
+        $param = self::PARAM_URL_NAME;
+        $sql = "SELECT * FROM {$this->tableName} WHERE name={$param}";
         $stmt = $this->conn->prepare($sql);
         $name = $url->getUrl();
-        $stmt->bindParam(':name', $name);
+        $stmt->bindParam($param, $name);
         $stmt->execute();
         $row = $stmt->fetch();
 
@@ -53,7 +55,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
     public function validate(UrlInterface $url): bool
     {
         $validator = new Validator(['url' => $url->getUrl()]);
-         $this->status = true;
+        $this->status = true;
 
         if (!$this->isUnique($url)) {
             $this->message = 'Такой адрес уже существует';
