@@ -83,7 +83,7 @@ $app->get('/', function ($request, $response) {
 
 $app->post('/', function ($request, $response) use ($router) {
     $urlRepo = $this->get('urlRepo');
-    $urlInfo = $request->getParsedBodyParam("url");
+    $urlInfo = htmlspecialchars($request->getParsedBodyParam("url"));
 
     $url = Url::fromArray($urlInfo);
     $urlRepo->save($url);
