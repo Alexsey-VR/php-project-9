@@ -48,7 +48,8 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         $sql = "SELECT * FROM {$this->tableName} WHERE name={$param}";
         $stmt = $this->conn->prepare($sql);
         $name = $url->getUrl();
-        $stmt->bindParam($param, $name);
+        $normalizedName = $this->normalize($name);
+        $stmt->bindParam($param, $normalizedName);
         $stmt->execute();
         $row = $stmt->fetch();
 
