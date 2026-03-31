@@ -35,15 +35,15 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         $urlNameUTF8 = mb_convert_encoding($urlName, 'UTF-8', 'UTF-8');
         $trimmedUrlName = mb_ltrim($urlNameUTF8);
         $lowercaseUrlName = mb_strtolower($trimmedUrlName);
-        $urlShortName = mb_ereg_replace("(?<=://)www\.", '', $lowercaseUrlName);
         $urlSecureName = mb_ereg_replace(
             "\Ahttp:",
             "https:",
-            is_string($urlShortName) ? $urlShortName : ''
+            is_string($lowercaseUrlName) ? $lowercaseUrlName : ''
         );
+        $urlShortName = mb_ereg_replace("(?<=://)www\.", '', $urlSecureName);
 
-        return is_string($urlSecureName) ?
-            $urlSecureName : throw new Exception("Internal error: can't get a short URL name");
+        return is_string($urlShortName) ?
+            $urlShortName : throw new Exception("Internal error: can't get a short URL name");
     }
 
     public function isUnique(UrlInterface $url): bool
