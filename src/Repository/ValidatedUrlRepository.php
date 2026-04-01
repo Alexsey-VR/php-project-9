@@ -35,7 +35,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         $urlNameUTF8 = mb_convert_encoding($urlName, 'UTF-8');
         $trimmedUrlName = mb_ltrim($urlNameUTF8);
         $lowercaseUrlName = mb_strtolower($trimmedUrlName);
-        $urlSecureName = mb_ereg_replace("\Ahttp:", "https:", $lowercaseUrlName);
+        $urlSecureName = mb_ereg_replace(".+://", "https://", $lowercaseUrlName);
         $urlShortName = mb_ereg_replace(
             "(?<=://)www\.",
             '',
@@ -96,6 +96,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
                 ]
             ]
         );
+
         $result = $validator->validate();
         if (!$result) {
             $this->setMessage("URL превышает 255 символов");
@@ -112,7 +113,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
             return $this->status;
         }
 
-        return $this->status;
+        return true;//$this->status;
     }
 
     public function save(UrlInterface $url): void
@@ -142,7 +143,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         }
 
         if (!$this->status) {
-            $this->message = mb_strpos($this->getMessage(), 'Unique violation') ?
+            $this->message = !!mb_strpos($this->getMessage(), 'Unique violation') ?
                 "Страница уже существует" : $this->getMessage();
         }
     }
