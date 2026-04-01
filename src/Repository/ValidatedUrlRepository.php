@@ -16,6 +16,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
     private bool $status;
 
     private const string SUCCESS_MESSAGE = "Страница успешно добавлена";
+    private const string ERROR_MESSAGE_FOR_UNIQUE = "Страница уже существует";
     private const string PARAM_URL_NAME = ":name";
 
     public function __construct(UrlRepositoryInterface $repo, bool $isTest = false)
@@ -41,23 +42,27 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
             '',
             is_string($urlSecureName) ? $urlSecureName : ''
         );
-        $url = parse_url($urlShortName);
-        $urlAddress = "{$url['scheme']}://{$url['host']}";
 
-        return is_string($urlAddress) ?
-            $urlAddress : throw new Exception("Internal error: can't get a short URL name");
+        return is_string($urlShortName) ?
+            $urlShortName : throw new Exception("Internal error: can't get a short URL name");
     }
 
     public function isUnique(UrlInterface $url): bool
     {
         $param = self::PARAM_URL_NAME;
-        $sql = "SELECT * FROM {$this->tableName} WHERE name={$param}";
+        $sql = "SELECT * FROM {$this->tableName} WHERE name SIMILAR TO {$param}";
         $stmt = $this->conn->prepare($sql);
         $name = $url->getUrl();
         $normalizedName = $this->normalize(
             is_string($name) ? $name : ''
         );
-        $stmt->bindParam($param, $normalizedName);
+        $parsedUrl = parse_url($normalizedName);
+        if (is_array($parsedUrl)) {
+            $hostOnlyPattern = array_key_exists('host', $parsedUrl) ? "%{$parsedUrl['host']}%" : "";
+        } else {
+            $hostOnlyPattern = "";
+        }
+        $stmt->bindParam($param, $hostOnlyPattern);
         $stmt->execute();
         $row = $stmt->fetch();
 
@@ -69,6 +74,9 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         $url->setId(
             is_int($id) ? $id : throw new Exception("PDO error: found ID has wrond type")
         );
+
+        $this->status = false;
+        $this->setMessage(self::ERROR_MESSAGE_FOR_UNIQUE);
 
         return false;
     }
@@ -115,7 +123,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
             return $this->status;
         }
 
-        return true;//$this->status;
+        return $this->status;
     }
 
     public function save(UrlInterface $url): void
@@ -129,7 +137,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
 
     public function create(UrlInterface $url): void
     {
-        if ($this->validate($url)) {
+        if ($this->validate($url) && $this->isUnique($url)) {
             $normalizedUrlName = $this->normalize(
                 $url->getUrl() ?? ''
             );
@@ -146,7 +154,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
 
         if (!$this->status) {
             $this->message = !!mb_strpos($this->getMessage(), 'Unique violation') ?
-                "Страница уже существует" : $this->getMessage();
+                self::ERROR_MESSAGE_FOR_UNIQUE : $this->getMessage();
         }
     }
 
