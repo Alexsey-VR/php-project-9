@@ -113,11 +113,9 @@ class UrlRepositoryTest extends TestCase
         );
         $url = Url::fromArray($urlInfo['mail']);
 
-        $this->expectException(
-            Exception::class
-        );
-
         $urlRepository->save($url);
+
+        $this->assertEquals($urlRepository->getMessage(), "PDO error: can't get last insert id");
     }
 
     public function testUpdate(): void
@@ -188,6 +186,11 @@ class UrlRepositoryTest extends TestCase
         $this->conn->query($sqlStop);
 
         $this->assertEquals($id, $sameId);
+
+        $this->assertEquals(
+            $urlRepository->getMessage(),
+            "Страница уже существует"
+        );
     }
 
     public function testDelete(): void

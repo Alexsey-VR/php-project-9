@@ -32,15 +32,15 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
 
     private function normalize(string $urlName): string
     {
-        $urlNameUTF8 = mb_convert_encoding($urlName, 'UTF-8', 'UTF-8');
+        $urlNameUTF8 = mb_convert_encoding($urlName, 'UTF-8');
         $trimmedUrlName = mb_ltrim($urlNameUTF8);
         $lowercaseUrlName = mb_strtolower($trimmedUrlName);
-        $urlSecureName = mb_ereg_replace(
-            "\Ahttp:",
-            "https:",
-            is_string($lowercaseUrlName) ? $lowercaseUrlName : ''
+        $urlSecureName = mb_ereg_replace("\Ahttp:", "https:", $lowercaseUrlName);
+        $urlShortName = mb_ereg_replace(
+            "(?<=://)www\.",
+            '',
+            is_string($urlSecureName) ? $urlSecureName : ''
         );
-        $urlShortName = mb_ereg_replace("(?<=://)www\.", '', $urlSecureName);
 
         return is_string($urlShortName) ?
             $urlShortName : throw new Exception("Internal error: can't get a short URL name");
@@ -76,15 +76,16 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         $validator = new Validator(['url' => $url->getUrl()]);
         $this->status = true;
 
-        if (!$this->isUnique($url)) {
-            $this->message = 'Страница уже существует';
-            $this->status = false;
-        }
-
         $validator->rules(['required' => ['url']]);
-        if ($this->status && !$validator->validate()) {
-            $this->message = "URL не должен быть пустым";
+
+        /**
+         * @return bool
+         */
+        $result = $validator->validate();
+        if (!$result) {
+            $this->setMessage("URL не должен быть пустым");
             $this->status = false;
+            return $this->status;
         }
 
         $validator->rules(
@@ -95,15 +96,20 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
                 ]
             ]
         );
-        if ($this->status && !$validator->validate()) {
-            $this->message = "URL превышает 255 символов";
+        $result = $validator->validate();
+        if (!$result) {
+            $this->setMessage("URL превышает 255 символов");
             $this->status = false;
+            return $this->status;
         }
 
         $validator->rules(['url' => ['url']]);
-        if ($this->status && !$validator->validate()) {
-            $this->message = "Некорректный URL";
+        $result = $validator->validate();
+        if (!$result) {
+            $this->setMessage("Некорректный URL");
             $this->status = false;
+
+            return $this->status;
         }
 
         return $this->status;
@@ -125,7 +131,19 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
                 $url->getUrl() ?? ''
             );
             $url->setUrl($normalizedUrlName);
-            $this->repo->create($url);
+            try {
+                $this->repo->create($url);
+            } catch (Exception $e) {
+                $this->status = false;
+                $this->setMessage(
+                    $e->getMessage()
+                );
+            }
+        }
+
+        if (!$this->status) {
+            $this->message = mb_strpos($this->getMessage(), 'Unique violation') ?
+                "Страница уже существует" : $this->getMessage();
         }
     }
 
@@ -147,6 +165,11 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
     public function getEntities(): array
     {
         return $this->repo->getEntities();
+    }
+
+    private function setMessage(string $message): void
+    {
+        $this->message = $message;
     }
 
     public function getMessage(): string

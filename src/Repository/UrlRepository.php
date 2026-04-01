@@ -47,15 +47,26 @@ class UrlRepository implements UrlRepositoryInterface
             self::PARAM_TIMESTAMP
         ]);
 
-        $sql = "INSERT INTO {$this->tableName} (name, created_at) VALUES ({$params})";
-        $stmt = $this->conn->prepare($sql);
+        try {
+            $this->conn->beginTransaction();
 
-        $name = $url->getUrl();
-        $timestamp = date('Y-m-d H:i:s');
+            $sql = "INSERT INTO {$this->tableName} (name, created_at) VALUES ({$params})";
+            $stmt = $this->conn->prepare($sql);
 
-        $stmt->bindParam(self::PARAM_NAME, $name);
-        $stmt->bindParam(self::PARAM_TIMESTAMP, $timestamp);
-        $stmt->execute();
+            $name = $url->getUrl();
+            $timestamp = date('Y-m-d H:i:s');
+
+            $stmt->bindParam(self::PARAM_NAME, $name);
+            $stmt->bindParam(self::PARAM_TIMESTAMP, $timestamp);
+            $stmt->execute();
+
+            $this->conn->commit();
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            throw new Exception(
+                $e->getMessage()
+            );
+        }
 
         $id = intval($this->conn->lastInsertId());
 
