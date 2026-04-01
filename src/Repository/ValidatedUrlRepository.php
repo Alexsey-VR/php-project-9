@@ -58,13 +58,8 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         $normalizedName = $this->normalize(
             is_string($name) ? $name : ''
         );
-        $parsedUrl = parse_url($normalizedName);
-        if (is_array($parsedUrl)) {
-            $hostOnlyPattern = array_key_exists('host', $parsedUrl) ? "%{$parsedUrl['host']}%" : "";
-        } else {
-            $hostOnlyPattern = "";
-        }
-        $stmt->bindParam($param, $hostOnlyPattern);
+
+        $stmt->bindParam($param, $normalizedName);
         $stmt->execute();
         $row = $stmt->fetch();
 
