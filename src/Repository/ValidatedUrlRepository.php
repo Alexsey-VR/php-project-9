@@ -41,9 +41,11 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
             '',
             is_string($urlSecureName) ? $urlSecureName : ''
         );
+        $url = parse_url($urlShortName);
+        $urlAddress = "{$url['scheme']}://{$url['host']}";
 
-        return is_string($urlShortName) ?
-            $urlShortName : throw new Exception("Internal error: can't get a short URL name");
+        return is_string($urlAddress) ?
+            $urlAddress : throw new Exception("Internal error: can't get a short URL name");
     }
 
     public function isUnique(UrlInterface $url): bool

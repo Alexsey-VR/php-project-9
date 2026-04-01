@@ -23,19 +23,19 @@
     </nav>
 
     <?php if (is_array($messages)): ?>
-      <?php //foreach($messages as $key => $message): ?>
-        <?php //foreach($message as $item): ?>
-          <?php if (array_key_exists('error', $messages)): //($key === 'error'): ?>
+      <?php foreach($messages as $key => $message): ?>
+        <?php foreach($message as $item): ?>
+          <?php if ($key === 'error'): ?>
             <div class="alert alert-danger" role="alert">
-              <?= array_last($messages['error'])//$item ?>
+              <?= $item ?>
             </div>
-          <?php elseif (array_key_exists('success', $messages))://($key === 'success'): ?>
+          <?php elseif ($key === 'success'): ?>
             <div class="alert alert-success" role="alert">
-              <?= array_last($messages['success'])//$item ?>
+              <?= $item ?>
             </div>
           <?php endif ?>
-        <?php //endforeach ?>
-      <?php //endforeach ?>
+        <?php endforeach ?>
+      <?php endforeach ?>
     <?php endif ?>
 
     <div class="card-body sticky-xl-top">
