@@ -71,8 +71,10 @@
             <td>Description</td>
             <td>Дата создания</td>
           </tr>
+        </table>
+        <table class="table table-bordered border-primary" data-test="checks">
           <?php foreach ($checks as $check): ?>
-            <tr data-test="checks">
+            <tr>
               <td><?= $check->getId() ?></td>
               <td><?= $check->getStatus() ?></td>
               <td><?= $check->getH1() ?></td>
