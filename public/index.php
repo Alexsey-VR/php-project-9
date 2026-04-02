@@ -80,6 +80,7 @@ $app->get('/', function ($request, $response) {
 
 $app->post('/', function ($request, $response) use ($router) {
     $urlRepo = $this->get('urlRepo');
+
     ['name' => $urlName] = $request->getParsedBodyParam("url");
     $urlInfo = ['name' => htmlspecialchars($urlName)];
 
@@ -106,15 +107,23 @@ $app->post('/', function ($request, $response) use ($router) {
         $toUrlInfo = $router->urlFor('urlInfo', ['id' => $url->getId()]);
         return $response->withRedirect($toUrlInfo);
     }
-/*
-    $this->get('flash')->addMessage(
-        'error',
-        $urlRepo->getMessage()
-    );
-*/
+
+    $urls = $urlRepo->getEntities();
+    $urlCheckRepo = $this->get('urlCheckRepo');
+    $messages = ['error' => [$urlRepo->getMessage()]];
+    $params = [
+        'urls' => $urls,
+        'urlCheckRepo' => $urlCheckRepo,
+        'messages' => $messages
+    ];
+
     $toUrlsList = $router->urlFor('urlsList');
-    $response = $response->withStatus(422);
-    return $response->withRedirect($toUrlsList);
+    return $this->get('renderer')
+                ->render(
+                    $response->withRedirect($toUrlsList)->withStatus(422),
+                    'Urls/urls.phtml',
+                    $params
+                );
 })->setName('saveUrl');
 
 $app->get('/urls', function ($request, $response) {
