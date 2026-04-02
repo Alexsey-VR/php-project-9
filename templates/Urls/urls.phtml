@@ -25,13 +25,15 @@
     <div class="card-body sticky-xl-top">
       <div class="text-start mb-2 container" style="width: 100vw">
         <h1>Сайты</h1>
-        <table class="table table-bordered border-primary" data-test="urls">
+        <table class="table table-bordered border-primary">
           <tr>
             <td>ID</td>
             <td>Имя</td>
             <td>Последняя проверка</td>
             <td>Код ответа</td>
           </tr>
+          </table>
+          <table class="table table-bordered border-primary" data-test="urls">
           <?php foreach ($urls as $url): ?>
             <tr>
               <?php $id =  $url->getId() ?>

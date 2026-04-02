@@ -62,7 +62,7 @@
         <form action="/urls/<?= $url->getId() ?>/checks" method='post'>
           <input type='submit' class="btn btn-primary btn-sm" value='Запустить проверку'>
         </form>
-        <table class="table table-bordered border-primary">
+        <table class="table table-bordered border-primary" data-test="checks">
           <tr>
             <td>ID</td>
             <td>Код ответа</td>
@@ -71,8 +71,6 @@
             <td>Description</td>
             <td>Дата создания</td>
           </tr>
-        </table>
-        <table class="table table-bordered border-primary" data-test="checks">
           <?php foreach ($checks as $check): ?>
             <tr>
               <td><?= $check->getId() ?></td>
