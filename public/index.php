@@ -88,7 +88,7 @@ $app->get('/', function ($request, $response) {
     return $this->get('renderer')->render($response, 'index.phtml', $params);
 })->setName('mainPage');
 
-$app->post('/', function ($request, $response) use ($router) {
+$app->post('/urls', function ($request, $response) use ($router) {
     $urlRepo = $this->get('urlRepo');
 
     ['name' => $urlName] = $request->getParsedBodyParam("url");
@@ -115,6 +115,7 @@ $app->post('/', function ($request, $response) use ($router) {
     $toMainPage = $router->urlFor('mainPage');
     if ($url->exists()) {
         $toUrlInfo = $router->urlFor('urlInfo', ['id' => $url->getId()]);
+        $response = $response->withStatus(422);
 
         return $response->withRedirect($toUrlInfo);
     }
