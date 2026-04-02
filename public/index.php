@@ -74,11 +74,11 @@ $app->get('/', function ($request, $response) {
     $jsonErrors = $request->getCookieParam('errors', json_encode([]));
     $errors = json_decode($jsonErrors, JSON_OBJECT_AS_ARRAY);
 
-    $param = [
+    $params = [
         'messages' => $messages,
         'errors' => $errors
     ];
-    return $this->get('renderer')->render($response, 'index.phtml', $param);
+    return $this->get('renderer')->render($response, 'index.phtml', $params);
 })->setName('mainPage');
 
 $app->post('/', function ($request, $response) use ($router) {
@@ -109,6 +109,9 @@ $app->post('/', function ($request, $response) use ($router) {
         $toUrlInfo = $router->urlFor('urlInfo', ['id' => $url->getId()]);
         return $response->withRedirect($toUrlInfo);
     }
+
+    $toMainPage = $router->urlFor('mainPage');
+    $response = $response->withStatus(422);
     return $response->withRedirect($toMainPage);
 })->setName('saveUrl');
 
