@@ -25,32 +25,34 @@
     <div class="card-body sticky-xl-top">
       <div class="text-start mb-2 container" style="width: 100vw">
         <h1>Сайты</h1>
-        <table class="table table-bordered border-primary">
-          <tr>
-            <td>ID</td>
-            <td>Имя</td>
-            <td>Последняя проверка</td>
-            <td>Код ответа</td>
-          </tr>
-          </table>
-          <table class="table table-bordered border-primary" data-test="urls">
-          <?php foreach ($urls as $url): ?>
+        <table class="table table-bordered border-primary" data-test="urls">
+          <thead>
             <tr>
-              <?php $id =  $url->getId() ?>
-              <td><?= $id ?></td>
-              <td><a href="/urls/<?= $id ?>"><?= $url->getUrl() ?></a></td>
-              <td>
-                <?php if (count($urlChecks = $urlCheckRepo->getEntitiesByUrlId($id)) > 0): ?>
-                  <?= $urlChecks[0]->getTimestamp() ?>
-                <?php endif ?>
-              </td>
-              <td>
-                <?php if (count($urlChecks) > 0): ?>
-                  <?= $urlChecks[0]->getStatus() ?>
-                <?php endif ?>
-              </td>
+              <th>ID</th>
+              <th>Имя</th>
+              <th>Последняя проверка</th>
+              <th>Код ответа</th>
             </tr>
-          <?php endforeach ?>
+          </thead>
+          <tbody>
+            <?php foreach ($urls as $url): ?>
+              <tr>
+                <?php $id =  $url->getId() ?>
+                <td><?= $id ?></td>
+                <td><a href="/urls/<?= $id ?>"><?= $url->getUrl() ?></a></td>
+                <td>
+                  <?php if (count($urlChecks = $urlCheckRepo->getEntitiesByUrlId($id)) > 0): ?>
+                    <?= $urlChecks[0]->getTimestamp() ?>
+                  <?php endif ?>
+                </td>
+                <td>
+                  <?php if (count($urlChecks) > 0): ?>
+                    <?= $urlChecks[0]->getStatus() ?>
+                  <?php endif ?>
+                </td>
+              </tr>
+            <?php endforeach ?>
+          </tbody>
         </table>
       </div>
     </div>

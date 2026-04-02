@@ -43,15 +43,15 @@
         <h1>Сайт: <?= $url->getUrl() ?></h1>
         <table class="table table-bordered border-primary" data-test="url">
           <tr>
-            <td>ID</td>
+            <th>ID</th>
             <td><?= $url->getId() ?></td>
           </tr>
           <tr>
-            <td>Имя</td>
+            <th>Имя</th>
             <td><?= $url->getUrl() ?></td>
           </tr>
           <tr>
-            <td>Дата создания</td>
+            <th>Дата создания</th>
             <td><?= $url->getTimestamp() ?></td>
           </tr>
         </table>
@@ -62,27 +62,29 @@
         <form action="/urls/<?= $url->getId() ?>/checks" method='post'>
           <input type='submit' class="btn btn-primary btn-sm" value='Запустить проверку'>
         </form>
-        <table class="table table-bordered border-primary">
-          <tr>
-            <td>ID</td>
-            <td>Код ответа</td>
-            <td>h1</td>
-            <td>title</td>
-            <td>Description</td>
-            <td>Дата создания</td>
-          </tr>
-        </table>
         <table class="table table-bordered border-primary" data-test="checks">
-          <?php foreach ($checks as $check): ?>
+          <thead>
             <tr>
-              <td><?= $check->getId() ?></td>
-              <td><?= $check->getStatus() ?></td>
-              <td><?= $check->getH1() ?></td>
-              <td><?= $check->getTitle() ?></td>
-              <td><?= $check->getDescription() ?></td>
-              <td><?= $check->getTimestamp() ?></td>
+              <th>ID</th>
+              <th>Код ответа</th>
+              <th>h1</th>
+              <th>title</th>
+              <th>Description</th>
+              <th>Дата создания</th>
             </tr>
-          <?php endforeach ?>
+          </head>
+          <tbody>
+            <?php foreach ($checks as $check): ?>
+              <tr>
+                <td><?= $check->getId() ?></td>
+                <td><?= $check->getStatus() ?></td>
+                <td><?= $check->getH1() ?></td>
+                <td><?= $check->getTitle() ?></td>
+                <td><?= $check->getDescription() ?></td>
+                <td><?= $check->getTimestamp() ?></td>
+              </tr>
+            <?php endforeach ?>
+          </tbody>
         </table>
       </div>
     </div>

@@ -110,9 +110,9 @@ $app->post('/', function ($request, $response) use ($router) {
         return $response->withRedirect($toUrlInfo);
     }
 
-    $toMainPage = $router->urlFor('mainPage');
+    $toUrlsList = $router->urlFor('urlsList');
     $response = $response->withStatus(422);
-    return $response->withRedirect($toMainPage);
+    return $response->withRedirect($toUrlsList);
 })->setName('saveUrl');
 
 $app->get('/urls', function ($request, $response) {
