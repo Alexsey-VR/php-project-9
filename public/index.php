@@ -71,12 +71,9 @@ $router = $app->getRouteCollector()->getRouteParser();
 $app->get('/', function ($request, $response) {
     $messages = $this->get('flash')->getMessages();
 
-    $jsonErrors = $request->getCookieParam('errors', json_encode([]));
-    $errors = json_decode($jsonErrors, JSON_OBJECT_AS_ARRAY);
-
     $params = [
         'messages' => $messages,
-        'errors' => $errors
+        'errors' => []
     ];
     return $this->get('renderer')->render($response, 'index.phtml', $params);
 })->setName('mainPage');
@@ -109,7 +106,12 @@ $app->post('/', function ($request, $response) use ($router) {
         $toUrlInfo = $router->urlFor('urlInfo', ['id' => $url->getId()]);
         return $response->withRedirect($toUrlInfo);
     }
-
+/*
+    $this->get('flash')->addMessage(
+        'error',
+        $urlRepo->getMessage()
+    );
+*/
     $toUrlsList = $router->urlFor('urlsList');
     $response = $response->withStatus(422);
     return $response->withRedirect($toUrlsList);
@@ -119,9 +121,11 @@ $app->get('/urls', function ($request, $response) {
     $urlRepo = $this->get('urlRepo');
     $urlCheckRepo = $this->get('urlCheckRepo');
     $urls = $urlRepo->getEntities();
+    $messages = $this->get('flash')->getMessages();
     $params = [
         'urls' => $urls,
-        'urlCheckRepo' => $urlCheckRepo
+        'urlCheckRepo' => $urlCheckRepo,
+        'messages' => $messages
     ];
 
     return $this->get('renderer')

@@ -22,6 +22,22 @@
       </div>
     </nav>
 
+    <?php if (is_array($messages)): ?>
+      <?php foreach($messages as $key => $message): ?>
+        <?php foreach($message as $item): ?>
+          <?php if ($key === 'error'): ?>
+            <div class="alert alert-danger" role="alert">
+              <?= $item ?>
+            </div>
+          <?php elseif ($key === 'success'): ?>
+            <div class="alert alert-success" role="alert">
+              <?= $item ?>
+            </div>
+          <?php endif ?>
+        <?php endforeach ?>
+      <?php endforeach ?>
+    <?php endif ?>
+
     <div class="card-body sticky-xl-top">
       <div class="text-start mb-2 container" style="width: 100vw">
         <h1>Сайты</h1>
