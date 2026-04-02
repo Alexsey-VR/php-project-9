@@ -104,6 +104,11 @@ $app->post('/', function ($request, $response) use ($router) {
         'error',
         $urlRepo->getMessage()
     );
+
+    if ($url->exists()) {
+        $toUrlInfo = $router->urlFor('urlInfo', ['id' => $url->getId()]);
+        return $response->withRedirect($toUrlInfo);
+    }
     return $response->withRedirect($toMainPage);
 })->setName('saveUrl');
 
