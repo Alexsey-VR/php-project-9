@@ -59,7 +59,14 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
             is_string($name) ? $name : ''
         );
 
-        $stmt->bindParam($param, $normalizedName);
+        $parsedUrl = parse_url($normalizedName);
+        $onlyDomain = '';
+        if (is_array($parsedUrl)) {
+            $onlyDomain = array_key_exists('host', $parsedUrl) ? "%{$parsedUrl['host']}%" : '';
+        }
+
+        //$stmt->bindParam($param, $normalizedName);
+        $stmt->bindParam($param, $onlyDomain);
         $stmt->execute();
         $row = $stmt->fetch();
 
