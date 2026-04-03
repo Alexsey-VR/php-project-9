@@ -98,19 +98,6 @@ $app->post('/urls', function ($request, $response) use ($router) {
         return $response->withRedirect($toUrlInfo);
     }
 
-    $toMainPage = $router->urlFor('mainPage');
-    if ($url->exists()) {
-        $this->get('flash')->addMessage(
-            'error',
-            $urlRepo->getMessage()
-        );
-
-        $toUrlInfo = $router->urlFor('urlInfo', ['id' => $url->getId()]);
-        $response = $response->withStatus(422);
-
-        return $response->withRedirect($toUrlInfo);
-    }
-
     $params = [
         'messages' => ['error' => [$urlRepo->getMessage()]],
         'errors' => ['url' => ['name' => $url->getUrl()]]
