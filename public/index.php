@@ -18,9 +18,15 @@ use Valitron\Validator;
 use Analyzer\Url\Url;
 use Analyzer\UrlCheck\UrlCheck;
 use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository, UrlCheckRepository};
+use Analyzer\Interfaces\UrlInterface as UrlInterface;
+use Exception;
+use PDO;
 
 session_start();
 
+/**
+ * @var \DI\Container
+ */
 $container = new Container();
 $container->set('renderer', function () {
     // As a parameter the base directory is used to contain a templates
@@ -51,16 +57,28 @@ $container->set('conn', function () {
 });
 
 $container->set('urlRepo', function ($container) {
-    $conn = $container->get('conn');
+    if ($container instanceof Container) {
+        $conn = $container->get('conn');
+    } else {
+        throw new Exception("PDO error: can't get database connection");
+    }
+
     return new ValidatedUrlRepository(
-        new UrlRepository($conn)
+        new UrlRepository(
+            ($conn instanceof PDO) ? $conn : throw new Exception("PDO error: wrong type for connection")
+        )
     );
 });
 
 $container->set('urlCheckRepo', function ($container) {
+    /**
+     * @var \DI\Container $container
+     */
     $conn = $container->get('conn');
 
-    return new UrlCheckRepository($conn);
+    return new UrlCheckRepository(
+        ($conn instanceof PDO) ? $conn : throw new Exception("PDO error: wrong type for connection")
+    );
 });
 
 $app = AppFactory::createFromContainer($container);
@@ -83,7 +101,9 @@ $app->post('/urls', function ($request, $response) use ($router) {
     $urlRepo = $this->get('urlRepo');
 
     ['name' => $urlName] = $request->getParsedBodyParam("url");
-    $urlInfo = ['name' => htmlspecialchars($urlName)];
+    $urlInfo = ['name' => htmlspecialchars(
+        is_string($urlName) ? $urlName : ''
+    )];
 
     $url = Url::fromArray($urlInfo);
     $urlRepo->save($url);
@@ -94,7 +114,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
             $urlRepo->getMessage()
         );
 
-        $toUrlInfo = $router->urlFor('urlInfo', ['id' => $url->getId()]);
+        $toUrlInfo = $router->urlFor('urlInfo', ['id' => "{$url->getId()}"]);
         return $response->withRedirect($toUrlInfo);
     }
 
@@ -105,7 +125,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
             $urlRepo->getMessage()
         );
 
-        $toUrlInfo = $router->urlFor('urlInfo', ['id' => $url->getId()]);
+        $toUrlInfo = $router->urlFor('urlInfo', ['id' => "{$url->getId()}"]);
         $response = $response->withStatus(422);
 
         return $response->withRedirect($toUrlInfo);
@@ -171,17 +191,22 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
 
 $app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
     $urlRepo = $this->get('urlRepo');
-    $id = intval($args['id']);
+    $id = intval(
+        is_string($args['id']) ? $args['id'] : null
+    );
 
     $url = $urlRepo->find($id);
     $urlCheckRepo = $this->get('urlCheckRepo');
 
-    $urlCheck = UrlCheck::fromUrl($url);
+    $urlCheck = UrlCheck::fromUrl(
+        ($url instanceof UrlInterface) ? $url : throw new Exception("Internal error: can't get a url interface on checks")
+    );
     if ($urlCheck->execute()) {
         $urlCheckRepo->save($urlCheck);
 
+        $timestamp = $urlCheck->getTimestamp();
         $url->setTimestamp(
-            $urlCheck->getTimestamp()
+            is_string($timestamp) ? $timestamp : throw new Exception("Internal error: can't get a timestamp on checks")
         );
         $urlRepo->save($url);
 
@@ -189,7 +214,7 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
     } else {
         $this->get('flash')->addMessage('error', $urlCheck->getMessage());
     }
-    $toUrlInfo = $router->urlFor('urlInfo', ['id' => $url->getId()]);
+    $toUrlInfo = $router->urlFor('urlInfo', ['id' => "{$url->getId()}"]);
 
     return $response->withRedirect($toUrlInfo);
 });
