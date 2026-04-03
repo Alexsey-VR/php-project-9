@@ -199,14 +199,16 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
     $urlCheckRepo = $this->get('urlCheckRepo');
 
     $urlCheck = UrlCheck::fromUrl(
-        ($url instanceof UrlInterface) ? $url : throw new Exception("Internal error: can't get a url interface on checks")
+        ($url instanceof UrlInterface) ?
+            $url : throw new Exception("Internal error: can't get a url interface on checks")
     );
     if ($urlCheck->execute()) {
         $urlCheckRepo->save($urlCheck);
 
         $timestamp = $urlCheck->getTimestamp();
         $url->setTimestamp(
-            is_string($timestamp) ? $timestamp : throw new Exception("Internal error: can't get a timestamp on checks")
+            is_string($timestamp) ?
+                $timestamp : throw new Exception("Internal error: can't get a timestamp on checks")
         );
         $urlRepo->save($url);
 
