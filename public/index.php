@@ -123,6 +123,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
     $mainPage = $router->urlFor('mainPage');
     $jsonError = json_encode(['name' => $url->getUrl()]);
 
+    $response = $response->withStatus(422);
     return $response->withRedirect($mainPage)->withHeader('set-cookie', "url={$jsonError};MAX-AGE=1");
 })->setName('saveUrl');
 
