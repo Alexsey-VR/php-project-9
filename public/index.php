@@ -76,15 +76,6 @@ $app->get('/', function ($request, $response) {
         'errors' => []
     ];
 
-    if (array_key_exists('error', $messages)) {
-        $urlName = $request->getCookieParam('url', json_encode([]));
-        $params = [
-            'messages' => $messages,
-            'errors' => ['url' => json_decode($urlName, JSON_OBJECT_AS_ARRAY)]
-        ];
-        return $this->get('renderer')->render($response->withStatus(422), 'index.phtml', $params);
-    }
-
     return $this->get('renderer')->render($response, 'index.phtml', $params);
 })->setName('mainPage');
 
@@ -107,24 +98,30 @@ $app->post('/urls', function ($request, $response) use ($router) {
         return $response->withRedirect($toUrlInfo);
     }
 
-    $this->get('flash')->addMessage(
-        'error',
-        $urlRepo->getMessage()
-    );
-
     $toMainPage = $router->urlFor('mainPage');
     if ($url->exists()) {
+        $this->get('flash')->addMessage(
+            'error',
+            $urlRepo->getMessage()
+        );
+
         $toUrlInfo = $router->urlFor('urlInfo', ['id' => $url->getId()]);
         $response = $response->withStatus(422);
 
         return $response->withRedirect($toUrlInfo);
     }
 
-    $mainPage = $router->urlFor('mainPage');
-    $jsonError = json_encode(['name' => $url->getUrl()]);
-
+    $params = [
+        'messages' => ['error' => [$urlRepo->getMessage()]],
+        'errors' => ['url' => ['name' => $url->getUrl()]]
+    ];
     $response = $response->withStatus(422);
-    return $response->withRedirect($mainPage)->withHeader('set-cookie', "url={$jsonError};MAX-AGE=1");
+
+    return $this->get('renderer')->render(
+        $response,
+        'index.phtml',
+        $params
+    );
 })->setName('saveUrl');
 
 $app->get('/urls', function ($request, $response) {
