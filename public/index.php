@@ -100,7 +100,6 @@ $app->post('/urls', function ($request, $response) use ($router) {
 
     $toMainPage = $router->urlFor('mainPage');
     if ($url->exists()) {
-        
         $this->get('flash')->addMessage(
             'error',
             $urlRepo->getMessage()
