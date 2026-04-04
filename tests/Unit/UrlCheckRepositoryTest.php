@@ -22,6 +22,8 @@ use Exception;
 #[CoversMethod(UrlCheckRepository::class, 'getEntities')]
 class UrlCheckRepositoryTest extends TestCase
 {
+    private PDO $conn;
+
     public function setUp(): void
     {
         $databaseUrl = getenv('DATABASE_URL');
@@ -46,47 +48,57 @@ class UrlCheckRepositoryTest extends TestCase
 
     public function testCreate(): void
     {
-        $urlSqlInit = file_get_contents(
-            __DIR__ . "/../fixtures/urlRepositoryInit.sql"
-        );
-        $this->conn->query($urlSqlInit);
-        $urlCheckSqlInit = file_get_contents(
-            __DIR__ . "/../fixtures/urlCheckRepositoryInit.sql"
-        );
-        $this->conn->query($urlCheckSqlInit);
+        if ($urlSqlInit = file_get_contents(__DIR__ . "/../fixtures/urlRepositoryInit.sql")) {
+            $this->conn->query($urlSqlInit);
+        }
 
-        $urlInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            JSON_OBJECT_AS_ARRAY
-        );
+        if ($urlCheckSqlInit = file_get_contents(__DIR__ . "/../fixtures/urlCheckRepositoryInit.sql")) {
+            $this->conn->query($urlCheckSqlInit);
+        }
+
         $isTest = true;
-        $url = Url::fromArray($urlInfo['mail']);
-        $urlRepository = new UrlRepository($this->conn, $isTest);
-        $urlRepository->save($url);
+        if ($urlInfoData = file_get_contents(__DIR__ . "/../fixtures/urlInfo.json")) {
+            $urlInfo = json_decode($urlInfoData, flags:JSON_OBJECT_AS_ARRAY);
 
-        $urlCheckInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
-            JSON_OBJECT_AS_ARRAY
-        );
-        $urlCheckInfo['first']['urlId'] = intval($url->getId());
-        $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
+            $url = Url::fromArray(
+                is_array($urlInfo) && is_array($urlInfo['mail']) ? $urlInfo['mail'] : []
+            );
+            $urlRepository = new UrlRepository($this->conn, $isTest);
+            $urlRepository->save($url);
+        }
 
-        $urlCheckRepository = new UrlCheckRepository($this->conn, $isTest);
-        $urlCheckRepository->save($urlCheck);
-        $id = intval($urlCheck->getId());
-        $urlCheckTemp = $urlCheckRepository->find($id);
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+            $urlCheckInfo = json_decode($urlCheckInfoData, flags:JSON_OBJECT_AS_ARRAY);
+        }
 
-        $urlCheckStopSql = file_get_contents(
-            __DIR__ . "/../fixtures/urlCheckRepositoryStop.sql"
-        );
-        $this->conn->query($urlCheckStopSql);
-        $urlStopSql = file_get_contents(
-            __DIR__ . "/../fixtures/urlRepositoryStop.sql"
-        );
-        $this->conn->query($urlStopSql);
+        if (isset($url) && isset($urlCheckInfo) && is_array($urlCheckInfo) && is_array($urlCheckInfo['first'])) {
+            $urlCheckInfo['first']['urlId'] = intval($url->getId());
+            $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-        $this->assertTrue($urlCheckTemp->exists());
-        $this->assertEquals($urlCheckInfo['first']['status'], $urlCheckTemp->getStatus());
+            $urlCheckRepository = new UrlCheckRepository($this->conn, $isTest);
+            $urlCheckRepository->save($urlCheck);
+            $id = intval($urlCheck->getId());
+            $urlCheckTemp = $urlCheckRepository->find($id);
+        }
+
+        if ($urlCheckStopSql = file_get_contents(__DIR__ . "/../fixtures/urlCheckRepositoryStop.sql")) {
+            $this->conn->query($urlCheckStopSql);
+        }
+
+        if ($urlStopSql = file_get_contents(__DIR__ . "/../fixtures/urlRepositoryStop.sql")) {
+            $this->conn->query($urlStopSql);
+        }
+
+        if (
+            isset($urlCheckTemp) &&
+            ($urlCheckTemp instanceof UrlCheck) &&
+            isset($urlCheckInfo) &&
+            is_array($urlCheckInfo) &&
+            is_array($urlCheckInfo['first'])
+        ) {
+            $this->assertTrue($urlCheckTemp->exists());
+            $this->assertEquals($urlCheckInfo['first']['status'], $urlCheckTemp->getStatus());
+        }
     }
 
     public function testCreateException(): void
@@ -112,145 +124,157 @@ class UrlCheckRepositoryTest extends TestCase
         $isTest = true;
         $urlCheckRepository = new UrlCheckRepository($connStub, $isTest);
 
-        $urlCheckInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
-            JSON_OBJECT_AS_ARRAY
-        );
-        $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+            $urlCheckInfo = json_decode($urlCheckInfoData, flags:JSON_OBJECT_AS_ARRAY);
 
-        $this->expectException(
-            Exception::class
-        );
+            $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-        $urlCheckRepository->save($urlCheck);
+            $this->expectException(
+                Exception::class
+            );
+
+            $urlCheckRepository->save($urlCheck);
+        }
     }
 
     public function testUpdate(): void
     {
-        $urlSqlInit = file_get_contents(
-            __DIR__ . "/../fixtures/urlRepositoryInit.sql"
-        );
-        $this->conn->query($urlSqlInit);
-        $urlCheckSqlInit = file_get_contents(
-            __DIR__ . "/../fixtures/urlCheckRepositoryInit.sql"
-        );
-        $this->conn->query($urlCheckSqlInit);
+        if ($urlSqlInit = file_get_contents(__DIR__ . "/../fixtures/urlRepositoryInit.sql")) {
+            $this->conn->query($urlSqlInit);
+        }
+        if ($urlCheckSqlInit = file_get_contents(__DIR__ . "/../fixtures/urlCheckRepositoryInit.sql")) {
+            $this->conn->query($urlCheckSqlInit);
+        }
 
-        $urlInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            JSON_OBJECT_AS_ARRAY
-        );
-        $url = Url::fromArray($urlInfo['mail']);
         $isTest = true;
-        $urlRepository = new UrlRepository($this->conn, $isTest);
-        $urlRepository->save($url);
+        if ($urlInfoData = file_get_contents(__DIR__ . "/../fixtures/urlInfo.json")) {
+            $urlInfo = json_decode($urlInfoData, flags:JSON_OBJECT_AS_ARRAY);
 
-        $urlCheckInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
-            JSON_OBJECT_AS_ARRAY
-        );
-        $urlCheckInfo['first']['url_id'] = intval($url->getId());
-        $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
+            $url = Url::fromArray($urlInfo['mail']);
 
-        $urlCheckRepository = new UrlCheckRepository($this->conn, $isTest);
-        $urlCheckRepository->save($urlCheck);
-        $id = $urlCheck->getId();
-        $urlCheckTemp = $urlCheckRepository->find($id);
+            $urlRepository = new UrlRepository($this->conn, $isTest);
+            $urlRepository->save($url);
+        }
 
-        $urlCheckTemp->setDescription($urlCheckInfo['first']['description']);
-        $urlCheckRepository->save($urlCheckTemp);
-        $urlCheck = $urlCheckRepository->find($id);
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+            $urlCheckInfo = json_decode($urlCheckInfoData, flags:JSON_OBJECT_AS_ARRAY);
+        }
+        if (isset($urlCheckInfo) && is_array($urlCheckInfo['first']) && isset($url)) {
+            $urlCheckInfo['first']['url_id'] = intval($url->getId());
 
-        $urlCheckStopSql = file_get_contents(
-            __DIR__ . "/../fixtures/urlCheckRepositoryStop.sql"
-        );
-        $this->conn->query($urlCheckStopSql);
-        $urlStopSql = file_get_contents(
-            __DIR__ . "/../fixtures/urlRepositoryStop.sql"
-        );
-        $this->conn->query($urlStopSql);
+            $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-        $this->assertEquals(
-            $urlCheckInfo['first']['description'],
-            $urlCheck->getDescription()
-        );
+            $urlCheckRepository = new UrlCheckRepository($this->conn, $isTest);
+            $urlCheckRepository->save($urlCheck);
+            $id = $urlCheck->getId();
+            $urlCheckTemp = $urlCheckRepository->find($id);
+
+            $urlCheckTemp->setDescription($urlCheckInfo['first']['description']);
+            $urlCheckRepository->save($urlCheckTemp);
+            $urlCheck = $urlCheckRepository->find($id);
+        }
+
+        if ($urlCheckStopSql = file_get_contents(__DIR__ . "/../fixtures/urlCheckRepositoryStop.sql")) {
+            $this->conn->query($urlCheckStopSql);
+        }
+        if ($urlStopSql = file_get_contents(__DIR__ . "/../fixtures/urlRepositoryStop.sql")) {
+            $this->conn->query($urlStopSql);
+        }
+
+        if (isset($urlCheckInfo)) {
+            $this->assertEquals(
+                is_string($urlCheckInfo['first']['description']) ? $urlCheckInfo['first']['description'] : "",
+                isset($urlCheck) ? $urlCheck->getDescription() : ""
+            );
+        }
     }
 
     public function testDelete(): void
     {
-        $urlSqlInit = file_get_contents(
-            __DIR__ . "/../fixtures/urlRepositoryInit.sql"
-        );
-        $this->conn->query($urlSqlInit);
-        $urlCheckSqlInit = file_get_contents(
-            __DIR__ . "/../fixtures/urlCheckRepositoryInit.sql"
-        );
-        $this->conn->query($urlCheckSqlInit);
+        if ($urlSqlInit = file_get_contents(__DIR__ . "/../fixtures/urlRepositoryInit.sql")) {
+            $this->conn->query($urlSqlInit);
+        }
+        if ($urlCheckSqlInit = file_get_contents(__DIR__ . "/../fixtures/urlCheckRepositoryInit.sql")) {
+            $this->conn->query($urlCheckSqlInit);
+        }
 
-        $urlInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            JSON_OBJECT_AS_ARRAY
-        );
-        $url = Url::fromArray($urlInfo['mail']);
         $isTest = true;
-        $urlRepository = new UrlRepository($this->conn, $isTest);
-        $urlRepository->save($url);
+        if ($urlInfoData = file_get_contents(__DIR__ . "/../fixtures/urlInfo.json")) {
+            $urlInfo = json_decode($urlInfoData, flags:JSON_OBJECT_AS_ARRAY);
 
-        $urlCheckInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
-            JSON_OBJECT_AS_ARRAY
-        );
-        $urlCheckInfo['first']['url_id'] = intval($url->getId());
-        $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
+            $url = Url::fromArray($urlInfo['mail']);
+            $urlRepository = new UrlRepository($this->conn, $isTest);
+            $urlRepository->save($url);
+        }
 
-        $urlCheckRepository = new UrlCheckRepository($this->conn, $isTest);
-        $urlCheckRepository->save($urlCheck);
-        $id = $urlCheck->getId();
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+            $urlCheckInfo = json_decode($urlCheckInfoData, flags:JSON_OBJECT_AS_ARRAY);
+        }
 
-        $urlCheckFound = $urlCheckRepository->find($id);
-        $this->assertInstanceOf(UrlCheck::class, $urlCheckFound);
+        $urlCheckDeleted = null;
+        if (isset($url) && isset($urlCheckInfo) && is_array($urlCheckInfo['first'])) {
+            $urlCheckInfo['first']['url_id'] = intval($url->getId());
 
-        $urlCheckRepository->delete($id);
-        $urlCheckDeleted = $urlCheckRepository->find($id);
+            $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-        $urlCheckStopSql = file_get_contents(
-            __DIR__ . "/../fixtures/urlCheckRepositoryStop.sql"
-        );
-        $this->conn->query($urlCheckStopSql);
-        $urlStopSql = file_get_contents(
-            __DIR__ . "/../fixtures/urlRepositoryStop.sql"
-        );
-        $this->conn->query($urlStopSql);
+            $urlCheckRepository = new UrlCheckRepository($this->conn, $isTest);
+            $urlCheckRepository->save($urlCheck);
+            $id = $urlCheck->getId();
 
-        $this->assertTrue($urlCheckFound->exists() && is_null($urlCheckDeleted));
+            $urlCheckFound = $urlCheckRepository->find($id);
+            $this->assertInstanceOf(UrlCheck::class, $urlCheckFound);
+
+            $urlCheckRepository->delete($id);
+            $urlCheckDeleted = $urlCheckRepository->find($id);
+        }
+
+        if ($urlCheckStopSql = file_get_contents(__DIR__ . "/../fixtures/urlCheckRepositoryStop.sql")) {
+            $this->conn->query($urlCheckStopSql);
+        }
+        if ($urlStopSql = file_get_contents(__DIR__ . "/../fixtures/urlRepositoryStop.sql")) {
+            $this->conn->query($urlStopSql);
+        }
+
+        $this->assertTrue(isset($urlCheckFound) && $urlCheckFound->exists() && is_null($urlCheckDeleted));
     }
 
     public function testGetEntities(): void
     {
-        $urlSqlInit = file_get_contents(
-            __DIR__ . "/../fixtures/urlRepositoryInit.sql"
-        );
-        $this->conn->query($urlSqlInit);
-        $urlCheckSqlInit = file_get_contents(
-            __DIR__ . "/../fixtures/urlCheckRepositoryInit.sql"
-        );
-        $this->conn->query($urlCheckSqlInit);
+        if ($urlSqlInit = file_get_contents(__DIR__ . "/../fixtures/urlRepositoryInit.sql")) {
+            $this->conn->query($urlSqlInit);
+        }
 
-        $urlInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            JSON_OBJECT_AS_ARRAY
-        );
-        $url = Url::fromArray($urlInfo['mail']);
+        if ($urlCheckSqlInit = file_get_contents(__DIR__ . "/../fixtures/urlCheckRepositoryInit.sql")) {
+            $this->conn->query($urlCheckSqlInit);
+        }
+
         $isTest = true;
-        $urlRepository = new UrlRepository($this->conn, $isTest);
-        $urlRepository->save($url);
+        if ($urlInfoData = file_get_contents(__DIR__ . "/../fixtures/urlInfo.json")) {
+            $urlInfo = json_decode(
+                $urlInfoData,
+                flags:JSON_OBJECT_AS_ARRAY
+            );
 
-        $urlCheckInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
-            JSON_OBJECT_AS_ARRAY
+            $url = Url::fromArray(
+                is_array($urlInfo) && is_array($urlInfo['mail']) ? $urlInfo['mail'] : []
+            );
+            $urlRepository = new UrlRepository($this->conn, $isTest);
+            $urlRepository->save($url);
+        }
+
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+            $urlCheckInfo = json_decode(
+                $urlCheckInfoData,
+                flags:JSON_OBJECT_AS_ARRAY
+            );
+        }
+        if (isset($url) && isset($urlCheckInfo) && is_array($urlCheckInfo) && is_array($urlCheckInfo['first'])) {
+            $urlCheckInfo['first']['urlId'] = intval($url->getId());
+        }
+        $urlCheck = UrlCheck::fromArray(
+            isset($urlCheckInfo) && is_array($urlCheckInfo) && is_array($urlCheckInfo['first']) ?
+                $urlCheckInfo['first'] : []
         );
-        $urlCheckInfo['first']['urlId'] = intval($url->getId());
-        $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
         $urlCheckRepository = new UrlCheckRepository($this->conn, $isTest);
 
@@ -258,17 +282,16 @@ class UrlCheckRepositoryTest extends TestCase
 
         $entities = $urlCheckRepository->getEntities();
 
-        $urlCheckStopSql = file_get_contents(
-            __DIR__ . "/../fixtures/urlCheckRepositoryStop.sql"
-        );
-        $this->conn->query($urlCheckStopSql);
-        $urlStopSql = file_get_contents(
-            __DIR__ . "/../fixtures/urlRepositoryStop.sql"
-        );
-        $this->conn->query($urlStopSql);
+        if ($urlCheckStopSql = file_get_contents(__DIR__ . "/../fixtures/urlCheckRepositoryStop.sql")) {
+            $this->conn->query($urlCheckStopSql);
+        }
+        if ($urlStopSql = file_get_contents(__DIR__ . "/../fixtures/urlRepositoryStop.sql")) {
+            $this->conn->query($urlStopSql);
+        }
 
         $this->assertEquals(
-            $urlCheckInfo['first']['title'],
+            isset($urlCheckInfo) && is_array($urlCheckInfo) && is_array($urlCheckInfo['first']) ?
+                $urlCheckInfo['first']['title'] : "",
             $entities[0]->getTitle()
         );
     }

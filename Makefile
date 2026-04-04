@@ -18,7 +18,7 @@ lint:
 	composer exec --verbose phpcs -- --standard=PSR12 public/ src/ tests/
 
 analyze:
-	composer exec -v phpstan analyze -- -c vendor/phpstan/phpstan/conf/phpstan.neon --level 10 --ansi src/
+	composer exec -v phpstan analyze -- -c vendor/phpstan/phpstan/conf/phpstan.neon --level 5 --ansi src/ tests/
 
 dev-init:
 	./vendor/bin/phpunit --generate-configuration

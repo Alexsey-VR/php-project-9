@@ -59,7 +59,7 @@ class UrlRepositoryTest extends TestCase
 
         $urlInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            JSON_OBJECT_AS_ARRAY
+            flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
 
@@ -109,7 +109,7 @@ class UrlRepositoryTest extends TestCase
 
         $urlInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            JSON_OBJECT_AS_ARRAY
+            flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
 
@@ -127,7 +127,7 @@ class UrlRepositoryTest extends TestCase
 
         $urlInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            JSON_OBJECT_AS_ARRAY
+            flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
 
@@ -164,7 +164,7 @@ class UrlRepositoryTest extends TestCase
 
         $urlInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            JSON_OBJECT_AS_ARRAY
+            flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
         $sameUrl = Url::fromArray($urlInfo['mail']);
@@ -202,7 +202,7 @@ class UrlRepositoryTest extends TestCase
 
         $urlInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            JSON_OBJECT_AS_ARRAY
+            flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
 
@@ -235,7 +235,7 @@ class UrlRepositoryTest extends TestCase
 
         $urlInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            JSON_OBJECT_AS_ARRAY
+            flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
 

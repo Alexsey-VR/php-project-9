@@ -19,7 +19,7 @@ class UrlTest extends TestCase
     {
         $urlInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            JSON_OBJECT_AS_ARRAY
+            flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
         $this->assertInstanceOf(Url::class, $url);
@@ -32,7 +32,7 @@ class UrlTest extends TestCase
     {
         $urlInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            JSON_OBJECT_AS_ARRAY
+            flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
 
@@ -48,7 +48,7 @@ class UrlTest extends TestCase
     {
         $urlInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            JSON_OBJECT_AS_ARRAY
+            flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
 

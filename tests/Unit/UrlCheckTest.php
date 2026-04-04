@@ -29,7 +29,7 @@ class UrlCheckTest extends TestCase
     {
         $urlCheckInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
-            JSON_OBJECT_AS_ARRAY
+            flags:JSON_OBJECT_AS_ARRAY
         );
         $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
         $id = 5;
@@ -49,7 +49,7 @@ class UrlCheckTest extends TestCase
     {
         $urlCheckInfo = json_decode(
             file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
-            JSON_OBJECT_AS_ARRAY
+            flags:JSON_OBJECT_AS_ARRAY
         );
         $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
         $id = 5;
