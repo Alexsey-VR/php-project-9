@@ -4,6 +4,7 @@ namespace Analyzer\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\{CoversClass, CoversMethod};
+use PHPUnit\Framework\MockObject\Stub;
 use Analyzer\UrlCheck\UrlCheck as UrlCheck;
 use Analyzer\Url\Url as Url;
 use Analyzer\Repository\{UrlRepository, UrlCheckRepository};
@@ -23,6 +24,7 @@ use Exception;
 class UrlCheckRepositoryTest extends TestCase
 {
     private PDO $conn;
+    private const string PDO_ERROR_FOR_ID = "PDO error: can't get a url check id";
 
     public function setUp(): void
     {
@@ -105,24 +107,22 @@ class UrlCheckRepositoryTest extends TestCase
     {
         $sql = "FALSE REQUEST";
         $stmt = $this->conn->prepare($sql);
-        $stmtStub = $this->createConfiguredStub(
-            $stmt::class,
-            [
-                'bindParam' => true,
-                'execute' => true
-            ]
-        );
-
-        $connStub = $this->createConfiguredStub(
-            $this->conn::class,
-            [
-                'prepare' => $stmtStub,
-                'lastInsertId' => false
-            ]
-        );
 
         $isTest = true;
-        $urlCheckRepository = new UrlCheckRepository($connStub, $isTest);
+        if ($stmt) {
+            $builder = $this->getMockBuilder($stmt::class);
+            $stmtStub = $builder->getMock();
+            $stmtStub->method('bindParam')->willReturn(true);
+            $stmtStub->method('execute')->willReturn(true);
+
+            $connStub = $this->createConfiguredStub(
+                $this->conn::class,
+                [
+                    'prepare' => $stmtStub,
+                    'lastInsertId' => false
+                ]
+            );
+        }
 
         if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
             $urlCheckInfo = json_decode($urlCheckInfoData, flags:JSON_OBJECT_AS_ARRAY);
@@ -133,6 +133,10 @@ class UrlCheckRepositoryTest extends TestCase
                 Exception::class
             );
 
+            $urlCheckRepository = new UrlCheckRepository(
+                isset($connStub) ? $connStub : throw new Exception("Internal error: can't get a mock"),
+                $isTest
+            );
             $urlCheckRepository->save($urlCheck);
         }
     }
@@ -167,8 +171,18 @@ class UrlCheckRepositoryTest extends TestCase
             $urlCheckRepository = new UrlCheckRepository($this->conn, $isTest);
             $urlCheckRepository->save($urlCheck);
             $id = $urlCheck->getId();
-            $urlCheckTemp = $urlCheckRepository->find($id);
+            $urlCheckTemp = $urlCheckRepository->find(
+                is_int($id) ? $id : throw new Exception(self::PDO_ERROR_FOR_ID)
+            );
+        }
 
+        if (
+            isset($urlCheckInfo) &&
+            isset($urlCheckTemp) &&
+            ($urlCheckTemp instanceof UrlCheck) &&
+            isset($urlCheckRepository) &&
+            isset($id)
+        ) {
             $urlCheckTemp->setDescription($urlCheckInfo['first']['description']);
             $urlCheckRepository->save($urlCheckTemp);
             $urlCheck = $urlCheckRepository->find($id);
@@ -221,7 +235,9 @@ class UrlCheckRepositoryTest extends TestCase
             $urlCheckRepository->save($urlCheck);
             $id = $urlCheck->getId();
 
-            $urlCheckFound = $urlCheckRepository->find($id);
+            $urlCheckFound = $urlCheckRepository->find(
+                is_int($id) ? $id : throw new Exception(self::PDO_ERROR_FOR_ID)
+            );
             $this->assertInstanceOf(UrlCheck::class, $urlCheckFound);
 
             $urlCheckRepository->delete($id);
