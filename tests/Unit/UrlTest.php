@@ -45,7 +45,7 @@ class UrlTest extends TestCase
 
             $this->assertEquals($testId, $id);
             $this->assertTrue($url->exists());
-        }   
+        }
     }
 
     public function testTimestamp(): void
