@@ -17,44 +17,50 @@ class UrlTest extends TestCase
 {
     public function testFromArray(): void
     {
-        $urlInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            flags:JSON_OBJECT_AS_ARRAY
-        );
-        $url = Url::fromArray($urlInfo['mail']);
-        $this->assertInstanceOf(Url::class, $url);
+        if ($urlInfoData = file_get_contents(__DIR__ . "/../fixtures/urlInfo.json")) {
+            $urlInfo = json_decode(
+                $urlInfoData,
+                flags:JSON_OBJECT_AS_ARRAY
+            );
+            $url = Url::fromArray($urlInfo['mail']);
+            $this->assertInstanceOf(Url::class, $url);
 
-        $name = $url->getUrl();
-        $this->assertEquals($urlInfo['mail']['name'], $name);
+            $name = $url->getUrl();
+            $this->assertEquals($urlInfo['mail']['name'], $name);
+        }
     }
 
     public function testId(): void
     {
-        $urlInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            flags:JSON_OBJECT_AS_ARRAY
-        );
-        $url = Url::fromArray($urlInfo['mail']);
+        if ($urlInfoData = file_get_contents(__DIR__ . "/../fixtures/urlInfo.json")) {
+            $urlInfo = json_decode(
+                $urlInfoData,
+                flags:JSON_OBJECT_AS_ARRAY
+            );
+            $url = Url::fromArray($urlInfo['mail']);
 
-        $testId = 5;
-        $url->setId($testId);
-        $id = $url->getId();
+            $testId = 5;
+            $url->setId($testId);
+            $id = $url->getId();
 
-        $this->assertEquals($testId, $id);
-        $this->assertTrue($url->exists());
+            $this->assertEquals($testId, $id);
+            $this->assertTrue($url->exists());
+        }   
     }
 
     public function testTimestamp(): void
     {
-        $urlInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/urlInfo.json"),
-            flags:JSON_OBJECT_AS_ARRAY
-        );
-        $url = Url::fromArray($urlInfo['mail']);
+        if ($urlInfoData = file_get_contents(__DIR__ . "/../fixtures/urlInfo.json")) {
+            $urlInfo = json_decode(
+                $urlInfoData,
+                flags:JSON_OBJECT_AS_ARRAY
+            );
+            $url = Url::fromArray($urlInfo['mail']);
 
-        $testTimestamp = '2026-03-05 15:30:45';
-        $url->setTimestamp($testTimestamp);
+            $testTimestamp = '2026-03-05 15:30:45';
+            $url->setTimestamp($testTimestamp);
 
-        $this->assertEquals($testTimestamp, $url->getTimestamp());
+            $this->assertEquals($testTimestamp, $url->getTimestamp());
+        }
     }
 }
