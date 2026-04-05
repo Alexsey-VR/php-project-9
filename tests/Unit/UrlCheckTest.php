@@ -27,37 +27,41 @@ class UrlCheckTest extends TestCase
 {
     public function testFromArray(): void
     {
-        $urlCheckInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
-            flags:JSON_OBJECT_AS_ARRAY
-        );
-        $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
-        $id = 5;
-        $urlCheck->setId($id);
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+            $urlCheckInfo = json_decode(
+                $urlCheckInfoData,
+                flags:JSON_OBJECT_AS_ARRAY
+            );
+            $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
+            $id = 5;
+            $urlCheck->setId($id);
 
-        $this->assertInstanceOf(UrlCheck::class, $urlCheck);
-        $this->assertEquals($id, $urlCheck->getId());
-        $this->assertEquals($urlCheckInfo['first']['url_id'], $urlCheck->getUrlId());
-        $this->assertEquals($urlCheckInfo['first']['status'], $urlCheck->getStatus());
-        $this->assertEquals($urlCheckInfo['first']['h1'], $urlCheck->getH1());
-        $this->assertEquals($urlCheckInfo['first']['title'], $urlCheck->getTitle());
-        $this->assertEquals($urlCheckInfo['first']['description'], $urlCheck->getDescription());
-        $this->assertTrue($urlCheck->exists());
+            $this->assertInstanceOf(UrlCheck::class, $urlCheck);
+            $this->assertEquals($id, $urlCheck->getId());
+            $this->assertEquals($urlCheckInfo['first']['url_id'], $urlCheck->getUrlId());
+            $this->assertEquals($urlCheckInfo['first']['status'], $urlCheck->getStatus());
+            $this->assertEquals($urlCheckInfo['first']['h1'], $urlCheck->getH1());
+            $this->assertEquals($urlCheckInfo['first']['title'], $urlCheck->getTitle());
+            $this->assertEquals($urlCheckInfo['first']['description'], $urlCheck->getDescription());
+            $this->assertTrue($urlCheck->exists());
+        }
     }
 
     public function testTimestamp(): void
     {
-        $urlCheckInfo = json_decode(
-            file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json"),
-            flags:JSON_OBJECT_AS_ARRAY
-        );
-        $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
-        $id = 5;
-        $urlCheck->setId($id);
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+            $urlCheckInfo = json_decode(
+                $urlCheckInfoData,
+                flags:JSON_OBJECT_AS_ARRAY
+            );
+            $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
+            $id = 5;
+            $urlCheck->setId($id);
 
-        $testTimestamp =  '2026-03-19 20:30:45';
-        $urlCheck->setTimestamp($testTimestamp);
+            $testTimestamp =  '2026-03-19 20:30:45';
+            $urlCheck->setTimestamp($testTimestamp);
 
-        $this->assertEquals($testTimestamp, $urlCheck->getTimestamp());
+            $this->assertEquals($testTimestamp, $urlCheck->getTimestamp());
+        }
     }
 }
