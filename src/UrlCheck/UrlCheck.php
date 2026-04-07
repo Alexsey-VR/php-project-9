@@ -21,7 +21,8 @@ class UrlCheck implements UrlCheckInterface
     private string|null $timestamp;
     private string $message;
 
-    private const int STORE_LEN = 200;
+    private const int STORE_LEN = 512;
+    private const string STRING_POSTFIX = "...";
     private const float CONNECTION_TIMEOUT_S = 2.0;
     private const string SUCCESS_MESSAGE = "Страница успешно проверена";
     private const string ERROR_MESSAGE = "Произошла ошибка при проверке, не удалось подключиться";
@@ -211,7 +212,8 @@ class UrlCheck implements UrlCheckInterface
         $subInfo = $info;
         if (mb_strlen($info) > self::STORE_LEN) {
             $subInfo = mb_substr($info, 0, self::STORE_LEN);
-            return "{$subInfo}...";
+            $postfix = self::STRING_POSTFIX;
+            return "{$subInfo}{$postfix}";
         }
 
         $subInfoUTF8 = mb_convert_encoding($subInfo, 'UTF-8', 'UTF-8');
