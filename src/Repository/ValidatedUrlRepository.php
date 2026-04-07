@@ -18,6 +18,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
     private const string SUCCESS_MESSAGE = "Страница успешно добавлена";
     private const string ERROR_MESSAGE_FOR_UNIQUE = "Страница уже существует";
     private const string PARAM_URL_NAME = ":name";
+    private const int MAX_URL_NAME_LENGTH = 255;
 
     public function __construct(UrlRepositoryInterface $repo, bool $isTest = false)
     {
@@ -36,16 +37,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         $urlNameUTF8 = mb_convert_encoding($urlName, 'UTF-8');
         $trimmedUrlName = mb_ltrim($urlNameUTF8);
         $lowercaseUrlName = mb_strtolower($trimmedUrlName);
-        /*$urlSecureName = mb_ereg_replace(".+://", "https://", $lowercaseUrlName);
-        $urlShortName = mb_ereg_replace(
-            "(?<=://)www\.",
-            '',
-            is_string($urlSecureName) ? $urlSecureName : ''
-        );
 
-        return is_string($urlShortName) ?
-            $urlShortName : throw new Exception("Internal error: can't get a short URL name");
-        */
         return $lowercaseUrlName;
     }
 
@@ -105,7 +97,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
             [
                 'lengthMax' =>
                 [
-                    ['url', 255]
+                    ['url', self::MAX_URL_NAME_LENGTH]
                 ]
             ]
         );
