@@ -1,20 +1,11 @@
 <?php
 
-namespace Analyzer;
-
-$path1 = __DIR__ . "/../vendor/autoload.php";
-$path2 = __DIR__ . "/../../../autoload.php";
-if (file_exists($path1)) {
-    require_once $path1;
-} else {
-    require_once $path2;
-}
+require_once __DIR__ . "/../vendor/autoload.php";
 
 use Slim\Factory\AppFactory;
 use DI\Container;
 use Slim\Views\PhpRenderer;
 use Slim\Flash\Messages;
-use Valitron\Validator;
 use Analyzer\Url\Url;
 use Analyzer\UrlCheck\UrlCheck;
 use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository, UrlCheckRepository};
@@ -36,7 +27,7 @@ $container->set('flash', function () {
     return new Messages();
 });
 
-$container->set('conn', function () {
+$container->set(PDO::class, function () {
     $databaseUrl = getenv('DATABASE_URL');
     $databaseInfo = parse_url(
         htmlspecialchars(
@@ -50,34 +41,15 @@ $container->set('conn', function () {
     $dbUser = $databaseInfo['user'] ?? '';
     $dbPasswd = $databaseInfo['pass'] ?? '';
     $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbPath};user={$dbUser};password={$dbPasswd}";
-    $conn = new \PDO($dsn);
-    $conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+    $connection = new PDO($dsn);
+    $connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-    return $conn;
+    return $connection;
 });
 
-$container->set('urlRepo', function ($container) {
-    if ($container instanceof Container) {
-        $conn = $container->get('conn');
-    } else {
-        throw new Exception("PDO error: can't get database connection");
-    }
-
+$container->set(ValidatedUrlRepository::class, function ($container) {
     return new ValidatedUrlRepository(
-        new UrlRepository(
-            ($conn instanceof PDO) ? $conn : throw new Exception("PDO error: wrong type for connection")
-        )
-    );
-});
-
-$container->set('urlCheckRepo', function ($container) {
-    /**
-     * @var \DI\Container $container
-     */
-    $conn = $container->get('conn');
-
-    return new UrlCheckRepository(
-        ($conn instanceof PDO) ? $conn : throw new Exception("PDO error: wrong type for connection")
+        $container->get(UrlRepository::class)
     );
 });
 
@@ -98,7 +70,7 @@ $app->get('/', function ($request, $response) {
 })->setName('mainPage');
 
 $app->post('/urls', function ($request, $response) use ($router) {
-    $urlRepo = $this->get('urlRepo');
+    $urlRepo = $this->get(ValidatedUrlRepository::class);
 
     ['name' => $urlName] = $request->getParsedBodyParam("url");
     $urlInfo = ['name' => htmlspecialchars(
@@ -145,8 +117,8 @@ $app->post('/urls', function ($request, $response) use ($router) {
 })->setName('saveUrl');
 
 $app->get('/urls', function ($request, $response) {
-    $urlRepo = $this->get('urlRepo');
-    $urlCheckRepo = $this->get('urlCheckRepo');
+    $urlRepo = $this->get(ValidatedUrlRepository::class);
+    $urlCheckRepo = $this->get(UrlCheckRepository::class);
     $urls = $urlRepo->getEntities();
     $messages = $this->get('flash')->getMessages();
     $params = [
@@ -164,8 +136,8 @@ $app->get('/urls', function ($request, $response) {
 })->setName('urlsList');
 
 $app->get('/urls/{id}', function ($request, $response, array $args) {
-    $urlRepo = $this->get('urlRepo');
-    $urlCheckRepo = $this->get('urlCheckRepo');
+    $urlRepo = $this->get(ValidatedUrlRepository::class);
+    $urlCheckRepo = $this->get(UrlCheckRepository::class);
     $id = $args['id'];
 
     $url = $urlRepo->find($id);
@@ -190,13 +162,13 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
 })->setName('urlInfo');
 
 $app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
-    $urlRepo = $this->get('urlRepo');
+    $urlRepo = $this->get(ValidatedUrlRepository::class);
     $id = intval(
         is_string($args['id']) ? $args['id'] : null
     );
 
     $url = $urlRepo->find($id);
-    $urlCheckRepo = $this->get('urlCheckRepo');
+    $urlCheckRepo = $this->get(UrlCheckRepository::class);
 
     $urlCheck = UrlCheck::fromUrl(
         ($url instanceof UrlInterface) ?
