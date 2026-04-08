@@ -9,7 +9,7 @@ validate:
 
 PORT ?= 8000
 start: init
-	PHP_CLI_SERVER_WORKERS=5 php -S 0.0.0.0:$(PORT) -t public
+	PHP_CLI_SERVER_WORKERS=5 php -d output_buffering=4096 -S 0.0.0.0:$(PORT) -t public
 
 init:
 	psql -a -d $(DATABASE_URL) -f database.sql
