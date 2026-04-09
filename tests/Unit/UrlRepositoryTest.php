@@ -7,11 +7,12 @@ use PHPUnit\Framework\Attributes\{CoversClass, CoversMethod};
 use Analyzer\Url\Url as Url;
 use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository};
 use PDO;
-use Exception;
+use Analyzer\Exceptions\UrlException;
 
 #[CoversClass(Url::class)]
 #[CoversClass(UrlRepository::class)]
 #[CoversClass(ValidatedUrlRepository::class)]
+#[CoversClass(UrlException::class)]
 #[CoversMethod(UrlRepository::class, 'create')]
 #[CoversMethod(UrlRepository::class, 'update')]
 #[CoversMethod(UrlRepository::class, 'save')]

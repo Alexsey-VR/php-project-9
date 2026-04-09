@@ -6,7 +6,7 @@ use Analyzer\Interfaces\UrlCheckRepositoryInterface;
 use Analyzer\Interfaces\UrlCheckInterface;
 use Analyzer\UrlCheck\UrlCheck as UrlCheck;
 use PDO as PDO;
-use Exception as Exception;
+use Analyzer\Exceptions\UrlException as UrlException;
 
 class UrlCheckRepository implements UrlCheckRepositoryInterface
 {
@@ -77,10 +77,10 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
         $id = intval($this->conn->lastInsertId());
         $urlCheck->setId(
-            $id ? $id : throw new Exception(self::ERROR_MESSAGE_FOR_ID)
+            $id ? $id : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
         );
         $urlCheck->setTimestamp(
-            is_string($timestamp) ? $timestamp : throw new Exception(self::ERROR_MESSAGE_FOR_TIMESTAMP)
+            is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
         );
     }
 
@@ -125,10 +125,10 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
             $timestamp = $urlCheckInfo['created_at'];
             $urlCheck = UrlCheck::fromArray($urlCheckInfo);
             $urlCheck->setId(
-                is_int($foundId) ? $foundId : throw new Exception(self::ERROR_MESSAGE_FOR_ID)
+                is_int($foundId) ? $foundId : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
             );
             $urlCheck->setTimestamp(
-                is_string($timestamp) ? $timestamp : throw new Exception(self::ERROR_MESSAGE_FOR_TIMESTAMP)
+                is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
             );
 
             return $urlCheck;
@@ -162,10 +162,10 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
                 $foundId = $item['id'];
                 $timestamp = $item['created_at'];
                 $urlCheck->setId(
-                    is_int($foundId) ? $foundId : throw new Exception(self::ERROR_MESSAGE_FOR_ID)
+                    is_int($foundId) ? $foundId : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
                 );
                 $urlCheck->setTimestamp(
-                    is_string($timestamp) ? $timestamp : throw new Exception(self::ERROR_MESSAGE_FOR_TIMESTAMP)
+                    is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
                 );
                 $urlChecks[] = $urlCheck;
             }
@@ -193,10 +193,10 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
                 $foundId = $item['id'];
                 $timestamp = $item['created_at'];
                 $urlCheck->setId(
-                    is_int($foundId) ? $foundId : throw new Exception(self::ERROR_MESSAGE_FOR_ID)
+                    is_int($foundId) ? $foundId : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
                 );
                 $urlCheck->setTimestamp(
-                    is_string($timestamp) ? $timestamp : throw new Exception(self::ERROR_MESSAGE_FOR_TIMESTAMP)
+                    is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
                 );
                 $urlChecks[] = $urlCheck;
             }

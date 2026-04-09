@@ -9,12 +9,13 @@ use Analyzer\UrlCheck\UrlCheck as UrlCheck;
 use Analyzer\Url\Url as Url;
 use Analyzer\Repository\{UrlRepository, UrlCheckRepository};
 use PDO;
-use Exception;
+use Analyzer\Exceptions\UrlException;
 
 #[CoversClass(Url::class)]
 #[CoversClass(UrlCheck::class)]
 #[CoversClass(UrlRepository::class)]
 #[CoversClass(UrlCheckRepository::class)]
+#[CoversClass(UrlException::class)]
 #[CoversMethod(UrlCheckRepository::class, 'create')]
 #[CoversMethod(UrlCheckRepository::class, 'update')]
 #[CoversMethod(UrlCheckRepository::class, 'save')]
@@ -130,11 +131,11 @@ class UrlCheckRepositoryTest extends TestCase
             $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
             $this->expectException(
-                Exception::class
+                UrlException::class
             );
 
             $urlCheckRepository = new UrlCheckRepository(
-                isset($connStub) ? $connStub : throw new Exception("Internal error: can't get a mock"),
+                isset($connStub) ? $connStub : throw new UrlException("Internal error: can't get a mock"),
                 $isTest
             );
             $urlCheckRepository->save($urlCheck);
@@ -172,7 +173,7 @@ class UrlCheckRepositoryTest extends TestCase
             $urlCheckRepository->save($urlCheck);
             $id = $urlCheck->getId();
             $urlCheckTemp = $urlCheckRepository->find(
-                is_int($id) ? $id : throw new Exception(self::PDO_ERROR_FOR_ID)
+                is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
             );
         }
 
@@ -236,7 +237,7 @@ class UrlCheckRepositoryTest extends TestCase
             $id = $urlCheck->getId();
 
             $urlCheckFound = $urlCheckRepository->find(
-                is_int($id) ? $id : throw new Exception(self::PDO_ERROR_FOR_ID)
+                is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
             );
             $this->assertInstanceOf(UrlCheck::class, $urlCheckFound);
 

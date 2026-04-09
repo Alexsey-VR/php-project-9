@@ -4,7 +4,7 @@ namespace Analyzer\Repository;
 
 use Analyzer\Interfaces\{UrlInterface, UrlRepositoryInterface};
 use PDO as PDO;
-use Exception as Exception;
+use Analyzer\Exceptions\UrlException as UrlException;
 use Valitron\Validator;
 
 class ValidatedUrlRepository implements UrlRepositoryInterface
@@ -67,7 +67,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
 
         $id = $row['id'];
         $url->setId(
-            is_int($id) ? $id : throw new Exception("PDO error: found ID has wrond type")
+            is_int($id) ? $id : throw new UrlException("PDO error: found ID has wrond type")
         );
 
         $this->status = false;
@@ -139,7 +139,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
             $url->setUrl($normalizedUrlName);
             try {
                 $this->repo->create($url);
-            } catch (Exception $e) {
+            } catch (UrlException $e) {
                 $this->status = false;
                 $this->setMessage(
                     $e->getMessage()
@@ -148,7 +148,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         }
 
         if (!$this->status) {
-            $this->message = !!mb_strpos($this->getMessage(), 'Unique violation') ?
+            $this->message = (mb_strpos($this->getMessage(), 'Unique violation') !== false) ?
                 self::ERROR_MESSAGE_FOR_UNIQUE : $this->getMessage();
         }
     }

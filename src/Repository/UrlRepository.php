@@ -5,7 +5,7 @@ namespace Analyzer\Repository;
 use Analyzer\Interfaces\{UrlInterface, UrlRepositoryInterface};
 use Analyzer\Url\Url as Url;
 use PDO as PDO;
-use Exception as Exception;
+use Analyzer\Exceptions\UrlException as UrlException;
 
 class UrlRepository implements UrlRepositoryInterface
 {
@@ -61,9 +61,9 @@ class UrlRepository implements UrlRepositoryInterface
             $stmt->execute();
 
             $this->conn->commit();
-        } catch (Exception $e) {
+        } catch (UrlException $e) {
             $this->conn->rollBack();
-            throw new Exception(
+            throw new UrlException(
                 $e->getMessage()
             );
         }
@@ -71,10 +71,10 @@ class UrlRepository implements UrlRepositoryInterface
         $id = intval($this->conn->lastInsertId());
 
         $url->setId(
-            $id ? $id : throw new Exception(self::ERROR_MESSAGE_FOR_ID)
+            $id ? $id : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
         );
         $url->setTimestamp(
-            is_string($timestamp) ? $timestamp : throw new Exception(self::ERROR_MESSAGE_FOR_TIMESTAMP)
+            is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
         );
     }
 
@@ -109,10 +109,10 @@ class UrlRepository implements UrlRepositoryInterface
             $timestamp = $urlInfo['created_at'];
             $url = Url::fromArray($urlInfo);
             $url->setId(
-                is_int($foundId) ? $foundId : throw new Exception(self::ERROR_MESSAGE_FOR_ID)
+                is_int($foundId) ? $foundId : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
             );
             $url->setTimestamp(
-                is_string($timestamp) ? $timestamp : throw new Exception(self::ERROR_MESSAGE_FOR_TIMESTAMP)
+                is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
             );
             return $url;
         }
@@ -145,10 +145,10 @@ class UrlRepository implements UrlRepositoryInterface
                 $foundId = $item['id'];
                 $timestamp = $item['created_at'];
                 $url->setId(
-                    is_int($foundId) ? $foundId : throw new Exception(self::ERROR_MESSAGE_FOR_ID)
+                    is_int($foundId) ? $foundId : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
                 );
                 $url->setTimestamp(
-                    is_string($timestamp) ? $timestamp : throw new Exception(self::ERROR_MESSAGE_FOR_TIMESTAMP)
+                    is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
                 );
                 $urls[] = $url;
             }

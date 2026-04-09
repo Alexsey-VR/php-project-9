@@ -3,7 +3,7 @@
 namespace Analyzer\UrlCheck;
 
 use Analyzer\Interfaces\{UrlInterface, UrlCheckInterface};
-use Exception;
+use Analyzer\Exceptions\UrlException;
 use GuzzleHttp\Client as Client;
 use GuzzleHttp\Psr7;
 use Symfony\Component\DomCrawler\Crawler;
@@ -51,20 +51,20 @@ class UrlCheck implements UrlCheckInterface
         $urlCheck = new UrlCheck();
 
         $urlCheck->setUrlId(
-            is_int($urlId) ? $urlId : throw new Exception('Internal error: URL ID has a wrong type')
+            is_int($urlId) ? $urlId : throw new UrlException('Internal error: URL ID has a wrong type')
         );
         $urlCheck->setStatus(
-            is_int($status) ? $status : throw new Exception('Internal error: check status has a wrong type')
+            is_int($status) ? $status : throw new UrlException('Internal error: check status has a wrong type')
         );
         $urlCheck->setH1(
-            is_string($h1) ? $h1 : throw new Exception('Internal error: h1 has a wrong type')
+            is_string($h1) ? $h1 : throw new UrlException('Internal error: h1 has a wrong type')
         );
         $urlCheck->setTitle(
-            is_string($title) ? $title : throw new Exception('Internal error: title has a wrong type')
+            is_string($title) ? $title : throw new UrlException('Internal error: title has a wrong type')
         );
         $urlCheck->setDescription(
             is_string($description) ? $description
-            : throw new Exception('Internal error: description has a wrong type')
+            : throw new UrlException('Internal error: description has a wrong type')
         );
 
         return $urlCheck;
@@ -82,7 +82,7 @@ class UrlCheck implements UrlCheckInterface
 
         $urlId = $url->getId();
         $urlCheck->setUrlId(
-            is_int($urlId) ? $urlId : throw new Exception('Internal error: URL ID has a wrong type')
+            is_int($urlId) ? $urlId : throw new UrlException('Internal error: URL ID has a wrong type')
         );
 
         return $urlCheck;
@@ -111,7 +111,7 @@ class UrlCheck implements UrlCheckInterface
             }
 
             $this->message = self::SUCCESS_MESSAGE;
-        } catch (Exception $e) {
+        } catch (UrlException $e) {
             $this->message = self::ERROR_MESSAGE;
 
             return false;
