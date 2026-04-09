@@ -74,7 +74,7 @@ class UrlRepositoryTest extends TestCase
             $urlRepository->save($url);
             $id = $url->getId();
             $urlTemp = $urlRepository->find(
-                is_int($id) ? $id : throw new Exception(self::PDO_ERROR_FOR_ID)
+                is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
             );
         }
 
@@ -160,7 +160,7 @@ class UrlRepositoryTest extends TestCase
         if (isset($url) && isset($urlRepository)) {
             $id = $url->getId();
             $urlTemp = $urlRepository->find(
-                is_int($id) ? $id : throw new Exception(self::PDO_ERROR_FOR_ID)
+                is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
             );
         }
         if (isset($urlTemp) && isset($urlInfo) && isset($urlRepository) && isset($id)) {
@@ -250,7 +250,7 @@ class UrlRepositoryTest extends TestCase
 
             $sqlStop = file_get_contents(__DIR__ . "/../fixtures/urlRepositoryStop.sql");
             $this->conn->query(
-                is_string($sqlStop) ? $sqlStop : throw new Exception(self::INTERNAL_ERROR_QUERY)
+                is_string($sqlStop) ? $sqlStop : throw new UrlException(self::INTERNAL_ERROR_QUERY)
             );
 
             $this->assertTrue(

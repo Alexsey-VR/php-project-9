@@ -114,8 +114,6 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         if (!$result) {
             $this->setMessage("Некорректный URL");
             $this->status = false;
-
-            return $this->status;
         }
 
         return $this->status;
