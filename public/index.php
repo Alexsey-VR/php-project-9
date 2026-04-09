@@ -31,7 +31,7 @@ $container->set(PDO::class, function () {
     $databaseUrl = getenv('DATABASE_URL');
     $databaseInfo = parse_url(
         htmlspecialchars(
-            $databaseUrl ? $databaseUrl : ''
+            $databaseUrl ?? ''
         )
     );
     $dbPort = $databaseInfo['port'] ?? '';
