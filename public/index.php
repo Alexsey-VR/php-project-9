@@ -6,11 +6,13 @@ use Slim\Factory\AppFactory;
 use DI\Container;
 use Slim\Views\PhpRenderer;
 use Slim\Flash\Messages;
+use Monolog\Handler\RotatingFileHandler;
+use Monolog\Logger;
 use Analyzer\Url\Url;
 use Analyzer\UrlCheck\UrlCheck;
 use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository, UrlCheckRepository};
 use Analyzer\Interfaces\UrlInterface as UrlInterface;
-use Exception;
+use Analyzer\Exceptions\UrlErrorRenderer;
 use PDO;
 
 session_start();
@@ -53,8 +55,36 @@ $container->set(ValidatedUrlRepository::class, function ($container) {
     );
 });
 
+$container->set(Logger::class, function () {
+    $logger = new Logger('app');
+
+    $logDir = __DIR__ . '/../log';
+    $logFilePath = $logDir . '/errors.log';
+
+    $logFileHandler = new RotatingFileHandler(
+        $logFilePath,
+        maxFiles: 7,
+        level: Logger::WARNING,
+        filePermission: 644,
+        useLocking: true
+    );
+
+    $logger->pushHandler($logFileHandler);
+
+    return $logger;
+});
+
 $app = AppFactory::createFromContainer($container);
-$app->addErrorMiddleware(true, true, true);
+
+$app->addRoutingMiddleware();
+
+$errorMiddleware = $app->addErrorMiddleware(false, true, true, $container->get(Logger::class));
+$errorHandler = $errorMiddleware->getDefaultErrorHandler();
+$urlErrorRenderer = $container->get(UrlErrorRenderer::class);
+$urlErrorRenderer->setRenderer(
+    $container->get('renderer')
+);
+$errorHandler->registerErrorRenderer('text/html', $urlErrorRenderer);
 
 $router = $app->getRouteCollector()->getRouteParser();
 

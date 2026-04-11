@@ -2,3 +2,5 @@
 /vendor/
 /reports/
 /.phpunit.cache/
+/log/*
+!log/.gitkeep
