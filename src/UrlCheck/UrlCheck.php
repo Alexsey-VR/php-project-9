@@ -21,7 +21,7 @@ class UrlCheck implements UrlCheckInterface
     private string|null $timestamp;
     private string $message;
 
-    private const int STORE_LEN = 512;
+    private const int STORE_LEN = 200;
     private const string STRING_POSTFIX = "...";
     private const float CONNECTION_TIMEOUT_S = 2.0;
     private const string SUCCESS_MESSAGE = "Страница успешно проверена";
