@@ -14,6 +14,14 @@ class UrlErrorRenderer extends AbstractErrorRenderer
 {
     private PhpRenderer $renderer;
 
+    /**
+     * @var array<mixed> $payload
+     */
+    private array $payload;
+
+    private const CONNECTION_EXCEPTION_TYPE = 'GuzzleHttp\Exception\ConnectException';
+    private const string ERROR_MESSAGE = "Произошла ошибка при проверке, не удалось подключиться";
+
     public function __invoke(Throwable $exception, bool $displayErrorDetails): string
     {
         if ($displayErrorDetails) {
@@ -22,6 +30,15 @@ class UrlErrorRenderer extends AbstractErrorRenderer
             $exceptionFragment .= $this->renderExceptionFragment($exception);
         } else {
             $exceptionFragment = "<p>{$this->getErrorDescription($exception)}</p>";
+        }
+
+        if (get_class($exception) === self::CONNECTION_EXCEPTION_TYPE) {
+            $params = [
+                'url' => $this->payload['url'],
+                'messages' => ['error' => [self::ERROR_MESSAGE]]
+            ];
+
+            return $this->renderer->fetch('/Urls/url.phtml', $params);
         }
 
         $params = [
@@ -53,5 +70,13 @@ class UrlErrorRenderer extends AbstractErrorRenderer
     public function setRenderer(PhpRenderer $renderer): void
     {
         $this->renderer = $renderer;
+    }
+
+    /**
+     * @param array<mixed> $payload
+     */
+    public function setPayload(array $payload): void
+    {
+        $this->payload = $payload;
     }
 }

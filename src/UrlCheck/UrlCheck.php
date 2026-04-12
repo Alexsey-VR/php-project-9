@@ -7,7 +7,6 @@ use Analyzer\Exceptions\UrlException;
 use GuzzleHttp\Client as Client;
 use GuzzleHttp\Psr7;
 use Symfony\Component\DomCrawler\Crawler;
-use DomDocument;
 
 class UrlCheck implements UrlCheckInterface
 {
@@ -25,7 +24,6 @@ class UrlCheck implements UrlCheckInterface
     private const string STRING_POSTFIX = "...";
     private const float CONNECTION_TIMEOUT_S = 2.0;
     private const string SUCCESS_MESSAGE = "Страница успешно проверена";
-    private const string ERROR_MESSAGE = "Произошла ошибка при проверке, не удалось подключиться";
 
     public function __construct()
     {
@@ -94,28 +92,21 @@ class UrlCheck implements UrlCheckInterface
         $h1 = "";
         $title = "";
         $description = "";
-        try {
-            $response = $this->client->request('GET');
-            $status = $response->getStatusCode();
-            $bodyContent = $response->getBody()->getContents();
 
-            $crawler = new Crawler();
-            $crawler->addHTMLContent($bodyContent, 'UTF-8');
+        $response = $this->client->request('GET');
+        $status = $response->getStatusCode();
+        $bodyContent = $response->getBody()->getContents();
 
-            $h1 = $crawler->filterXPath("//h1")->text();
-            $title = $crawler->filterXPath("//title")->text();
-            $description = "";
-            $content = $crawler->filterXPath('//meta[contains(@name, "description")]')->evaluate('@content');//->text();
-            if ($content instanceof Crawler) {
-                $description = $content->text();
-            }
+        $crawler = new Crawler();
+        $crawler->addHTMLContent($bodyContent, 'UTF-8');
 
-            $this->message = self::SUCCESS_MESSAGE;
-        } catch (UrlException $e) {
-            $this->message = self::ERROR_MESSAGE;
+        $h1 = $crawler->filterXPath("//h1")->text('', false);
+        $title = $crawler->filterXPath("//title")->text('', false);
+        $description = "";
+        $content = $crawler->filterXPath('//meta[contains(@name, "description")]')->evaluate('@content');
+        $description = ($content instanceof Crawler) ? $content->text('', false) : '';
 
-            return false;
-        };
+        $this->message = self::SUCCESS_MESSAGE;
 
         $this->setStatus($status);
 

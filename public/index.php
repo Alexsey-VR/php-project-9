@@ -64,7 +64,7 @@ $container->set(Logger::class, function () {
     $logFileHandler = new RotatingFileHandler(
         $logFilePath,
         maxFiles: 7,
-        level: Logger::WARNING,
+        level: Logger::ERROR,
         filePermission: 644,
         useLocking: true
     );
@@ -191,7 +191,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
     return $response->withStatus(400);
 })->setName('urlInfo');
 
-$app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
+$app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router, $container) {
     $urlRepo = $this->get(ValidatedUrlRepository::class);
     $id = intval(
         is_string($args['id']) ? $args['id'] : null
@@ -204,6 +204,13 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
         ($url instanceof UrlInterface) ?
             $url : throw new Exception("Internal error: can't get a url interface on checks")
     );
+
+    $errorRenderer = $container->get(UrlErrorRenderer::class);
+    $payload = [
+        'url' => $url
+    ];
+    $errorRenderer->setPayload($payload);
+
     if ($urlCheck->execute()) {
         $urlCheckRepo->save($urlCheck);
 
@@ -215,9 +222,8 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
         $urlRepo->save($url);
 
         $this->get('flash')->addMessage('success', $urlCheck->getMessage());
-    } else {
-        $this->get('flash')->addMessage('error', $urlCheck->getMessage());
     }
+
     $toUrlInfo = $router->urlFor('urlInfo', ['id' => "{$url->getId()}"]);
 
     return $response->withRedirect($toUrlInfo);
