@@ -173,10 +173,24 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
     $url = $urlRepo->find($id);
     $messages = $this->get('flash')->getMessages();
     $checks = $urlCheckRepo->getEntitiesByUrlId($id);
+    $checkItems = [];
+    foreach ($checks as $check) {
+        $checkItems[] = [
+            'id' => $check->getId(),
+            'status' => $check->getStatus(),
+            'h1' => $check->getH1(),
+            'title' => $check->getTitle(),
+            'description' => $check->getDescription(),
+            'timestamp' => $check->getTimestamp()
+        ];
+    }
+
     $params = [
-        'url' => $url,
+        'name' => $url->getUrl(),
+        'id' => $url->getId(),
+        'timestamp' => $url->getTimestamp(),
         'messages' => $messages,
-        'checks' => $checks
+        'checks' => $checkItems
     ];
 
     if (!is_null($url)) {
@@ -207,7 +221,10 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
 
     $errorRenderer = $container->get(UrlErrorRenderer::class);
     $payload = [
-        'url' => $url
+        'url' => $url,
+        'name' => $url->getUrl(),
+        'id' => $url->getId(),
+        'timestamp' => $url->getTimestamp()
     ];
     $errorRenderer->setPayload($payload);
 

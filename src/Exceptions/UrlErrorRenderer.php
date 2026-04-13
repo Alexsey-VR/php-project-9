@@ -34,7 +34,9 @@ class UrlErrorRenderer extends AbstractErrorRenderer
 
         if (get_class($exception) === self::CONNECTION_EXCEPTION_TYPE) {
             $params = [
-                'url' => $this->payload['url'],
+                'name' => $this->payload['url']->getUrl(),
+                'id' => $this->payload['url']->getId(),
+                'timestamp' => $this->payload['url']->getTimestamp(),
                 'messages' => ['error' => [self::ERROR_MESSAGE]]
             ];
 

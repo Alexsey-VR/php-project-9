@@ -40,26 +40,26 @@
 
     <div class="card-body sticky-xl-top">
       <div class="text-start mb-2 container" style="width: 100vw">
-        <h1>Сайт: <?= $url->getUrl() ?></h1>
+        <h1>Сайт: <?= $name ?></h1>
         <table class="table table-bordered border-primary" data-test="url">
           <tr>
             <th>ID</th>
-            <td><?= $url->getId() ?></td>
+            <td><?= $id ?></td>
           </tr>
           <tr>
             <th>Имя</th>
-            <td><?= $url->getUrl() ?></td>
+            <td><?= $name ?></td>
           </tr>
           <tr>
             <th>Дата создания</th>
-            <td><?= $url->getTimestamp() ?></td>
+            <td><?= $timestamp ?></td>
           </tr>
         </table>
       </div>
 
       <div class="text-start mb-2 container" style="width: 100vw; margin-top: 4rem">
         <h1>Проверки</h1>
-        <form action="/urls/<?= $url->getId() ?>/checks" method='post'>
+        <form action="/urls/<?= $id ?>/checks" method='post'>
           <input type='submit' class="btn btn-primary btn-sm" value='Запустить проверку'>
         </form>
         <table class="table table-bordered border-primary" data-test="checks">
@@ -76,12 +76,12 @@
           <tbody>
             <?php foreach ($checks as $check): ?>
               <tr>
-                <td><?= $check->getId() ?></td>
-                <td><?= $check->getStatus() ?></td>
-                <td><?= $check->getH1() ?></td>
-                <td><?= $check->getTitle() ?></td>
-                <td><?= $check->getDescription() ?></td>
-                <td><?= $check->getTimestamp() ?></td>
+                <td><?= $check['id'] ?></td>
+                <td><?= $check['status'] ?></td>
+                <td><?= $check['h1'] ?></td>
+                <td><?= $check['title'] ?></td>
+                <td><?= $check['description'] ?></td>
+                <td><?= $check['timestamp'] ?></td>
               </tr>
             <?php endforeach ?>
           </tbody>
