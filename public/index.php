@@ -150,12 +150,25 @@ $app->get('/urls', function ($request, $response) {
     $urlRepo = $this->get(ValidatedUrlRepository::class);
     $urlCheckRepo = $this->get(UrlCheckRepository::class);
     $urls = $urlRepo->getEntities();
-    $messages = $this->get('flash')->getMessages();
+    $urlItems = [];
+    foreach ($urls as $url) {
+        $id = $url->getId();
+        $urlChecks = $urlCheckRepo->getEntitiesByUrlId($id);
+        $urlItems[] = [
+            'id' => $id,
+            'name' => $url->getUrl(),
+            'timestamp' => (count($urlChecks) > 0) ? $urlChecks[0]->getTimestamp() : '',
+            'status' => (count($urlChecks) > 0) ? $urlChecks[0]->getStatus() : ''
+        ];
+    }
+
     $params = [
-        'urls' => $urls,
+        'urls' => $urlItems,
         'urlCheckRepo' => $urlCheckRepo,
         'messages' => $messages
     ];
+
+    $messages = $this->get('flash')->getMessages();
 
     return $this->get('renderer')
                 ->render(

@@ -53,19 +53,11 @@
           <tbody>
             <?php foreach ($urls as $url): ?>
               <tr>
-                <?php $id =  $url->getId() ?>
+                <?php $id =  $url['id'] ?>
                 <td><?= $id ?></td>
-                <td><a href="/urls/<?= $id ?>"><?= $url->getUrl() ?></a></td>
-                <td>
-                  <?php if (count($urlChecks = $urlCheckRepo->getEntitiesByUrlId($id)) > 0): ?>
-                    <?= $urlChecks[0]->getTimestamp() ?>
-                  <?php endif ?>
-                </td>
-                <td>
-                  <?php if (count($urlChecks) > 0): ?>
-                    <?= $urlChecks[0]->getStatus() ?>
-                  <?php endif ?>
-                </td>
+                <td><a href="/urls/<?= $id ?>"><?= $url['name'] ?></a></td>
+                <td><?= $url['timestamp'] ?></td>
+                <td><?= $url['status'] ?></td>
               </tr>
             <?php endforeach ?>
           </tbody>
