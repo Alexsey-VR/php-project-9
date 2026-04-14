@@ -1,5 +1,7 @@
 <?php
 
+namespace Analyzer\Tests\Unit;
+
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\{CoversClass, CoversMethod};
 use Analyzer\Exceptions\UrlErrorRenderer;
@@ -36,4 +38,3 @@ class UrlErrorRendererTest extends TestCase
         $this->assertTrue(mb_strpos($exceptionInfo, 'Произошла ошибка') !== false);
     }
 }
-
