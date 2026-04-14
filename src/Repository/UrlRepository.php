@@ -20,14 +20,10 @@ class UrlRepository implements UrlRepositoryInterface
     private const string ERROR_MESSAGE_FOR_TIMESTAMP = "PDO error: timestamp has a wrong type";
     private const string ERROR_MESSAGE_FOR_ID = "PDO error: can't get last insert id";
 
-    public function __construct(PDO $conn, bool $isTest = false)
+    public function __construct(PDO $conn)
     {
         $this->conn = $conn;
-        if ($isTest) {
-            $this->tableName = "urls_test";
-        } else {
-            $this->tableName = "urls";
-        }
+        $this->tableName = "urls";
         date_default_timezone_set('UTC');
     }
 

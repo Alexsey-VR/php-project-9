@@ -20,15 +20,11 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
     private const string PARAM_URL_NAME = ":name";
     private const int MAX_URL_NAME_LENGTH = 255;
 
-    public function __construct(UrlRepositoryInterface $repo, bool $isTest = false)
+    public function __construct(UrlRepositoryInterface $repo)
     {
         $this->conn = $repo->getConnection();
         $this->repo = $repo;
-        if ($isTest) {
-            $this->tableName = "urls_test";
-        } else {
-            $this->tableName = "urls";
-        }
+        $this->tableName = "urls";
         $this->message = self::SUCCESS_MESSAGE;
     }
 
