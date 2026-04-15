@@ -13,6 +13,10 @@ use Analyzer\UrlCheck\UrlCheck;
 use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository, UrlCheckRepository};
 use Analyzer\Interfaces\UrlInterface as UrlInterface;
 use Analyzer\Exceptions\UrlErrorRenderer;
+use Analyzer\Exceptions\UrlErrorHandler;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use PDO;
 
 session_start();
@@ -78,13 +82,18 @@ $app = AppFactory::createFromContainer($container);
 
 $app->addRoutingMiddleware();
 
-$errorMiddleware = $app->addErrorMiddleware(false, true, true, $container->get(Logger::class));
-$errorHandler = $errorMiddleware->getDefaultErrorHandler();
+$urlErrorHandler = new UrlErrorHandler(
+    $app->getCallableResolver(),
+    $app->getResponseFactory(),
+    $container->get(Logger::class)
+);
+$errorMiddleware = $app->addErrorMiddleware(false, true, true);
+$errorMiddleware->setDefaultErrorHandler($urlErrorHandler);
 $urlErrorRenderer = $container->get(UrlErrorRenderer::class);
 $urlErrorRenderer->setRenderer(
     $container->get('renderer')
 );
-$errorHandler->registerErrorRenderer('text/html', $urlErrorRenderer);
+$urlErrorHandler->registerErrorRenderer('text/html', $urlErrorRenderer);
 
 $router = $app->getRouteCollector()->getRouteParser();
 
