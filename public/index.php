@@ -171,13 +171,12 @@ $app->get('/urls', function ($request, $response) {
         ];
     }
 
+    $messages = $this->get('flash')->getMessages();
     $params = [
         'urls' => $urlItems,
         'urlCheckRepo' => $urlCheckRepo,
         'messages' => $messages
     ];
-
-    $messages = $this->get('flash')->getMessages();
 
     return $this->get('renderer')
                 ->render(
