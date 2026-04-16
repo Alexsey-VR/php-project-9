@@ -37,7 +37,8 @@ class UrlErrorRenderer extends AbstractErrorRenderer
                 'name' => $this->payload['name'],
                 'id' => $this->payload['id'],
                 'timestamp' => $this->payload['timestamp'],
-                'messages' => ['error' => [self::ERROR_MESSAGE]]
+                'messages' => ['error' => [self::ERROR_MESSAGE]],
+                'checks' => []
             ];
 
             return $this->renderer->fetch('/Urls/url.phtml', $params);
