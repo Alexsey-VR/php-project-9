@@ -27,11 +27,11 @@
       <?php foreach($messages as $key => $message): ?>
         <?php foreach($message as $item): ?>
           <?php if ($key === 'error'): ?>
-            <div class="alert alert-danger" role="alert">
+            <div class="alert alert-danger" role="alert" id="alert">
               <?= $item ?>
             </div>
           <?php elseif ($key === 'success'): ?>
-            <div class="alert alert-success" role="alert">
+            <div class="alert alert-success" role="alert" id="alert">
               <?= $item ?>
             </div>
           <?php endif ?>
