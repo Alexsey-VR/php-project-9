@@ -16,7 +16,7 @@ class UrlErrorHandler extends ErrorHandler
         } elseif ($this->exception instanceof HttpException) {
             $exceptionCode = $this->exception->getCode();
         } elseif ($this->exception instanceof ConnectException) {
-            $exceptionCode = 502;
+            $exceptionCode = 404;
         } else {
             $exceptionCode = 500;
         }
