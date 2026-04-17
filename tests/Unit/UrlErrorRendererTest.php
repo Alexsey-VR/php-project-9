@@ -19,13 +19,6 @@ class UrlErrorRendererTest extends TestCase
         $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
         $exceptionRenderer->setRenderer($slimRenderer);
 
-        $payload = [
-            'name' => 'testName',
-            'id' => 'testId',
-            'timestamp' => 'testTimestamp'
-        ];
-        $exceptionRenderer->setPayload($payload);
-
         $builder = $this->getMockBuilder(Exception::class);
         $exceptionStub = $builder->getMock();
 

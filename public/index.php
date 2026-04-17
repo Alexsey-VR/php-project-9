@@ -240,15 +240,6 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
             $url : throw new Exception("Internal error: can't get a url interface on checks")
     );
 
-    $errorRenderer = $container->get(UrlErrorRenderer::class);
-    $payload = [
-        'url' => $url,
-        'name' => $url->getUrl(),
-        'id' => $url->getId(),
-        'timestamp' => $url->getTimestamp()
-    ];
-    $errorRenderer->setPayload($payload);
-
     if ($urlCheck->execute()) {
         $urlCheckRepo->save($urlCheck);
 
