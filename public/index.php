@@ -260,6 +260,8 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
         $urlRepo->save($url);
 
         $this->get('flash')->addMessage('success', $urlCheck->getMessage());
+    } else {
+        $this->get('flash')->addMessage('error', $urlCheck->getMessage());
     }
 
     $toUrlInfo = $router->urlFor('urlInfo', ['id' => "{$url->getId()}"]);

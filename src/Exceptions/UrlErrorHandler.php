@@ -4,7 +4,6 @@ namespace Analyzer\Exceptions;
 
 use Slim\Handlers\ErrorHandler;
 use Slim\Exception\HttpException;
-use GuzzleHttp\Exception\ConnectException;
 
 class UrlErrorHandler extends ErrorHandler
 {
@@ -15,8 +14,6 @@ class UrlErrorHandler extends ErrorHandler
             return $exceptionCode;
         } elseif ($this->exception instanceof HttpException) {
             $exceptionCode = $this->exception->getCode();
-        } elseif ($this->exception instanceof ConnectException) {
-            $exceptionCode = 404;
         } else {
             $exceptionCode = 500;
         }
