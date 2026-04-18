@@ -8,6 +8,7 @@ use GuzzleHttp\Client as Client;
 use GuzzleHttp\Psr7;
 use Symfony\Component\DomCrawler\Crawler;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
 
 class UrlCheck implements UrlCheckInterface
 {
@@ -108,7 +109,7 @@ class UrlCheck implements UrlCheckInterface
             $description = ($content instanceof Crawler) ? $content->text('', false) : '';
 
             $this->message = self::SUCCESS_MESSAGE;
-        } catch (ConnectException $e) {
+        } catch (ConnectException|RequestException $e) {
             $this->message = self::ERROR_MESSAGE;
 
             return false;
