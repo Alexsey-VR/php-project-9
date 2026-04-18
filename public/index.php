@@ -8,19 +8,14 @@ use Slim\Views\PhpRenderer;
 use Slim\Flash\Messages;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
-use Analyzer\Url\Url;
-use Analyzer\UrlCheck\UrlCheck;
-use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository, UrlCheckRepository};
-use Analyzer\Interfaces\UrlInterface as UrlInterface;
+use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository};
 use Analyzer\Exceptions\UrlErrorRenderer;
 use Analyzer\Exceptions\UrlErrorHandler;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Analyzer\Controllers\UrlCheckAction;
 use Analyzer\Controllers\UrlReadAction;
 use Analyzer\Controllers\UrlsReadAction;
 use Analyzer\Controllers\UrlsCreateAction;
+use Analyzer\Controllers\MainAction;
 use PDO;
 
 session_start();
@@ -32,9 +27,6 @@ $container = new Container();
 $container->set('renderer', function () {
     // As a parameter the base directory is used to contain a templates
     return new PhpRenderer(__DIR__ . '/../templates');
-});
-$container->set(Messages::class, function () {
-    return new Messages();
 });
 
 $container->set(PDO::class, function () {
@@ -101,16 +93,13 @@ $urlErrorHandler->registerErrorRenderer('text/html', $urlErrorRenderer);
 
 $router = $app->getRouteCollector()->getRouteParser();
 
-$app->get('/', function ($request, $response) {
-    $messages = $this->get(Messages::class)->getMessages();
-
-    $params = [
-        'messages' => $messages,
-        'errors' => []
-    ];
-
-    return $this->get('renderer')->render($response, 'index.phtml', $params);
-})->setName('mainPage');
+$mainAction = $container->get(MainAction::class);
+$app->get(
+    '/',
+    $mainAction->setRenderer(
+        $container->get('renderer')
+    )->setTemplate('index.phtml')
+)->setName('mainPage');
 
 $urlsCreateAction = $container->get(UrlsCreateAction::class);
 $app->post(
