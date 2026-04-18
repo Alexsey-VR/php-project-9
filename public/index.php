@@ -18,6 +18,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Analyzer\Controllers\UrlCheckAction;
+use Analyzer\Controllers\UrlAction;
 use PDO;
 
 session_start();
@@ -88,7 +89,7 @@ $urlErrorHandler = new UrlErrorHandler(
     $app->getResponseFactory(),
     $container->get(Logger::class)
 );
-$errorMiddleware = $app->addErrorMiddleware(true, true, true);
+$errorMiddleware = $app->addErrorMiddleware(false, true, true);
 $errorMiddleware->setDefaultErrorHandler($urlErrorHandler);
 $urlErrorRenderer = $container->get(UrlErrorRenderer::class);
 $urlErrorRenderer->setRenderer(
@@ -187,53 +188,20 @@ $app->get('/urls', function ($request, $response) {
                 );
 })->setName('urlsList');
 
-$app->get('/urls/{id}', function ($request, $response, array $args) {
-    $urlRepo = $this->get(ValidatedUrlRepository::class);
-    $urlCheckRepo = $this->get(UrlCheckRepository::class);
-    $id = $args['id'];
-
-    $url = $urlRepo->find($id);
-    $messages = $this->get(Messages::class)->getMessages();
-    $checks = $urlCheckRepo->getEntitiesByUrlId($id);
-    $checkItems = [];
-    foreach ($checks as $check) {
-        $checkItems[] = [
-            'id' => $check->getId(),
-            'status' => $check->getStatus(),
-            'h1' => $check->getH1(),
-            'title' => $check->getTitle(),
-            'description' => $check->getDescription(),
-            'timestamp' => $check->getTimestamp()
-        ];
-    }
-
-    $params = [
-        'name' => $url->getUrl(),
-        'id' => $url->getId(),
-        'timestamp' => $url->getTimestamp(),
-        'messages' => $messages,
-        'checks' => $checkItems
-    ];
-
-    if (!is_null($url)) {
-        return $this->get('renderer')
-            ->render(
-                $response,
-                'Urls/url.phtml',
-                $params
-            );
-    }
-
-    return $response->withStatus(400);
-})->setName('urlInfo');
+$urlAction = $container->get(UrlAction::class);
+$app->get(
+    '/urls/{id}',
+    $urlAction->setRenderer(
+        $container->get('renderer')
+    )->setTemplate(template: 'Urls/url.phtml')
+)->setName('urlInfo');
 
 $urlCheckAction = $container->get(UrlCheckAction::class);
 $app->post(
     '/urls/{id}/checks',
     $urlCheckAction->setRouter(
-        $app->getRouteCollector()->getRouteParser(),
-        routeName: 'urlInfo'
-    )
+        $app->getRouteCollector()->getRouteParser()
+    )->setRouteName(routeName: 'urlInfo')
 );
 
 $app->run();
