@@ -19,6 +19,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Analyzer\Controllers\UrlCheckAction;
 use Analyzer\Controllers\UrlAction;
+use Analyzer\Controllers\UrlsGetAction;
 use PDO;
 
 session_start();
@@ -157,36 +158,13 @@ $app->post('/urls', function ($request, $response) use ($router) {
     );
 })->setName('saveUrl');
 
-$app->get('/urls', function ($request, $response) {
-    $urlRepo = $this->get(ValidatedUrlRepository::class);
-    $urlCheckRepo = $this->get(UrlCheckRepository::class);
-    $urls = $urlRepo->getEntities();
-    $urlItems = [];
-    foreach ($urls as $url) {
-        $id = $url->getId();
-        $urlChecks = $urlCheckRepo->getEntitiesByUrlId($id);
-        $urlItems[] = [
-            'id' => $id,
-            'name' => $url->getUrl(),
-            'timestamp' => (count($urlChecks) > 0) ? $urlChecks[0]->getTimestamp() : '',
-            'status' => (count($urlChecks) > 0) ? $urlChecks[0]->getStatus() : ''
-        ];
-    }
-
-    $messages = $this->get(Messages::class)->getMessages();
-    $params = [
-        'urls' => $urlItems,
-        'urlCheckRepo' => $urlCheckRepo,
-        'messages' => $messages
-    ];
-
-    return $this->get('renderer')
-                ->render(
-                    $response,
-                    'Urls/urls.phtml',
-                    $params
-                );
-})->setName('urlsList');
+$urlsAction = $container->get(UrlsGetAction::class);
+$app->get(
+    '/urls',
+    $urlsAction->setRenderer(
+        $container->get('renderer')
+    )->setTemplate(template: 'Urls/urls.phtml')
+)->setName('urlsList');
 
 $urlAction = $container->get(UrlAction::class);
 $app->get(
