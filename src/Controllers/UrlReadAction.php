@@ -10,7 +10,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Repository\{ValidatedUrlRepository, UrlCheckRepository};
 use Analyzer\Interfaces\UrlInterface;
 
-class UrlAction
+class UrlReadAction
 {
     private ValidatedUrlRepository $urlRepository;
     private UrlCheckRepository $urlCheckRepository;
@@ -73,14 +73,14 @@ class UrlAction
         return $response->withStatus(400);
     }
 
-    public function setTemplate(string $template): UrlAction
+    public function setTemplate(string $template): UrlReadAction
     {
         $this->template = $template;
 
         return $this;
     }
 
-    public function setRenderer(PhpRenderer $renderer): UrlAction
+    public function setRenderer(PhpRenderer $renderer): UrlReadAction
     {
         $this->renderer = $renderer;
 

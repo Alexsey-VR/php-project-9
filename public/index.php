@@ -18,7 +18,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Analyzer\Controllers\UrlCheckAction;
-use Analyzer\Controllers\UrlAction;
+use Analyzer\Controllers\UrlReadAction;
 use Analyzer\Controllers\UrlsReadAction;
 use Analyzer\Controllers\UrlsCreateAction;
 use PDO;
@@ -131,10 +131,10 @@ $app->get(
     )->setTemplate(template: 'Urls/urls.phtml')
 )->setName('urlsList');
 
-$urlAction = $container->get(UrlAction::class);
+$urlReadAction = $container->get(UrlReadAction::class);
 $app->get(
     '/urls/{id}',
-    $urlAction->setRenderer(
+    $urlReadAction->setRenderer(
         $container->get('renderer')
     )->setTemplate(template: 'Urls/url.phtml')
 )->setName('urlInfo');
