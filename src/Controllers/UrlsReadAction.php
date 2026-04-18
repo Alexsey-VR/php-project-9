@@ -10,7 +10,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Repository\{ValidatedUrlRepository, UrlCheckRepository};
 use Analyzer\Exceptions\UrlException;
 
-class UrlsGetAction
+class UrlsReadAction
 {
     private ValidatedUrlRepository $urlRepository;
     private UrlCheckRepository $urlCheckRepository;
@@ -64,14 +64,14 @@ class UrlsGetAction
         );
     }
 
-    public function setRenderer(PhpRenderer $renderer): UrlsGetAction
+    public function setRenderer(PhpRenderer $renderer): UrlsReadAction
     {
         $this->renderer = $renderer;
 
         return $this;
     }
 
-    public function setTemplate(string $template): UrlsGetAction
+    public function setTemplate(string $template): UrlsReadAction
     {
         $this->template = $template;
 

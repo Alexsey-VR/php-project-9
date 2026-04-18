@@ -19,7 +19,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Analyzer\Controllers\UrlCheckAction;
 use Analyzer\Controllers\UrlAction;
-use Analyzer\Controllers\UrlsGetAction;
+use Analyzer\Controllers\UrlsReadAction;
 use Analyzer\Controllers\UrlsCreateAction;
 use PDO;
 
@@ -123,10 +123,10 @@ $app->post(
     )->setRouteName('urlInfo')
 )->setName('createUrl');
 
-$urlsGetAction = $container->get(UrlsGetAction::class);
+$urlsReadAction = $container->get(UrlsReadAction::class);
 $app->get(
     '/urls',
-    $urlsGetAction->setRenderer(
+    $urlsReadAction->setRenderer(
         $container->get('renderer')
     )->setTemplate(template: 'Urls/urls.phtml')
 )->setName('urlsList');
