@@ -109,7 +109,7 @@ class UrlCheck implements UrlCheckInterface
             $description = ($content instanceof Crawler) ? $content->text('', false) : '';
 
             $this->message = self::SUCCESS_MESSAGE;
-        } catch (ConnectException|RequestException $e) {
+        } catch (ConnectException | RequestException $e) {
             $this->message = self::ERROR_MESSAGE;
 
             return false;
