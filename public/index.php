@@ -17,6 +17,7 @@ use Analyzer\Exceptions\UrlErrorHandler;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
+use Analyzer\Controllers\UrlCheckAction;
 use PDO;
 
 session_start();
@@ -29,17 +30,17 @@ $container->set('renderer', function () {
     // As a parameter the base directory is used to contain a templates
     return new PhpRenderer(__DIR__ . '/../templates');
 });
-$container->set('flash', function () {
+$container->set(Messages::class, function () {
     return new Messages();
 });
 
 $container->set(PDO::class, function () {
-    $databaseUrl = getenv('DATABASE_URL');
-    $databaseInfo = parse_url(
-        htmlspecialchars(
-            $databaseUrl ?? ''
-        )
-    );
+    $databaseinfo = [];
+    if ($databaseUrl = getenv('DATABASE_URL')) {
+        $databaseInfo = parse_url(
+            htmlspecialchars($databaseUrl)
+        );
+    }
     $dbPort = $databaseInfo['port'] ?? '';
     $dbHost = $databaseInfo['host'] ?? '';
     $dbParsedPath = $databaseInfo['path'] ?? '';
@@ -98,7 +99,7 @@ $urlErrorHandler->registerErrorRenderer('text/html', $urlErrorRenderer);
 $router = $app->getRouteCollector()->getRouteParser();
 
 $app->get('/', function ($request, $response) {
-    $messages = $this->get('flash')->getMessages();
+    $messages = $this->get(Messages::class)->getMessages();
 
     $params = [
         'messages' => $messages,
@@ -120,7 +121,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
     $urlRepo->save($url);
 
     if ($urlRepo->isValid()) {
-        $this->get('flash')->addMessage(
+        $this->get(Messages::class)->addMessage(
             'success',
             $urlRepo->getMessage()
         );
@@ -131,7 +132,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
 
     $toMainPage = $router->urlFor('mainPage');
     if ($url->exists()) {
-        $this->get('flash')->addMessage(
+        $this->get(Messages::class)->addMessage(
             'error',
             $urlRepo->getMessage()
         );
@@ -171,7 +172,7 @@ $app->get('/urls', function ($request, $response) {
         ];
     }
 
-    $messages = $this->get('flash')->getMessages();
+    $messages = $this->get(Messages::class)->getMessages();
     $params = [
         'urls' => $urlItems,
         'urlCheckRepo' => $urlCheckRepo,
@@ -192,7 +193,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
     $id = $args['id'];
 
     $url = $urlRepo->find($id);
-    $messages = $this->get('flash')->getMessages();
+    $messages = $this->get(Messages::class)->getMessages();
     $checks = $urlCheckRepo->getEntitiesByUrlId($id);
     $checkItems = [];
     foreach ($checks as $check) {
@@ -226,38 +227,13 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
     return $response->withStatus(400);
 })->setName('urlInfo');
 
-$app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router, $container) {
-    $urlRepo = $this->get(ValidatedUrlRepository::class);
-    $id = intval(
-        is_string($args['id']) ? $args['id'] : null
-    );
-
-    $url = $urlRepo->find($id);
-    $urlCheckRepo = $this->get(UrlCheckRepository::class);
-
-    $urlCheck = UrlCheck::fromUrl(
-        ($url instanceof UrlInterface) ?
-            $url : throw new Exception("Internal error: can't get a url interface on checks")
-    );
-
-    if ($urlCheck->execute()) {
-        $urlCheckRepo->save($urlCheck);
-
-        $timestamp = $urlCheck->getTimestamp();
-        $url->setTimestamp(
-            is_string($timestamp) ?
-                $timestamp : throw new Exception("Internal error: can't get a timestamp on checks")
-        );
-        $urlRepo->save($url);
-
-        $this->get('flash')->addMessage('success', $urlCheck->getMessage());
-    } else {
-        $this->get('flash')->addMessage('error', $urlCheck->getMessage());
-    }
-
-    $toUrlInfo = $router->urlFor('urlInfo', ['id' => "{$url->getId()}"]);
-
-    return $response->withRedirect($toUrlInfo);
-});
+$urlCheckAction = $container->get(UrlCheckAction::class);
+$app->post(
+    '/urls/{id}/checks',
+    $urlCheckAction->setRouter(
+        $app->getRouteCollector()->getRouteParser(),
+        routeName: 'urlInfo'
+    )
+);
 
 $app->run();
