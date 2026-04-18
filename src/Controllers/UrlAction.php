@@ -3,17 +3,12 @@
 namespace Analyzer\Controllers;
 
 use Slim\Flash\Messages;
-use Slim\App;
-use DI\Container;
 use Slim\Http\Interfaces\ResponseInterface;
-use Slim\Interfaces\RouteParserInterface;
 use Slim\Views\PhpRenderer;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository, UrlCheckRepository};
+use Analyzer\Repository\{ValidatedUrlRepository, UrlCheckRepository};
 use Analyzer\Interfaces\UrlInterface;
-use Analyzer\UrlCheck\UrlCheck;
-use Analyzer\Exceptions\UrlException;
 
 class UrlAction
 {
