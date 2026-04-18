@@ -20,6 +20,7 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Analyzer\Controllers\UrlCheckAction;
 use Analyzer\Controllers\UrlAction;
 use Analyzer\Controllers\UrlsGetAction;
+use Analyzer\Controllers\UrlsCreateAction;
 use PDO;
 
 session_start();
@@ -111,57 +112,21 @@ $app->get('/', function ($request, $response) {
     return $this->get('renderer')->render($response, 'index.phtml', $params);
 })->setName('mainPage');
 
-$app->post('/urls', function ($request, $response) use ($router) {
-    $urlRepo = $this->get(ValidatedUrlRepository::class);
+$urlsCreateAction = $container->get(UrlsCreateAction::class);
+$app->post(
+    '/urls',
+    $urlsCreateAction->setRenderer(
+        $container->get('renderer')
+    )->setTemplate('index.phtml')
+    ->setRouter(
+        $app->getRouteCollector()->getRouteParser()
+    )->setRouteName('urlInfo')
+)->setName('createUrl');
 
-    ['name' => $urlName] = $request->getParsedBodyParam("url");
-    $urlInfo = ['name' => htmlspecialchars(
-        is_string($urlName) ? $urlName : ''
-    )];
-
-    $url = Url::fromArray($urlInfo);
-    $urlRepo->save($url);
-
-    if ($urlRepo->isValid()) {
-        $this->get(Messages::class)->addMessage(
-            'success',
-            $urlRepo->getMessage()
-        );
-
-        $toUrlInfo = $router->urlFor('urlInfo', ['id' => "{$url->getId()}"]);
-        return $response->withRedirect($toUrlInfo);
-    }
-
-    $toMainPage = $router->urlFor('mainPage');
-    if ($url->exists()) {
-        $this->get(Messages::class)->addMessage(
-            'error',
-            $urlRepo->getMessage()
-        );
-
-        $toUrlInfo = $router->urlFor('urlInfo', ['id' => "{$url->getId()}"]);
-        $response = $response->withStatus(422);
-
-        return $response->withRedirect($toUrlInfo);
-    }
-
-    $params = [
-        'messages' => ['error' => [$urlRepo->getMessage()]],
-        'errors' => ['url' => ['name' => $url->getUrl()]]
-    ];
-    $response = $response->withStatus(422);
-
-    return $this->get('renderer')->render(
-        $response,
-        'index.phtml',
-        $params
-    );
-})->setName('saveUrl');
-
-$urlsAction = $container->get(UrlsGetAction::class);
+$urlsGetAction = $container->get(UrlsGetAction::class);
 $app->get(
     '/urls',
-    $urlsAction->setRenderer(
+    $urlsGetAction->setRenderer(
         $container->get('renderer')
     )->setTemplate(template: 'Urls/urls.phtml')
 )->setName('urlsList');
