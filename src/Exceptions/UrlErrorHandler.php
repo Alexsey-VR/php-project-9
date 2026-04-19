@@ -4,20 +4,21 @@ namespace Analyzer\Exceptions;
 
 use Slim\Handlers\ErrorHandler;
 use Slim\Exception\HttpException;
+use Slim\Interfaces\CallableResolverInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Log\LoggerInterface;
 
 class UrlErrorHandler extends ErrorHandler
 {
-    protected function determineStatusCode(): int
-    {
-        $exceptionCode = 200;
-        if ($this->method === 'OPTIONS') {
-            return $exceptionCode;
-        } elseif ($this->exception instanceof HttpException) {
-            $exceptionCode = $this->exception->getCode();
-        } else {
-            $exceptionCode = 500;
-        }
-
-        return $exceptionCode;
+    public function __construct(
+        CallableResolverInterface $callableResolver,
+        ResponseFactoryInterface $responseFactory,
+        ?LoggerInterface $logger = null
+    ) {
+        parent::__construct(
+            $callableResolver,
+            $responseFactory,
+            $logger
+        );
     }
 }
