@@ -1,6 +1,6 @@
 <?php
 
-namespace Analyzer\Tests\Unit;
+namespace Analyzer\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\{CoversClass, CoversMethod};

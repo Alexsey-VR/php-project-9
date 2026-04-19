@@ -4,15 +4,37 @@ namespace Analyzer\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\{CoversClass, CoversMethod};
+use Slim\Interfaces\CallableResolverInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Log\LoggerInterface;
 use Analyzer\Exceptions\UrlErrorRenderer;
+use Analyzer\Exceptions\UrlErrorHandler;
 use Slim\Views\PhpRenderer;
 use Exception;
 
 use function get_class;
 
+#[CoversClass(UrlErrorHandler::class)]
 #[CoversClass(UrlErrorRenderer::class)]
-class UrlErrorRendererTest extends TestCase
+class UrlErrorTest extends TestCase
 {
+    public function testErrorHandler(): void
+    {
+        $resolverMockBuilder = $this->getMockBuilder(CallableResolverInterface::class);
+        $resolverStub = $resolverMockBuilder->getMock();
+        $responseFactoryMockBuilder = $this->getMockBuilder(ResponseFactoryInterface::class);
+        $responseFactoryStub = $responseFactoryMockBuilder->getMock();
+        $loggerMockBuilder = $this->getMockBuilder(LoggerInterface::class);
+        $loggerStub = $loggerMockBuilder->getMock();
+        $urlErrorHandler = new UrlErrorHandler(
+            $resolverStub,
+            $responseFactoryStub,
+            $loggerStub
+        );
+
+        $this->assertTrue($urlErrorHandler instanceof UrlErrorHandler);
+    }
+
     public function testErrorRenderer(): void
     {
         $exceptionRenderer = new UrlErrorRenderer();
