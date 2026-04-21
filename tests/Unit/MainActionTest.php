@@ -9,6 +9,8 @@ use Slim\Flash\Messages;
 use Slim\Http\Interfaces\ResponseInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Slim\Views\PhpRenderer;
+use Slim\Factory\AppFactory;
+use Slim\Http\Response;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Controllers\MainAction;
@@ -16,7 +18,7 @@ use Analyzer\Controllers\MainAction;
 #[CoversClass(MainAction::class)]
 class MainActionTest extends TestCase
 {
-    public function testInvoke()
+    public function testInvoke(): void
     {
         session_start();
 
@@ -25,29 +27,28 @@ class MainActionTest extends TestCase
         $messagesMock->method('getMessages')->willReturn(['OK']);
         $mainAction = new MainAction($messagesMock);
 
-        $this->assertTrue($mainAction instanceof MainAction);
-
         $serverRequestMockBuilder = $this->getMockBuilder(ServerRequestInterface::class);
         $serverRequestMock = $serverRequestMockBuilder->getMock();
-        
-        $responseMockBuilder = $this->getMockBuilder(ResponseInterface::class);
-        $responseMock = $responseMockBuilder->getMock();
-        
+
+        $app = AppFactory::create();
+        $response = $app->getResponseFactory()->CreateResponse();
+
         $phpRendererMockBuilder = $this->getMockBuilder(PhpRenderer::class);
         $phpRendererMock = $phpRendererMockBuilder->getMock();
-        
+
         $responseMockBuilder = $this->getMockBuilder(PsrResponseInterface::class);
         $psrResponseMock = $responseMockBuilder->getMock();
         $phpRendererMock->method('render')->willReturn($psrResponseMock);
 
-        $mainAction->setRenderer($phpRendererMock);
-        $mainAction->setTemplate('template stub');
+        $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
+        $mainAction->setRenderer($slimRenderer);
+        $mainAction->setTemplate('index.phtml');
         $psrResponse = $mainAction->__invoke(
             $serverRequestMock,
-            $responseMock,
+            $response,
             []
         );
 
-        $this->assertTrue($psrResponse instanceof PsrResponseInterface);
+        $this->assertTrue($psrResponse->getStatusCode() === 200);
     }
 }

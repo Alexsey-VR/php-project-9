@@ -3,7 +3,6 @@
 namespace Analyzer\Controllers;
 
 use Slim\Flash\Messages;
-use Slim\Http\Interfaces\ResponseInterface;
 use Slim\Views\PhpRenderer;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -24,7 +23,7 @@ class MainAction
      */
     public function __invoke(
         ServerRequestInterface $request,
-        ResponseInterface $response,
+        PsrResponseInterface $response,
         array $args
     ): PsrResponseInterface {
         $messages = $this->flash->getMessages();
