@@ -4,12 +4,10 @@ namespace Analyzer\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\Stub;
 use Slim\Flash\Messages;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\RouteParserInterface;
-use Slim\Http\Interfaces\ResponseInterface;
+use Slim\Http\Interfaces\ResponseInterface as SlimResponseInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Repository\{ValidatedUrlRepository, UrlRepository, UrlCheckRepository};
@@ -27,9 +25,35 @@ use Analyzer\Controllers\UrlCheckAction;
 #[CoversClass(Url::class)]
 class UrlCheckActionTest extends TestCase
 {
+    private PDO $conn;
+
+    public function setUp(): void
+    {
+        $databaseUrl = getenv('DATABASE_URL');
+        $databaseInfo = parse_url(
+            htmlspecialchars(
+                $databaseUrl ? $databaseUrl : ''
+            )
+        );
+
+        $dbScheme = $databaseInfo['scheme'] ?? '';
+        $dbPort = $databaseInfo['port'] ?? '';
+        $dbHost = $databaseInfo['host'] ?? '';
+        $dbParsedPath = $databaseInfo['path'] ?? '';
+        $dbPath = ltrim($dbParsedPath, '/');
+        $dbUser = $databaseInfo['user'] ?? '';
+        $dbPasswd = $databaseInfo['pass'] ?? '';
+
+        $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbPath};user={$dbUser};password={$dbPasswd}";
+        $this->conn = new PDO($dsn);
+        $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    }
+
     public function testInvoke(): void
     {
         session_start();
+
+        exec('make init');
 
         $databaseinfo = [];
         if ($databaseUrl = getenv('DATABASE_URL')) {
@@ -79,7 +103,7 @@ class UrlCheckActionTest extends TestCase
         $app = AppFactory::create();
         $response = $app->getResponseFactory()->CreateResponse();
 
-        $responseMockBuilder = $this->getMockBuilder(ResponseInterface::class);
+        $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
         $responseMock = $responseMockBuilder->getMock();
         $responseMock->method('withRedirect')->willReturn($response);
 
