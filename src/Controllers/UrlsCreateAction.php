@@ -3,10 +3,11 @@
 namespace Analyzer\Controllers;
 
 use Slim\Flash\Messages;
-use Slim\Http\Interfaces\ResponseInterface;
+use Slim\Http\Interfaces\ResponseInterface as SlimResponseInterface;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Views\PhpRenderer;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\ServerRequest;
 use Analyzer\Repository\{ValidatedUrlRepository, UrlCheckRepository};
 use Analyzer\Url\Url;
@@ -34,7 +35,7 @@ class UrlsCreateAction
      */
     public function __invoke(
         ServerRequest $request,
-        ResponseInterface $response,
+        SlimResponseInterface $response,
         array $args
     ): ?PsrResponseInterface {
         ['name' => $urlName] = $request->getParsedBodyParam("url");
