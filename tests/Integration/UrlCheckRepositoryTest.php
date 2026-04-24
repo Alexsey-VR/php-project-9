@@ -24,7 +24,7 @@ use Analyzer\Exceptions\UrlException;
 #[CoversMethod(UrlCheckRepository::class, 'getEntities')]
 class UrlCheckRepositoryTest extends TestCase
 {
-    private PDO $conn;
+    private PDO $connection;
     private const string PDO_ERROR_FOR_ID = "PDO error: can't get a url check id";
 
     public function setUp(): void
@@ -45,8 +45,8 @@ class UrlCheckRepositoryTest extends TestCase
         $dbPasswd = $databaseInfo['pass'] ?? '';
 
         $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbPath};user={$dbUser};password={$dbPasswd}";
-        $this->conn = new PDO($dsn);
-        $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $this->connection = new PDO($dsn);
+        $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     }
 
     public function testCreate(): void
@@ -59,7 +59,7 @@ class UrlCheckRepositoryTest extends TestCase
             $url = Url::fromArray(
                 is_array($urlInfo) && is_array($urlInfo['mail']) ? $urlInfo['mail'] : []
             );
-            $urlRepository = new UrlRepository($this->conn);
+            $urlRepository = new UrlRepository($this->connection);
             $urlRepository->save($url);
         }
 
@@ -71,7 +71,7 @@ class UrlCheckRepositoryTest extends TestCase
             $urlCheckInfo['first']['urlId'] = intval($url->getId());
             $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-            $urlCheckRepository = new UrlCheckRepository($this->conn);
+            $urlCheckRepository = new UrlCheckRepository($this->connection);
             $urlCheckRepository->save($urlCheck);
             $id = intval($urlCheck->getId());
             $urlCheckTemp = $urlCheckRepository->find($id);
@@ -92,7 +92,7 @@ class UrlCheckRepositoryTest extends TestCase
     public function testCreateException(): void
     {
         $sql = "FALSE REQUEST";
-        $stmt = $this->conn->prepare($sql);
+        $stmt = $this->connection->prepare($sql);
 
         if ($stmt) {
             $builder = $this->getMockBuilder($stmt::class);
@@ -101,7 +101,7 @@ class UrlCheckRepositoryTest extends TestCase
             $stmtStub->method('execute')->willReturn(true);
 
             $connStub = $this->createConfiguredStub(
-                $this->conn::class,
+                $this->connection::class,
                 [
                     'prepare' => $stmtStub,
                     'lastInsertId' => false
@@ -134,7 +134,7 @@ class UrlCheckRepositoryTest extends TestCase
 
             $url = Url::fromArray($urlInfo['mail']);
 
-            $urlRepository = new UrlRepository($this->conn);
+            $urlRepository = new UrlRepository($this->connection);
             $urlRepository->save($url);
         }
 
@@ -146,7 +146,7 @@ class UrlCheckRepositoryTest extends TestCase
 
             $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-            $urlCheckRepository = new UrlCheckRepository($this->conn);
+            $urlCheckRepository = new UrlCheckRepository($this->connection);
             $urlCheckRepository->save($urlCheck);
             $id = $urlCheck->getId();
             $urlCheckTemp = $urlCheckRepository->find(
@@ -182,7 +182,7 @@ class UrlCheckRepositoryTest extends TestCase
             $urlInfo = json_decode($urlInfoData, flags:JSON_OBJECT_AS_ARRAY);
 
             $url = Url::fromArray($urlInfo['mail']);
-            $urlRepository = new UrlRepository($this->conn);
+            $urlRepository = new UrlRepository($this->connection);
             $urlRepository->save($url);
         }
 
@@ -196,7 +196,7 @@ class UrlCheckRepositoryTest extends TestCase
 
             $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
-            $urlCheckRepository = new UrlCheckRepository($this->conn);
+            $urlCheckRepository = new UrlCheckRepository($this->connection);
             $urlCheckRepository->save($urlCheck);
             $id = $urlCheck->getId();
 
@@ -225,7 +225,7 @@ class UrlCheckRepositoryTest extends TestCase
             $url = Url::fromArray(
                 is_array($urlInfo) && is_array($urlInfo['mail']) ? $urlInfo['mail'] : []
             );
-            $urlRepository = new UrlRepository($this->conn);
+            $urlRepository = new UrlRepository($this->connection);
             $urlRepository->save($url);
         }
 
@@ -243,7 +243,7 @@ class UrlCheckRepositoryTest extends TestCase
                 $urlCheckInfo['first'] : []
         );
 
-        $urlCheckRepository = new UrlCheckRepository($this->conn);
+        $urlCheckRepository = new UrlCheckRepository($this->connection);
 
         $urlCheckRepository->save($urlCheck);
 
