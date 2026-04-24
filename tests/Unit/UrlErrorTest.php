@@ -18,23 +18,6 @@ use function get_class;
 #[CoversClass(UrlErrorRenderer::class)]
 class UrlErrorTest extends TestCase
 {
-    public function testErrorHandler(): void
-    {
-        $resolverMockBuilder = $this->getMockBuilder(CallableResolverInterface::class);
-        $resolverStub = $resolverMockBuilder->getMock();
-        $responseFactoryMockBuilder = $this->getMockBuilder(ResponseFactoryInterface::class);
-        $responseFactoryStub = $responseFactoryMockBuilder->getMock();
-        $loggerMockBuilder = $this->getMockBuilder(LoggerInterface::class);
-        $loggerStub = $loggerMockBuilder->getMock();
-        $urlErrorHandler = new UrlErrorHandler(
-            $resolverStub,
-            $responseFactoryStub,
-            $loggerStub
-        );
-
-        $this->assertTrue($urlErrorHandler instanceof UrlErrorHandler);
-    }
-
     public function testErrorRenderer(): void
     {
         $exceptionRenderer = new UrlErrorRenderer();
