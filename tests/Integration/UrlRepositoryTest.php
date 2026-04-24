@@ -27,7 +27,7 @@ use Analyzer\Exceptions\UrlException;
 #[CoversMethod(ValidatedUrlRepository::class, 'getEntities')]
 class UrlRepositoryTest extends TestCase
 {
-    private \PDO $conn;
+    private \PDO $connection;
     private const string PDO_ERROR_FOR_ID = "PDO error: can't get a url check id";
 
     public function setUp(): void
@@ -48,8 +48,8 @@ class UrlRepositoryTest extends TestCase
         $dbPasswd = $databaseInfo['pass'] ?? '';
 
         $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbPath};user={$dbUser};password={$dbPasswd}";
-        $this->conn = new PDO($dsn);
-        $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $this->connection = new PDO($dsn);
+        $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     }
 
     public function testCreate(): void
@@ -64,7 +64,7 @@ class UrlRepositoryTest extends TestCase
             $url = Url::fromArray($urlInfo['mail']);
 
             $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->conn)
+                new UrlRepository($this->connection)
             );
             $urlRepository->save($url);
             $id = $url->getId();
@@ -85,7 +85,7 @@ class UrlRepositoryTest extends TestCase
     public function testCreateException(): void
     {
         $sql = "FALSE REQUEST";
-        $stmt = $this->conn->prepare($sql);
+        $stmt = $this->connection->prepare($sql);
         if ($stmt) {
             $builder = $this->getMockBuilder($stmt::class);
             $stmtStub = $builder->getMock();
@@ -93,7 +93,7 @@ class UrlRepositoryTest extends TestCase
             $stmtStub->method('execute')->willReturn(true);
 
             $connStub = $this->createConfiguredStub(
-                $this->conn::class,
+                $this->connection::class,
                 [
                     'prepare' => $stmtStub,
                     'lastInsertId' => false
@@ -137,7 +137,7 @@ class UrlRepositoryTest extends TestCase
             $url = Url::fromArray($urlInfo['mail']);
 
             $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->conn)
+                new UrlRepository($this->connection)
             );
             $urlRepository->save($url);
         }
@@ -175,7 +175,7 @@ class UrlRepositoryTest extends TestCase
             $sameUrl = Url::fromArray($urlInfo['mail']);
 
             $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->conn)
+                new UrlRepository($this->connection)
             );
             $urlRepository->save($url);
             $id = $url->getId();
@@ -207,7 +207,7 @@ class UrlRepositoryTest extends TestCase
             $url = Url::fromArray($urlInfo['mail']);
 
             $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->conn)
+                new UrlRepository($this->connection)
             );
             $urlRepository->save($url);
             $id = $url->getId();
@@ -237,7 +237,7 @@ class UrlRepositoryTest extends TestCase
             $url = Url::fromArray($urlInfo['mail']);
 
             $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->conn)
+                new UrlRepository($this->connection)
             );
 
             $urlRepository->save($url);
