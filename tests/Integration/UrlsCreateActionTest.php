@@ -26,7 +26,7 @@ use PDO;
 #[CoversClass(Url::class)]
 class UrlsCreateActionTest extends TestCase
 {
-    private PDO $conn;
+    private PDO $connection;
 
     public function setUp(): void
     {
@@ -46,8 +46,8 @@ class UrlsCreateActionTest extends TestCase
         $dbPasswd = $databaseInfo['pass'] ?? '';
 
         $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbPath};user={$dbUser};password={$dbPasswd}";
-        $this->conn = new PDO($dsn);
-        $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $this->connection = new PDO($dsn);
+        $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     }
 
     public function testInvoke(): void
@@ -56,24 +56,8 @@ class UrlsCreateActionTest extends TestCase
 
         exec('make init');
 
-        $databaseinfo = [];
-        if ($databaseUrl = getenv('DATABASE_URL')) {
-            $databaseInfo = parse_url(
-                htmlspecialchars($databaseUrl)
-            );
-        }
-        $dbPort = $databaseInfo['port'] ?? '';
-        $dbHost = $databaseInfo['host'] ?? '';
-        $dbParsedPath = $databaseInfo['path'] ?? '';
-        $dbPath = ltrim($dbParsedPath, '/');
-        $dbUser = $databaseInfo['user'] ?? '';
-        $dbPasswd = $databaseInfo['pass'] ?? '';
-        $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbPath};user={$dbUser};password={$dbPasswd}";
-
-        $pdo = new PDO($dsn);
-
         $validatedUrlRepository = new ValidatedUrlRepository(
-            new UrlRepository($pdo)
+            new UrlRepository($this->connection)
         );
 
         $urlInfo = ['name' => 'https://ru.hexlet.io'];
