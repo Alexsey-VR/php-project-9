@@ -86,7 +86,7 @@ class UrlsCreateActionTest extends TestCase
         $serverRequestMockBuilder = $this->getMockBuilder(ServerRequest::class);
         $serverRequestMockBuilder->setConstructorArgs([$serverRequestInterfaceMock]);
         $serverRequestMock = $serverRequestMockBuilder->getMock();
-        $serverRequestMock->method('getParsedBodyParam')->willReturn(['name' => 'https://vesti.ru']);
+        $serverRequestMock->method('getParsedBodyParam')->willReturn(['name' => 'https://github.io']);
 
         $app = AppFactory::create();
         $response = $app->getResponseFactory()->CreateResponse();
@@ -95,7 +95,6 @@ class UrlsCreateActionTest extends TestCase
         $response = $app->getResponseFactory()->CreateResponse();
 
         $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
-
         $responseMock = $responseMockBuilder->getMock();
         $responseMock->method('withRedirect')->willReturn($response);
 
