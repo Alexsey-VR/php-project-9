@@ -16,6 +16,7 @@ use Analyzer\Controllers\UrlReadAction;
 use Analyzer\Controllers\UrlsReadAction;
 use Analyzer\Controllers\UrlsCreateAction;
 use Analyzer\Controllers\MainAction;
+use Analyzer\Exceptions\UrlException;
 use PDO;
 
 session_start();
@@ -84,7 +85,7 @@ $urlErrorHandler = new UrlErrorHandler(
     $app->getResponseFactory(),
     $container->get(Logger::class)
 );
-$errorMiddleware = $app->addErrorMiddleware(false, true, true);
+$errorMiddleware = $app->addErrorMiddleware(true, true, true);
 $errorMiddleware->setDefaultErrorHandler($urlErrorHandler);
 $urlErrorRenderer = $container->get(UrlErrorRenderer::class);
 $urlErrorRenderer->setRenderer(
@@ -123,7 +124,7 @@ $app->get(
 
 $urlReadAction = $container->get(UrlReadAction::class);
 $app->get(
-    '/urls/{id}',
+    '/urls/{id: [0-9]{1,9}}',
     $urlReadAction->setRenderer(
         $container->get('renderer')
     )->setTemplate(template: 'Urls/url.phtml')
@@ -131,7 +132,7 @@ $app->get(
 
 $urlCheckAction = $container->get(UrlCheckAction::class);
 $app->post(
-    '/urls/{id}/checks',
+    '/urls/{id: [0-9]{1,9}}/checks',
     $urlCheckAction->setRouter(
         $app->getRouteCollector()->getRouteParser()
     )->setRouteName(routeName: 'urlInfo')
