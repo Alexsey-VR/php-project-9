@@ -9,7 +9,7 @@ use Valitron\Validator;
 
 class ValidatedUrlRepository implements UrlRepositoryInterface
 {
-    private PDO $conn;
+    private PDO $connection;
     private UrlRepositoryInterface $repo;
     private string $tableName;
     private string $message;
@@ -20,9 +20,9 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
     private const string PARAM_URL_NAME = ":name";
     private const int MAX_URL_NAME_LENGTH = 255;
 
-    public function __construct(UrlRepositoryInterface $repo)
+    public function __construct(UrlRepositoryInterface $repo, PDO $connection)
     {
-        $this->conn = $repo->getConnection();
+        $this->connection = $connection;
         $this->repo = $repo;
         $this->tableName = "urls";
         $this->message = self::SUCCESS_MESSAGE;
@@ -41,7 +41,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
     {
         $param = self::PARAM_URL_NAME;
         $sql = "SELECT * FROM {$this->tableName} WHERE name SIMILAR TO {$param}";
-        $stmt = $this->conn->prepare($sql);
+        $stmt = $this->connection->prepare($sql);
         $name = $url->getUrl();
         $normalizedName = $this->normalize(
             is_string($name) ? $name : ''
@@ -180,10 +180,5 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
     public function isValid(): bool
     {
         return $this->status;
-    }
-
-    public function getConnection(): PDO
-    {
-        return $this->repo->getConnection();
     }
 }

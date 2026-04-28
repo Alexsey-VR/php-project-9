@@ -56,7 +56,8 @@ class UrlCheckActionTest extends TestCase
         exec('make init');
 
         $validatedUrlRepository = new ValidatedUrlRepository(
-            new UrlRepository($this->connection)
+            new UrlRepository($this->connection),
+            $this->connection
         );
 
         $urlInfo = ['name' => 'https://ru.hexlet.io'];

@@ -57,7 +57,8 @@ class UrlsCreateActionTest extends TestCase
         exec('make init');
 
         $validatedUrlRepository = new ValidatedUrlRepository(
-            new UrlRepository($this->connection)
+            new UrlRepository($this->connection),
+            $this->connection
         );
 
         $urlInfo = ['name' => 'https://ru.hexlet.io'];
@@ -172,7 +173,8 @@ class UrlsCreateActionTest extends TestCase
         $pdo = new PDO($dsn);
 
         $validatedUrlRepository = new ValidatedUrlRepository(
-            new UrlRepository($pdo)
+            new UrlRepository($pdo),
+            $pdo
         );
 
         $urlInfo = ['name' => 'wrong.url'];

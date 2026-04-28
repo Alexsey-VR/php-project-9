@@ -64,7 +64,8 @@ class UrlRepositoryTest extends TestCase
             $url = Url::fromArray($urlInfo['mail']);
 
             $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->connection)
+                new UrlRepository($this->connection),
+                $this->connection
             );
             $urlRepository->save($url);
             $id = $url->getId();
@@ -103,7 +104,8 @@ class UrlRepositoryTest extends TestCase
 
         if (isset($connStub)) {
             $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($connStub)
+                new UrlRepository($connStub),
+                $connStub
             );
         }
 
@@ -137,7 +139,8 @@ class UrlRepositoryTest extends TestCase
             $url = Url::fromArray($urlInfo['mail']);
 
             $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->connection)
+                new UrlRepository($this->connection),
+                $this->connection
             );
             $urlRepository->save($url);
         }
@@ -175,7 +178,8 @@ class UrlRepositoryTest extends TestCase
             $sameUrl = Url::fromArray($urlInfo['mail']);
 
             $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->connection)
+                new UrlRepository($this->connection),
+                $this->connection
             );
             $urlRepository->save($url);
             $id = $url->getId();
@@ -207,7 +211,8 @@ class UrlRepositoryTest extends TestCase
             $url = Url::fromArray($urlInfo['mail']);
 
             $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->connection)
+                new UrlRepository($this->connection),
+                $this->connection
             );
             $urlRepository->save($url);
             $id = $url->getId();
@@ -237,7 +242,8 @@ class UrlRepositoryTest extends TestCase
             $url = Url::fromArray($urlInfo['mail']);
 
             $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->connection)
+                new UrlRepository($this->connection),
+                $this->connection
             );
 
             $urlRepository->save($url);

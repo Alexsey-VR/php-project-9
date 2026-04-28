@@ -17,6 +17,4 @@ interface UrlRepositoryInterface
      * @return array<int,UrlInterface>
      */
     public function getEntities(): array;
-
-    public function getConnection(): PDO;
 }

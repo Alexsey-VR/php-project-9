@@ -152,9 +152,4 @@ class UrlRepository implements UrlRepositoryInterface
 
         return $urls;
     }
-
-    public function getConnection(): PDO
-    {
-        return $this->conn;
-    }
 }

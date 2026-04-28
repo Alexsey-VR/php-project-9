@@ -51,7 +51,8 @@ $container->set(PDO::class, function () {
 
 $container->set(ValidatedUrlRepository::class, function ($container) {
     return new ValidatedUrlRepository(
-        $container->get(UrlRepository::class)
+        $container->get(UrlRepository::class),
+        $container->get(PDO::class)
     );
 });
 
