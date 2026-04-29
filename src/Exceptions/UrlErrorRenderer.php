@@ -19,20 +19,20 @@ class UrlErrorRenderer extends AbstractErrorRenderer
         if ($displayErrorDetails) {
             $type = get_class($exception);
             $code = $exception->getCode();
-            $message = htmlentities($exception->getMessage());
             $file = $exception->getFile();
             $line = $exception->getLine();
             $trace = htmlentities($exception->getTraceAsString());
         }
+        $message = htmlentities($exception->getMessage());
 
         $params = [
             'details' => $displayErrorDetails,
-            'type' => $type,
-            'code' => $code,
+            'type' => isset($type) ? $type : '',
+            'code' => isset($code) ? $code : '',
             'message' => $message,
-            'file' => $file,
-            'line' => $line,
-            'trace' => $trace
+            'file' => isset($file) ? $file : '',
+            'line' => isset($line) ? $line : '',
+            'trace' => isset($trace) ? $trace : ''
         ];
 
         return $this->renderer->fetch('/Exceptions/urlException.phtml', $params);

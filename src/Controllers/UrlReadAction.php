@@ -9,6 +9,7 @@ use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Repository\{ValidatedUrlRepository, UrlCheckRepository};
 use Analyzer\Interfaces\UrlInterface;
+use Analyzer\Exceptions\UrlException;
 
 class UrlReadAction
 {
@@ -70,7 +71,17 @@ class UrlReadAction
                 );
         }
 
-        return $response->withStatus(400);
+        $params = [
+            'details' => false,
+            'code' => 404,
+            'message' => 'Not found',
+        ];
+
+        return $this->renderer->render(
+            $response->withStatus(404),
+            '/Exceptions/urlException.phtml',
+            $params
+        );
     }
 
     public function setTemplate(string $template): UrlReadAction
