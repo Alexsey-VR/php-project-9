@@ -85,7 +85,7 @@ $urlErrorHandler = new UrlErrorHandler(
     $app->getResponseFactory(),
     $container->get(Logger::class)
 );
-$errorMiddleware = $app->addErrorMiddleware(true, true, true);
+$errorMiddleware = $app->addErrorMiddleware(false, true, true);
 $errorMiddleware->setDefaultErrorHandler($urlErrorHandler);
 $urlErrorRenderer = $container->get(UrlErrorRenderer::class);
 $urlErrorRenderer->setRenderer(

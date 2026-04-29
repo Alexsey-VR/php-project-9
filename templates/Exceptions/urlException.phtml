@@ -27,7 +27,18 @@
       <div class="card text-start mb-3 container" style="width: 38rem; background: #f8f9fb">
         <div class="card-body">
           <h1 class="card-title">Произошла ошибка</h1>
-          <p class="card-text"><?= $exceptionFragment ?></p>
+          <?php if ($details === true): ?>
+            <p>Приложение не работает по следующим причинам:</p>
+            <div><strong>Тип: </strong><?= $type ?></div>
+            <div><strong>Код: </strong><?= $code ?></div>
+            <div><strong>Сообщение: </strong><?= $message ?></div>
+            <div><strong>Файл: </strong><?= $file ?></div>
+            <div><strong>Строка: </strong><?= $line ?></div>
+            <h2>Стек вызовов</h2>
+            <pre><?= $trace ?></pre>
+          <?php else: ?>
+            <p>Приносим извинения за временные неудобства</p>
+          <?php endif ?>
         </div>
       </div>
     </div>
