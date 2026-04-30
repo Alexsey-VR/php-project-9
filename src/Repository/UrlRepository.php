@@ -44,8 +44,6 @@ class UrlRepository implements UrlRepositoryInterface
         ]);
 
         try {
-            $this->conn->beginTransaction();
-
             $sql = "INSERT INTO {$this->tableName} (name, created_at) VALUES ({$params})";
             $stmt = $this->conn->prepare($sql);
 
@@ -55,10 +53,7 @@ class UrlRepository implements UrlRepositoryInterface
             $stmt->bindParam(self::PARAM_NAME, $name);
             $stmt->bindParam(self::PARAM_TIMESTAMP, $timestamp);
             $stmt->execute();
-
-            $this->conn->commit();
         } catch (UrlException $e) {
-            $this->conn->rollBack();
             throw new UrlException(
                 $e->getMessage()
             );
