@@ -6,17 +6,23 @@
   <div class="card" style="height: 100vh">
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid">
-        <a class="navbar-brand text-body-light" href="/">Анализатор страниц</a>
+        <a class="navbar-brand text-body-light" href="/" title="Ссылка для перехода на главную страницу">
+          Анализатор страниц
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link text-body-light" aria-current="page" href="/">Главная</a>
+              <a class="nav-link text-body-light" aria-current="page" href="/"  title="Ссылка для перехода на главную страницу">
+                Главная
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-body-light" href="/urls">Сайты</a>
+              <a class="nav-link text-body-light" href="/urls"  title="Ссылка для перехода страницу со списком URL">
+                Сайты
+              </a>
             </li>
           </ul>
         </div>
@@ -28,11 +34,11 @@
         <?php foreach($message as $item): ?>
           <?php if ($key === 'error'): ?>
             <div class="alert alert-danger" role="alert"">
-              <?= $item ?>
+              <?= htmlspecialchars($item ?: '', ENT_QUOTES) ?>
             </div>
           <?php elseif ($key === 'success'): ?>
             <div class="alert alert-success" role="alert"">
-              <?= $item ?>
+              <?= htmlspecialchars($item ?: '', ENT_QUOTES) ?>
             </div>
           <?php endif ?>
         <?php endforeach ?>
@@ -55,10 +61,15 @@
             <?php foreach ($urls as $url): ?>
               <tr>
                 <?php $id =  $url['id'] ?>
-                <td><?= $id ?></td>
-                <td><a href="/urls/<?= $id ?>"><?= $url['name'] ?></a></td>
-                <td><?= $url['timestamp'] ?></td>
-                <td><?= $url['status'] ?></td>
+                <td><?= htmlspecialchars($id ?: '', ENT_QUOTES) ?></td>
+                <td>
+                  <a href="/urls/<?= htmlspecialchars($id ?: '', ENT_QUOTES) ?>" 
+                  title="Ссылка для перехода на страницу описания проверки URL">
+                    <?= htmlspecialchars($url['name'] ?: '', ENT_QUOTES) ?>
+                  </a>
+                </td>
+                <td><?= htmlspecialchars($url['timestamp'] ?: '', ENT_QUOTES) ?></td>
+                <td><?= htmlspecialchars($url['status'] ?: '', ENT_QUOTES) ?></td>
               </tr>
             <?php endforeach ?>
           </tbody>
@@ -67,7 +78,9 @@
     </div>
 
     <div class="card-footer sticky-bottom text-center text-body-secondary">
-      <a href="https://ru.hexlet.io/pages/about">Hexlet</a>
+      <a href="https://ru.hexlet.io/pages/about" title="Ссылка для перехода на страницу онлайн школы Хекслет">
+        Hexlet
+      </a>
     </div>
   </div>
 </body>
