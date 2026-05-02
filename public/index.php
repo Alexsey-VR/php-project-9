@@ -31,7 +31,6 @@ $container->set('renderer', function () {
 });
 
 $container->set(PDO::class, function () {
-    $databaseinfo = [];
     if ($databaseUrl = getenv('DATABASE_URL')) {
         $databaseInfo = parse_url(
             htmlspecialchars($databaseUrl)
