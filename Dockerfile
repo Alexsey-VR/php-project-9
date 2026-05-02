@@ -1,7 +1,8 @@
 FROM php:8.5-cli
 
 
-RUN apt-get update && apt-get install -y --no-install-recommends libzip-dev libpq-dev postgresql-client && \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    $(echo "libzip-dev libpq-dev postgresql-client"  | tr ' ' '\n' | sort | paste -sd ' ') && \
     rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-install zip pdo pdo_pgsql
