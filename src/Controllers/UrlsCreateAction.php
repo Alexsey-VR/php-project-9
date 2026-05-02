@@ -59,7 +59,6 @@ class UrlsCreateAction
             return $response->withRedirect($toUrlInfo);
         }
 
-        $toMainPage = $this->router->urlFor('mainPage');
         if ($url->exists()) {
             $this->flash->addMessage(
                 'error',
