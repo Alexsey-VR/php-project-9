@@ -54,19 +54,8 @@ class UrlCheck implements UrlCheckInterface
         $urlCheck->setUrlId(
             is_int($urlId) ? $urlId : throw new UrlException('Internal error: URL ID has a wrong type')
         );
-        $urlCheck->setStatus(
-            is_int($status) ? $status : throw new UrlException('Internal error: check status has a wrong type')
-        );
-        $urlCheck->setH1(
-            is_string($h1) ? $h1 : throw new UrlException('Internal error: h1 has a wrong type')
-        );
-        $urlCheck->setTitle(
-            is_string($title) ? $title : throw new UrlException('Internal error: title has a wrong type')
-        );
-        $urlCheck->setDescription(
-            is_string($description) ? $description
-            : throw new UrlException('Internal error: description has a wrong type')
-        );
+
+        $urlCheck->setCheckInfo($status, $h1, $title, $description);
 
         return $urlCheck;
     }
@@ -74,6 +63,7 @@ class UrlCheck implements UrlCheckInterface
     public static function fromUrl(UrlInterface $url): UrlCheckInterface
     {
         $urlCheck = new UrlCheck();
+
         $urlCheck->client = new Client(
             [
                 'base_uri' => $url->getUrl(),
@@ -115,19 +105,21 @@ class UrlCheck implements UrlCheckInterface
             return false;
         };
 
-        $this->setStatus($status);
-
-        $this->setH1(
-            $this->normalize($h1)
-        );
-        $this->setTitle(
-            $this->normalize($title)
-        );
-        $this->setDescription(
-            $this->normalize($description)
-        );
+        $this->setCheckInfo($status, $h1, $title, $description);
 
         return true;
+    }
+
+    public function setCheckInfo(
+        int $status,
+        string $h1,
+        string $title,
+        string $description
+    ): void {
+        $this->status = $status;
+        $this->h1 = $this->normalize($h1);
+        $this->title = $this->normalize($title);
+        $this->description = $this->normalize($description);
     }
 
     public function setId(int $id): void
@@ -150,19 +142,9 @@ class UrlCheck implements UrlCheckInterface
         return $this->urlId;
     }
 
-    public function setStatus(int $status): void
-    {
-        $this->status = $status;
-    }
-
     public function getStatus(): ?int
     {
         return $this->status;
-    }
-
-    public function setH1(string $h1): void
-    {
-        $this->h1 = $this->normalize($h1);
     }
 
     public function getH1(): ?string
@@ -170,19 +152,9 @@ class UrlCheck implements UrlCheckInterface
         return $this->h1;
     }
 
-    public function setTitle(string $title): void
-    {
-        $this->title = $this->normalize($title);
-    }
-
     public function getTitle(): ?string
     {
         return $this->title;
-    }
-
-    public function setDescription(string $description): void
-    {
-        $this->description = $this->normalize($description);
     }
 
     public function getDescription(): ?string

@@ -161,7 +161,12 @@ class UrlCheckRepositoryTest extends TestCase
             isset($urlCheckRepository) &&
             isset($id)
         ) {
-            $urlCheckTemp->setDescription($urlCheckInfo['first']['description']);
+            $urlCheckTemp->setCheckInfo(
+                $urlCheckInfo['first']['status'],
+                $urlCheckInfo['first']['h1'],
+                $urlCheckInfo['first']['title'],
+                $urlCheckInfo['first']['description']
+            );
             $urlCheckRepository->save($urlCheckTemp);
             $urlCheck = $urlCheckRepository->find($id);
         }
