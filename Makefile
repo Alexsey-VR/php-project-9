@@ -1,5 +1,5 @@
 install:
-	composer install
+	composer install --no-ansi --no-interaction --no-progress
 
 update:
 	composer update

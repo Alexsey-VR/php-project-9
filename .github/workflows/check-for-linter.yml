@@ -21,11 +21,8 @@ jobs:
         with:
           php-version: '8.5'
           coverage: xdebug
-            
-      - name: Install dependencies with composer
-        run: composer update --no-ansi --no-interaction --no-progress
 
-      - name: Install project
+      - name: Install project and dependencies
         run: make install
 
       - name: Validate files for linter
