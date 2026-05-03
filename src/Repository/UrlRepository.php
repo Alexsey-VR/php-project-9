@@ -9,7 +9,7 @@ use Analyzer\Exceptions\UrlException as UrlException;
 
 class UrlRepository implements UrlRepositoryInterface
 {
-    private PDO $conn;
+    private PDO $connection;
 
     private string $tableName;
 
@@ -20,9 +20,9 @@ class UrlRepository implements UrlRepositoryInterface
     private const string ERROR_MESSAGE_FOR_TIMESTAMP = "PDO error: timestamp has a wrong type";
     private const string ERROR_MESSAGE_FOR_ID = "PDO error: can't get last insert id";
 
-    public function __construct(PDO $conn)
+    public function __construct(PDO $connection)
     {
-        $this->conn = $conn;
+        $this->connection = $connection;
         $this->tableName = "urls";
         date_default_timezone_set('UTC');
     }
@@ -45,7 +45,7 @@ class UrlRepository implements UrlRepositoryInterface
 
         try {
             $sql = "INSERT INTO {$this->tableName} (name, created_at) VALUES ({$params})";
-            $stmt = $this->conn->prepare($sql);
+            $stmt = $this->connection->prepare($sql);
 
             $name = $url->getUrl();
             $timestamp = date('Y-m-d H:i:s');
@@ -59,7 +59,7 @@ class UrlRepository implements UrlRepositoryInterface
             );
         }
 
-        $id = intval($this->conn->lastInsertId());
+        $id = intval($this->connection->lastInsertId());
 
         $url->setId(
             $id ? $id : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
@@ -74,7 +74,7 @@ class UrlRepository implements UrlRepositoryInterface
         $sql = "UPDATE {$this->tableName} SET name = " . self::PARAM_NAME .
                ", created_at = " . self::PARAM_TIMESTAMP .
                " WHERE id = " . self::PARAM_ID;
-        $stmt = $this->conn->prepare($sql);
+        $stmt = $this->connection->prepare($sql);
 
         $name = $url->getUrl();
         $timestamp = $url->getTimestamp();
@@ -90,7 +90,7 @@ class UrlRepository implements UrlRepositoryInterface
     public function find(int $id): ?UrlInterface
     {
         $sql = "SELECT * FROM {$this->tableName} WHERE id = " . self::PARAM_ID;
-        $stmt = $this->conn->prepare($sql);
+        $stmt = $this->connection->prepare($sql);
         $stmt->bindParam(self::PARAM_ID, $id);
         $stmt->execute();
 
@@ -114,7 +114,7 @@ class UrlRepository implements UrlRepositoryInterface
     public function delete(int $id): void
     {
         $sql = "DELETE FROM {$this->tableName} WHERE id = " . self::PARAM_ID;
-        $stmt = $this->conn->prepare($sql);
+        $stmt = $this->connection->prepare($sql);
         $stmt->bindParam(self::PARAM_ID, $id);
         $stmt->execute();
     }
@@ -122,7 +122,7 @@ class UrlRepository implements UrlRepositoryInterface
     public function getEntities(): array
     {
         $sql = "SELECT * FROM {$this->tableName} ORDER BY created_at DESC";
-        $stmt = $this->conn->query($sql);
+        $stmt = $this->connection->query($sql);
 
         $items = [];
         if ($stmt) {
