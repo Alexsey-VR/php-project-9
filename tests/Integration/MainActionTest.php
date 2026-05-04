@@ -18,6 +18,36 @@ use Analyzer\Controllers\MainAction;
 #[CoversClass(MainAction::class)]
 class MainActionTest extends TestCase
 {
+    public function testTemplate(): void
+    {
+        session_start();
+
+        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
+        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock->method('getMessages')->willReturn(['OK']);
+        $mainAction = new MainAction($messagesMock);
+        $mainAction->setTemplate('index.phtml');
+
+        $this->assertTrue($mainAction->getTemplate() === 'index.phtml');
+    }
+
+    public function testRenderer(): void
+    {
+        session_start();
+
+        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
+        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock->method('getMessages')->willReturn(['OK']);
+        $mainAction = new MainAction($messagesMock);
+        $templatePath = __DIR__ . '/../../templates';
+        $slimRenderer = new PhpRenderer($templatePath);
+        $result = $mainAction->setRenderer($slimRenderer);
+
+        $this->assertTrue(
+            mb_strpos($result->getRenderer()->getTemplatePath(), $templatePath) !== false
+        );
+    }
+
     public function testInvoke(): void
     {
         session_start();
@@ -40,8 +70,9 @@ class MainActionTest extends TestCase
         $psrResponseMock = $responseMockBuilder->getMock();
         $phpRendererMock->method('render')->willReturn($psrResponseMock);
 
-        $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
-        $mainAction->setRenderer($slimRenderer);
+        $templatePath = __DIR__ . '/../../templates';
+        $slimRenderer = new PhpRenderer($templatePath);
+        $result = $mainAction->setRenderer($slimRenderer);
         $mainAction->setTemplate('index.phtml');
         $psrResponse = $mainAction->__invoke(
             $serverRequestMock,
