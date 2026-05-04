@@ -77,11 +77,21 @@ class UrlCheckAction
         return $this;
     }
 
+    public function getRouter(): RouteParserInterface
+    {
+        return $this->router;
+    }
+
     public function setRouteName(
         string $routeName
     ): UrlCheckAction {
         $this->routeName = $routeName;
 
         return $this;
+    }
+
+    public function getRouteName(): string
+    {
+        return $this->routeName;
     }
 }

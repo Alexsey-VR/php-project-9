@@ -49,7 +49,50 @@ class UrlCheckActionTest extends TestCase
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     }
 
-    public function testInvoke(): void
+    public function testRouter(): void
+    {
+
+        session_start();
+
+        exec('make init');
+
+        $validatedUrlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->connection),
+            $this->connection
+        );
+
+        $urlInfo = ['name' => 'https://ru.hexlet.io'];
+
+        $url = Url::fromArray($urlInfo);
+        $validatedUrlRepository->save($url);
+        $urlId = $url->getId();
+
+        $urlCheckRepository = new UrlCheckRepository($this->connection);
+
+        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
+        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock->method('getMessages')->willReturn(['OK']);
+
+        $urlCheckAction = new UrlCheckAction(
+            $validatedUrlRepository,
+            $urlCheckRepository,
+            $messagesMock
+        );
+
+        $phpRouterMockBuilder = $this->getMockBuilder(RouteParserInterface::class);
+        $phpRouterMock = $phpRouterMockBuilder->getMock();
+
+        $testRoute = 'testRoute';
+        $urlCheckAction = $urlCheckAction->setRouter($phpRouterMock)
+                                       ->setRouteName($testRoute);
+
+        $result = $urlCheckAction->getRouter();
+
+        $this->assertTrue($result->urlFor('testRoute') === '');
+        $this->assertTrue($urlCheckAction->getRouteName() === $testRoute);
+    }
+
+    public function testSuccessInvoke(): void
     {
         session_start();
 
@@ -61,14 +104,10 @@ class UrlCheckActionTest extends TestCase
         );
 
         $urlInfo = ['name' => 'https://ru.hexlet.io'];
-        $wrongUrlInfo = ['name' => 'https://wrong.test'];
 
         $url = Url::fromArray($urlInfo);
-        $wrongUrl = Url::fromArray($wrongUrlInfo);
         $validatedUrlRepository->save($url);
         $urlId = $url->getId();
-        $validatedUrlRepository->save($wrongUrl);
-        $wrongUrlId = $wrongUrl->getId();
 
         $urlCheckRepository = new UrlCheckRepository($this->connection);
 
@@ -105,6 +144,52 @@ class UrlCheckActionTest extends TestCase
         );
 
         $this->assertTrue($psrResponse->getStatusCode() === 200);
+    }
+
+    public function testWrongInvoke(): void
+    {
+        session_start();
+
+        exec('make init');
+
+        $validatedUrlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->connection),
+            $this->connection
+        );
+
+        $wrongUrlInfo = ['name' => 'https://wrong.test'];
+
+        $wrongUrl = Url::fromArray($wrongUrlInfo);
+        $validatedUrlRepository->save($wrongUrl);
+        $wrongUrlId = $wrongUrl->getId();
+
+        $urlCheckRepository = new UrlCheckRepository($this->connection);
+
+        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
+        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock->method('getMessages')->willReturn(['OK']);
+
+        $urlCheckAction = new UrlCheckAction(
+            $validatedUrlRepository,
+            $urlCheckRepository,
+            $messagesMock
+        );
+
+        $serverRequestMockBuilder = $this->getMockBuilder(ServerRequestInterface::class);
+        $serverRequestMock = $serverRequestMockBuilder->getMock();
+
+        $app = AppFactory::create();
+        $response = $app->getResponseFactory()->CreateResponse();
+
+        $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
+        $responseMock = $responseMockBuilder->getMock();
+        $responseMock->method('withRedirect')->willReturn($response);
+
+        $phpRouterMockBuilder = $this->getMockBuilder(RouteParserInterface::class);
+        $phpRouterMock = $phpRouterMockBuilder->getMock();
+
+        $urlCheckAction = $urlCheckAction->setRouter($phpRouterMock)
+                                        ->setRouteName('testRoute');
 
         $wrongPsrResponse = $urlCheckAction->__invoke(
             $serverRequestMock,
