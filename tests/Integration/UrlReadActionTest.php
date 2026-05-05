@@ -47,6 +47,96 @@ class UrlReadActionTest extends TestCase
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     }
 
+    public function testRenderer(): void
+    {
+        session_start();
+
+        exec('make init');
+
+        $validatedUrlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->connection),
+            $this->connection
+        );
+
+        $urlInfo = ['name' => 'https://ru.hexlet.io'];
+
+        $url = Url::fromArray($urlInfo);
+        $validatedUrlRepository->save($url);
+        $urlId = $url->getId();
+
+        $urlCheckRepository = new UrlCheckRepository($this->connection);
+
+        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
+        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock->method('getMessages')->willReturn(['OK']);
+
+        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
+        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock->method('getMessages')->willReturn(['OK']);
+
+        $readAction = new UrlReadAction(
+            $validatedUrlRepository,
+            $urlCheckRepository,
+            $messagesMock
+        );
+        $templatePath = __DIR__ . '/../../templates';
+        $slimRenderer = new PhpRenderer($templatePath);
+        $result = $readAction->setRenderer($slimRenderer);
+
+        $this->assertTrue(
+            mb_strpos($result->getRenderer()->getTemplatePath(), $templatePath) !== false
+        );
+    }
+
+    public function testFetchTemplate(): void
+    {
+        session_start();
+
+        exec('make init');
+
+        $validatedUrlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->connection),
+            $this->connection
+        );
+
+        $urlInfo = ['name' => 'https://ru.hexlet.io'];
+
+        $url = Url::fromArray($urlInfo);
+        $validatedUrlRepository->save($url);
+        $urlId = $url->getId();
+
+        $urlCheckRepository = new UrlCheckRepository($this->connection);
+
+        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
+        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock->method('getMessages')->willReturn(['OK']);
+
+        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
+        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock->method('getMessages')->willReturn(['OK']);
+
+        $readAction = new UrlReadAction(
+            $validatedUrlRepository,
+            $urlCheckRepository,
+            $messagesMock
+        );
+
+        $templatePath = __DIR__ . '/../../templates';
+        $slimRenderer = new PhpRenderer($templatePath);
+        $result = $readAction->setRenderer($slimRenderer)
+                            ->setTemplate('Urls/url.phtml');
+
+        $this->assertTrue(
+            mb_strpos(
+                $result->getRenderer()->fetch(
+                    $result->getTemplate(),
+                    ['id' => '']
+                ),
+                $urlInfo['name']
+            ) !== false
+        );
+    }
+
     public function testReadAction(): void
     {
         session_start();
@@ -68,7 +158,6 @@ class UrlReadActionTest extends TestCase
             $urlCheckInfo = json_decode($urlCheckInfoData, flags:JSON_OBJECT_AS_ARRAY);
         }
 
-        $urlCheckRepository = new UrlCheckRepository($this->connection);
         $urlCheckInfo['first']['urlId'] = $urlId;
         $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
@@ -104,6 +193,60 @@ class UrlReadActionTest extends TestCase
             $responseMock,
             ['id' => $urlId]
         );
+
+        $this->assertEquals($psrResponse->getStatusCode(), 0);
+    }
+
+    public function testWrongUrlId(): void
+    {
+        session_start();
+
+        exec('make init');
+
+        $validatedUrlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->connection),
+            $this->connection
+        );
+
+        $urlInfo = ['name' => 'https://ru.hexlet.io'];
+
+        $url = Url::fromArray($urlInfo);
+        $validatedUrlRepository->save($url);
+        $urlId = $url->getId();
+
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+            $urlCheckInfo = json_decode($urlCheckInfoData, flags:JSON_OBJECT_AS_ARRAY);
+        }
+
+        $urlCheckInfo['first']['urlId'] = $urlId;
+        $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
+
+        $urlCheckRepository = new UrlCheckRepository($this->connection);
+        $urlCheckRepository->save($urlCheck);
+
+        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
+        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock->method('getMessages')->willReturn(['OK']);
+
+        $urlReadAction = new UrlReadAction(
+            $validatedUrlRepository,
+            $urlCheckRepository,
+            $messagesMock
+        );
+
+        $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
+        $urlReadAction->setRenderer($slimRenderer);
+        $urlReadAction->setTemplate('Urls/url.phtml');
+
+        $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
+        $responseMock = $responseMockBuilder->getMock();
+
+        $serverRequestInterfaceMockBuilder = $this->getMockBuilder(ServerRequestInterface::class);
+        $serverRequestInterfaceMock = $serverRequestInterfaceMockBuilder->getMock();
+        $serverRequestMockBuilder = $this->getMockBuilder(ServerRequest::class);
+        $serverRequestMockBuilder->setConstructorArgs([$serverRequestInterfaceMock]);
+        $serverRequestMock = $serverRequestMockBuilder->getMock();
+        $serverRequestMock->method('getParsedBodyParam')->willReturn(['name' => 'https://vesti.ru']);
 
         $psrResponse = $urlReadAction->__invoke(
             $serverRequestMock,

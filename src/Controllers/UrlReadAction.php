@@ -91,10 +91,20 @@ class UrlReadAction
         return $this;
     }
 
+    public function getTemplate(): string
+    {
+        return $this->template;
+    }
+
     public function setRenderer(PhpRenderer $renderer): UrlReadAction
     {
         $this->renderer = $renderer;
 
         return $this;
+    }
+
+    public function getRenderer(): PhpRenderer
+    {
+        return $this->renderer;
     }
 }
