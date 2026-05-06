@@ -63,16 +63,10 @@ class MainActionTest extends TestCase
         $app = AppFactory::create();
         $response = $app->getResponseFactory()->CreateResponse();
 
-        $phpRendererMockBuilder = $this->getMockBuilder(PhpRenderer::class);
-        $phpRendererMock = $phpRendererMockBuilder->getMock();
-
-        $responseMockBuilder = $this->getMockBuilder(PsrResponseInterface::class);
-        $psrResponseMock = $responseMockBuilder->getMock();
-        $phpRendererMock->method('render')->willReturn($psrResponseMock);
-
         $templatePath = __DIR__ . '/../../templates';
         $slimRenderer = new PhpRenderer($templatePath);
-        $result = $mainAction->setRenderer($slimRenderer);
+        $mainAction = $mainAction->setRenderer($slimRenderer);
+
         $mainAction->setTemplate('index.phtml');
         $psrResponse = $mainAction->__invoke(
             $serverRequestMock,
