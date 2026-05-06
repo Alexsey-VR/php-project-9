@@ -50,6 +50,60 @@ class UrlsReadActionTest extends TestCase
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     }
 
+    public function testRenderer(): void
+    {
+        session_start();
+
+        exec('make init');
+
+        $validatedUrlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->connection),
+            $this->connection
+        );
+
+        $urlCheckRepository = new UrlCheckRepository($this->connection);
+
+        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
+        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock->method('getMessages')->willReturn(['OK']);
+        $urlsReadAction = new UrlsReadAction(
+            $validatedUrlRepository,
+            $urlCheckRepository,
+            $messagesMock
+        );
+        $templatePath = __DIR__ . '/../../templates';
+        $slimRenderer = new PhpRenderer($templatePath);
+        $result = $urlsReadAction->setRenderer($slimRenderer);
+
+        $this->assertTrue(
+            mb_strpos($result->getRenderer()->getTemplatePath(), $templatePath) !== false
+        );
+    }
+
+    public function testTemplate(): void
+    {
+        session_start();
+
+        $validatedUrlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->connection),
+            $this->connection
+        );
+
+        $urlCheckRepository = new UrlCheckRepository($this->connection);
+
+        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
+        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock->method('getMessages')->willReturn(['OK']);
+        $urlsReadAction = new UrlsReadAction(
+            $validatedUrlRepository,
+            $urlCheckRepository,
+            $messagesMock
+        );
+        $urlsReadAction->setTemplate('/urls/urls.phtml');
+
+        $this->assertTrue($urlsReadAction->getTemplate() === '/urls/urls.phtml');
+    }
+
     public function testUrlsReadAction(): void
     {
         session_start();
