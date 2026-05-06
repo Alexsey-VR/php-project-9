@@ -94,11 +94,21 @@ class UrlsCreateAction
         return $this;
     }
 
+    public function getRenderer(): PhpRenderer
+    {
+        return $this->renderer;
+    }
+
     public function setTemplate(string $template): UrlsCreateAction
     {
         $this->template = $template;
 
         return $this;
+    }
+
+    public function getTemplate(): string
+    {
+        return $this->template;
     }
 
     public function setRouter(
@@ -109,11 +119,21 @@ class UrlsCreateAction
         return $this;
     }
 
+    public function getRouter(): RouteParserInterface
+    {
+        return $this->router;
+    }
+
     public function setRouteName(
         string $routeName
     ): UrlsCreateAction {
         $this->routeName = $routeName;
 
         return $this;
+    }
+
+    public function getRouteName(): string
+    {
+        return $this->routeName;
     }
 }
