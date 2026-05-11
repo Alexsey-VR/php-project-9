@@ -30,7 +30,7 @@ class UrlCheckRepositoryTest extends TestCase
     /**
      * @var array<int,string>
      */
-    private array $sqlCommands;
+    private array $initSqlCommands;
 
     private const string PDO_ERROR_FOR_ID = "PDO error: can't get a url check id";
 
@@ -56,12 +56,12 @@ class UrlCheckRepositoryTest extends TestCase
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
         $sqlData = file_get_contents(__DIR__ . '/../../database.sql');
-        $this->sqlCommands = DatabaseInitHelper::getSQLCommands($sqlData !== false ? $sqlData : "");
+        $this->initSqlCommands = DatabaseInitHelper::getSQLCommands($sqlData !== false ? $sqlData : "");
     }
 
     public function testCreate(): void
     {
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 
@@ -139,7 +139,7 @@ class UrlCheckRepositoryTest extends TestCase
 
     public function testUpdate(): void
     {
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 
@@ -195,7 +195,7 @@ class UrlCheckRepositoryTest extends TestCase
 
     public function testDelete(): void
     {
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 
@@ -235,7 +235,7 @@ class UrlCheckRepositoryTest extends TestCase
 
     public function testGetEntities(): void
     {
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 

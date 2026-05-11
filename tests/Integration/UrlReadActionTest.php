@@ -29,7 +29,7 @@ class UrlReadActionTest extends TestCase
     /**
      * @var array<int,string>
      */
-    private array $sqlCommands;
+    private array $initSqlCommands;
 
     public function setUp(): void
     {
@@ -53,14 +53,12 @@ class UrlReadActionTest extends TestCase
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
         $sqlData = file_get_contents(__DIR__ . '/../../database.sql');
-        $this->sqlCommands = DatabaseInitHelper::getSQLCommands($sqlData !== false ? $sqlData : "");
+        $this->initSqlCommands = DatabaseInitHelper::getSQLCommands($sqlData !== false ? $sqlData : "");
     }
 
     public function testRenderer(): void
     {
-        session_start();
-
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 
@@ -77,12 +75,7 @@ class UrlReadActionTest extends TestCase
 
         $urlCheckRepository = new UrlCheckRepository($this->connection);
 
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
-        $messagesMock->method('getMessages')->willReturn(['OK']);
-
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
         $readAction = new UrlReadAction(
@@ -101,9 +94,7 @@ class UrlReadActionTest extends TestCase
 
     public function testFetchTemplate(): void
     {
-        session_start();
-
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 
@@ -120,12 +111,7 @@ class UrlReadActionTest extends TestCase
 
         $urlCheckRepository = new UrlCheckRepository($this->connection);
 
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
-        $messagesMock->method('getMessages')->willReturn(['OK']);
-
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
         $readAction = new UrlReadAction(
@@ -152,9 +138,7 @@ class UrlReadActionTest extends TestCase
 
     public function testReadAction(): void
     {
-        session_start();
-
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 
@@ -179,8 +163,7 @@ class UrlReadActionTest extends TestCase
         $urlCheckRepository = new UrlCheckRepository($this->connection);
         $urlCheckRepository->save($urlCheck);
 
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
         $urlReadAction = new UrlReadAction(
@@ -214,9 +197,7 @@ class UrlReadActionTest extends TestCase
 
     public function testWrongUrlId(): void
     {
-        session_start();
-
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 
@@ -241,8 +222,7 @@ class UrlReadActionTest extends TestCase
         $urlCheckRepository = new UrlCheckRepository($this->connection);
         $urlCheckRepository->save($urlCheck);
 
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
         $urlReadAction = new UrlReadAction(

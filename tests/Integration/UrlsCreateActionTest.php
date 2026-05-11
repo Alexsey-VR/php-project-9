@@ -32,7 +32,7 @@ class UrlsCreateActionTest extends TestCase
     /**
      * @var array<int,string>
      */
-    private array $sqlCommands;
+    private array $initSqlCommands;
 
     public function setUp(): void
     {
@@ -56,14 +56,12 @@ class UrlsCreateActionTest extends TestCase
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
         $sqlData = file_get_contents(__DIR__ . '/../../database.sql');
-        $this->sqlCommands = DatabaseInitHelper::getSQLCommands($sqlData !== false ? $sqlData : "");
+        $this->initSqlCommands = DatabaseInitHelper::getSQLCommands($sqlData !== false ? $sqlData : "");
     }
 
     public function testTemplate(): void
     {
-        session_start();
-
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 
@@ -72,8 +70,7 @@ class UrlsCreateActionTest extends TestCase
             $this->connection
         );
 
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
         $urlsCreateAction = new UrlsCreateAction(
             $validatedUrlRepository,
@@ -86,9 +83,7 @@ class UrlsCreateActionTest extends TestCase
 
     public function testRoute(): void
     {
-        session_start();
-
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 
@@ -97,8 +92,7 @@ class UrlsCreateActionTest extends TestCase
             $this->connection
         );
 
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
         $urlsCreateAction = new UrlsCreateAction(
             $validatedUrlRepository,
@@ -111,10 +105,7 @@ class UrlsCreateActionTest extends TestCase
 
     public function testRouter(): void
     {
-
-        session_start();
-
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 
@@ -129,8 +120,7 @@ class UrlsCreateActionTest extends TestCase
         $validatedUrlRepository->save($url);
         $urlId = $url->getId();
 
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
         $urlsCreateAction = new UrlsCreateAction(
@@ -153,9 +143,7 @@ class UrlsCreateActionTest extends TestCase
 
     public function testRenderer(): void
     {
-        session_start();
-
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 
@@ -164,8 +152,7 @@ class UrlsCreateActionTest extends TestCase
             $this->connection
         );
 
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
         $urlsCreateAction = new UrlsCreateAction(
             $validatedUrlRepository,
@@ -182,9 +169,7 @@ class UrlsCreateActionTest extends TestCase
 
     public function testInvokeWithCreate(): void
     {
-        session_start();
-
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 
@@ -199,8 +184,7 @@ class UrlsCreateActionTest extends TestCase
         $validatedUrlRepository->save($url);
         $urlId = $url->getId();
 
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
         $urlsCreateAction = new UrlsCreateAction(
@@ -241,9 +225,7 @@ class UrlsCreateActionTest extends TestCase
 
     public function testInvokeWithExists(): void
     {
-        session_start();
-
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 
@@ -258,8 +240,7 @@ class UrlsCreateActionTest extends TestCase
         $validatedUrlRepository->save($url);
         $urlId = $url->getId();
 
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
         $urlsCreateAction = new UrlsCreateAction(
@@ -326,9 +307,7 @@ class UrlsCreateActionTest extends TestCase
 
     public function testNotValidUrl(): void
     {
-        session_start();
-
-        foreach ($this->sqlCommands as $sqlCommand) {
+        foreach ($this->initSqlCommands as $sqlCommand) {
             $this->connection->query($sqlCommand);
         }
 
@@ -343,8 +322,7 @@ class UrlsCreateActionTest extends TestCase
         $validatedUrlRepository->save($url);
         $urlId = $url->getId();
 
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
         $urlsCreateAction = new UrlsCreateAction(

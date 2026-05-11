@@ -20,10 +20,7 @@ class MainActionTest extends TestCase
 {
     public function testTemplate(): void
     {
-        session_start();
-
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
         $mainAction = new MainAction($messagesMock);
         $mainAction->setTemplate('index.phtml');
@@ -33,10 +30,7 @@ class MainActionTest extends TestCase
 
     public function testRenderer(): void
     {
-        session_start();
-
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
         $mainAction = new MainAction($messagesMock);
         $templatePath = __DIR__ . '/../../templates';
@@ -50,10 +44,7 @@ class MainActionTest extends TestCase
 
     public function testInvoke(): void
     {
-        session_start();
-
-        $messagesMockBuilder = $this->getMockBuilder(Messages::class);
-        $messagesMock = $messagesMockBuilder->getMock();
+        $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
         $mainAction = new MainAction($messagesMock);
 
