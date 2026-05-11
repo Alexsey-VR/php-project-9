@@ -23,7 +23,7 @@ class UrlCheckTest extends TestCase
 {
     public function testFromArray(): void
     {
-        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlCheckInfo.json")) {
             $urlCheckInfo = json_decode(
                 $urlCheckInfoData,
                 flags:JSON_OBJECT_AS_ARRAY
@@ -45,7 +45,7 @@ class UrlCheckTest extends TestCase
 
     public function testTimestamp(): void
     {
-        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlCheckInfo.json")) {
             $urlCheckInfo = json_decode(
                 $urlCheckInfoData,
                 flags:JSON_OBJECT_AS_ARRAY

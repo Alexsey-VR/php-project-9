@@ -18,6 +18,7 @@ use Slim\Http\ServerRequest;
 use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository, UrlCheckRepository};
 use Analyzer\Url\Url;
 use Analyzer\Exceptions\UrlException;
+use Analyzer\Tests\Fixtures\DatabaseInitHelper;
 use PDO;
 
 #[CoversClass(UrlsCreateAction::class)]
@@ -27,6 +28,11 @@ use PDO;
 class UrlsCreateActionTest extends TestCase
 {
     private PDO $connection;
+
+    /**
+     * @var array<int,string>
+     */
+    private array $sqlCommands;
 
     public function setUp(): void
     {
@@ -48,13 +54,18 @@ class UrlsCreateActionTest extends TestCase
         $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbPath};user={$dbUser};password={$dbPasswd}";
         $this->connection = new PDO($dsn);
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+        $sqlData = file_get_contents(__DIR__ . '/../../database.sql');
+        $this->sqlCommands = DatabaseInitHelper::getSQLCommands($sqlData !== false ? $sqlData : "");
     }
 
     public function testTemplate(): void
     {
         session_start();
 
-        exec('make init');
+        foreach ($this->sqlCommands as $sqlCommand) {
+            $this->connection->query($sqlCommand);
+        }
 
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
@@ -77,7 +88,9 @@ class UrlsCreateActionTest extends TestCase
     {
         session_start();
 
-        exec('make init');
+        foreach ($this->sqlCommands as $sqlCommand) {
+            $this->connection->query($sqlCommand);
+        }
 
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
@@ -101,7 +114,9 @@ class UrlsCreateActionTest extends TestCase
 
         session_start();
 
-        exec('make init');
+        foreach ($this->sqlCommands as $sqlCommand) {
+            $this->connection->query($sqlCommand);
+        }
 
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
@@ -140,7 +155,9 @@ class UrlsCreateActionTest extends TestCase
     {
         session_start();
 
-        exec('make init');
+        foreach ($this->sqlCommands as $sqlCommand) {
+            $this->connection->query($sqlCommand);
+        }
 
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
@@ -167,7 +184,9 @@ class UrlsCreateActionTest extends TestCase
     {
         session_start();
 
-        exec('make init');
+        foreach ($this->sqlCommands as $sqlCommand) {
+            $this->connection->query($sqlCommand);
+        }
 
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
@@ -224,7 +243,9 @@ class UrlsCreateActionTest extends TestCase
     {
         session_start();
 
-        exec('make init');
+        foreach ($this->sqlCommands as $sqlCommand) {
+            $this->connection->query($sqlCommand);
+        }
 
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
@@ -307,7 +328,9 @@ class UrlsCreateActionTest extends TestCase
     {
         session_start();
 
-        exec('make init');
+        foreach ($this->sqlCommands as $sqlCommand) {
+            $this->connection->query($sqlCommand);
+        }
 
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),

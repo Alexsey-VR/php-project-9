@@ -17,7 +17,7 @@ class UrlTest extends TestCase
 {
     public function testFromArray(): void
     {
-        if ($urlInfoData = file_get_contents(__DIR__ . "/../fixtures/urlInfo.json")) {
+        if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
             $urlInfo = json_decode(
                 $urlInfoData,
                 flags:JSON_OBJECT_AS_ARRAY
@@ -32,7 +32,7 @@ class UrlTest extends TestCase
 
     public function testId(): void
     {
-        if ($urlInfoData = file_get_contents(__DIR__ . "/../fixtures/urlInfo.json")) {
+        if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
             $urlInfo = json_decode(
                 $urlInfoData,
                 flags:JSON_OBJECT_AS_ARRAY
@@ -50,7 +50,7 @@ class UrlTest extends TestCase
 
     public function testTimestamp(): void
     {
-        if ($urlInfoData = file_get_contents(__DIR__ . "/../fixtures/urlInfo.json")) {
+        if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
             $urlInfo = json_decode(
                 $urlInfoData,
                 flags:JSON_OBJECT_AS_ARRAY

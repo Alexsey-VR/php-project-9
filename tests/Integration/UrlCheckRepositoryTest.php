@@ -10,6 +10,7 @@ use Analyzer\Url\Url as Url;
 use Analyzer\Repository\{UrlRepository, UrlCheckRepository};
 use PDO;
 use Analyzer\Exceptions\UrlException;
+use Analyzer\Tests\Fixtures\DatabaseInitHelper;
 
 #[CoversClass(Url::class)]
 #[CoversClass(UrlCheck::class)]
@@ -25,6 +26,12 @@ use Analyzer\Exceptions\UrlException;
 class UrlCheckRepositoryTest extends TestCase
 {
     private PDO $connection;
+
+    /**
+     * @var array<int,string>
+     */
+    private array $sqlCommands;
+
     private const string PDO_ERROR_FOR_ID = "PDO error: can't get a url check id";
 
     public function setUp(): void
@@ -47,13 +54,18 @@ class UrlCheckRepositoryTest extends TestCase
         $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbPath};user={$dbUser};password={$dbPasswd}";
         $this->connection = new PDO($dsn);
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+        $sqlData = file_get_contents(__DIR__ . '/../../database.sql');
+        $this->sqlCommands = DatabaseInitHelper::getSQLCommands($sqlData !== false ? $sqlData : "");
     }
 
     public function testCreate(): void
     {
-        exec('make init');
+        foreach ($this->sqlCommands as $sqlCommand) {
+            $this->connection->query($sqlCommand);
+        }
 
-        if ($urlInfoData = file_get_contents(__DIR__ . "/../fixtures/urlInfo.json")) {
+        if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
             $urlInfo = json_decode($urlInfoData, flags:JSON_OBJECT_AS_ARRAY);
 
             $url = Url::fromArray(
@@ -63,7 +75,7 @@ class UrlCheckRepositoryTest extends TestCase
             $urlRepository->save($url);
         }
 
-        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlCheckInfo.json")) {
             $urlCheckInfo = json_decode($urlCheckInfoData, flags:JSON_OBJECT_AS_ARRAY);
         }
 
@@ -109,7 +121,7 @@ class UrlCheckRepositoryTest extends TestCase
             );
         }
 
-        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlCheckInfo.json")) {
             $urlCheckInfo = json_decode($urlCheckInfoData, flags:JSON_OBJECT_AS_ARRAY);
 
             $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
@@ -127,9 +139,11 @@ class UrlCheckRepositoryTest extends TestCase
 
     public function testUpdate(): void
     {
-        exec('make init');
+        foreach ($this->sqlCommands as $sqlCommand) {
+            $this->connection->query($sqlCommand);
+        }
 
-        if ($urlInfoData = file_get_contents(__DIR__ . "/../fixtures/urlInfo.json")) {
+        if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
             $urlInfo = json_decode($urlInfoData, flags:JSON_OBJECT_AS_ARRAY);
 
             $url = Url::fromArray($urlInfo['mail']);
@@ -138,7 +152,7 @@ class UrlCheckRepositoryTest extends TestCase
             $urlRepository->save($url);
         }
 
-        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlCheckInfo.json")) {
             $urlCheckInfo = json_decode($urlCheckInfoData, flags:JSON_OBJECT_AS_ARRAY);
         }
         if (isset($urlCheckInfo) && is_array($urlCheckInfo['first']) && isset($url)) {
@@ -181,9 +195,11 @@ class UrlCheckRepositoryTest extends TestCase
 
     public function testDelete(): void
     {
-        exec('make init');
+        foreach ($this->sqlCommands as $sqlCommand) {
+            $this->connection->query($sqlCommand);
+        }
 
-        if ($urlInfoData = file_get_contents(__DIR__ . "/../fixtures/urlInfo.json")) {
+        if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
             $urlInfo = json_decode($urlInfoData, flags:JSON_OBJECT_AS_ARRAY);
 
             $url = Url::fromArray($urlInfo['mail']);
@@ -191,7 +207,7 @@ class UrlCheckRepositoryTest extends TestCase
             $urlRepository->save($url);
         }
 
-        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlCheckInfo.json")) {
             $urlCheckInfo = json_decode($urlCheckInfoData, flags:JSON_OBJECT_AS_ARRAY);
         }
 
@@ -219,9 +235,11 @@ class UrlCheckRepositoryTest extends TestCase
 
     public function testGetEntities(): void
     {
-        exec('make init');
+        foreach ($this->sqlCommands as $sqlCommand) {
+            $this->connection->query($sqlCommand);
+        }
 
-        if ($urlInfoData = file_get_contents(__DIR__ . "/../fixtures/urlInfo.json")) {
+        if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
             $urlInfo = json_decode(
                 $urlInfoData,
                 flags:JSON_OBJECT_AS_ARRAY
@@ -234,7 +252,7 @@ class UrlCheckRepositoryTest extends TestCase
             $urlRepository->save($url);
         }
 
-        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlCheckInfo.json")) {
             $urlCheckInfo = json_decode(
                 $urlCheckInfoData,
                 flags:JSON_OBJECT_AS_ARRAY

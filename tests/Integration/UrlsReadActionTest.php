@@ -16,6 +16,7 @@ use Analyzer\Exceptions\UrlException;
 use Analyzer\Url\Url;
 use Analyzer\UrlCheck\UrlCheck;
 use Analyzer\Controllers\UrlsReadAction;
+use Analyzer\Tests\Fixtures\DatabaseInitHelper;
 use PDO;
 
 #[CoversClass(UrlCheckRepository::class)]
@@ -27,6 +28,11 @@ use PDO;
 class UrlsReadActionTest extends TestCase
 {
     private PDO $connection;
+
+    /**
+     * @var array<int,string>
+     */
+    private array $sqlCommands;
 
     public function setUp(): void
     {
@@ -48,13 +54,18 @@ class UrlsReadActionTest extends TestCase
         $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbPath};user={$dbUser};password={$dbPasswd}";
         $this->connection = new PDO($dsn);
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+        $sqlData = file_get_contents(__DIR__ . '/../../database.sql');
+        $this->sqlCommands = DatabaseInitHelper::getSQLCommands($sqlData !== false ? $sqlData : "");
     }
 
     public function testRenderer(): void
     {
         session_start();
 
-        exec('make init');
+        foreach ($this->sqlCommands as $sqlCommand) {
+            $this->connection->query($sqlCommand);
+        }
 
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
@@ -108,7 +119,9 @@ class UrlsReadActionTest extends TestCase
     {
         session_start();
 
-        exec('make init');
+        foreach ($this->sqlCommands as $sqlCommand) {
+            $this->connection->query($sqlCommand);
+        }
 
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
@@ -121,7 +134,7 @@ class UrlsReadActionTest extends TestCase
         $validatedUrlRepository->save($url);
         $urlId = $url->getId();
 
-        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../fixtures/urlCheckInfo.json")) {
+        if ($urlCheckInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlCheckInfo.json")) {
             $urlCheckInfo = json_decode($urlCheckInfoData, flags:JSON_OBJECT_AS_ARRAY);
         }
 
