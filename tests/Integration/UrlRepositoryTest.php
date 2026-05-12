@@ -30,15 +30,11 @@ class UrlRepositoryTest extends TestCase
 {
     private \PDO $connection;
 
-    /**
-     * @var array<int,string>
-     */
-    private array $initSqlCommands;
-
     private const string PDO_ERROR_FOR_ID = "PDO error: can't get a url check id";
 
-    public function setUp(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         $databaseUrl = getenv('DATABASE_URL');
         $databaseInfo = parse_url(
             htmlspecialchars(
@@ -58,16 +54,17 @@ class UrlRepositoryTest extends TestCase
         $this->connection = new PDO($dsn);
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-        $sqlData = file_get_contents(__DIR__ . '/../../database.sql');
-        $this->initSqlCommands = DatabaseInitHelper::getSQLCommands($sqlData !== false ? $sqlData : "");
+        $this->connection->beginTransaction();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->connection->rollBack();
+        parent::tearDown();
     }
 
     public function testCreate(): void
     {
-        foreach ($this->initSqlCommands as $sqlCommand) {
-            $this->connection->query($sqlCommand);
-        }
-
         if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
             $urlInfo = json_decode(
                 $urlInfoData,
@@ -141,10 +138,6 @@ class UrlRepositoryTest extends TestCase
 
     public function testUpdate(): void
     {
-        foreach ($this->initSqlCommands as $sqlCommand) {
-            $this->connection->query($sqlCommand);
-        }
-
         if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
             $urlInfo = json_decode(
                 $urlInfoData,
@@ -181,10 +174,6 @@ class UrlRepositoryTest extends TestCase
 
     public function testUnique(): void
     {
-        foreach ($this->initSqlCommands as $sqlCommand) {
-            $this->connection->query($sqlCommand);
-        }
-
         if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
             $urlInfo = json_decode(
                 $urlInfoData,
@@ -217,10 +206,6 @@ class UrlRepositoryTest extends TestCase
 
     public function testDelete(): void
     {
-        foreach ($this->initSqlCommands as $sqlCommand) {
-            $this->connection->query($sqlCommand);
-        }
-
         if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
             $urlInfo = json_decode(
                 $urlInfoData,
@@ -250,10 +235,6 @@ class UrlRepositoryTest extends TestCase
 
     public function testGetEntities(): void
     {
-        foreach ($this->initSqlCommands as $sqlCommand) {
-            $this->connection->query($sqlCommand);
-        }
-
         if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
             $urlInfo = json_decode(
                 $urlInfoData,

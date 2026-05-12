@@ -29,12 +29,7 @@ class UrlsReadActionTest extends TestCase
 {
     private PDO $connection;
 
-    /**
-     * @var array<int,string>
-     */
-    private array $initSqlCommands;
-
-    public function setUp(): void
+    protected function setUp(): void
     {
         $databaseUrl = getenv('DATABASE_URL');
         $databaseInfo = parse_url(
@@ -55,16 +50,17 @@ class UrlsReadActionTest extends TestCase
         $this->connection = new PDO($dsn);
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-        $sqlData = file_get_contents(__DIR__ . '/../../database.sql');
-        $this->initSqlCommands = DatabaseInitHelper::getSQLCommands($sqlData !== false ? $sqlData : "");
+        $this->connection->beginTransaction();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->connection->rollBack();
+        parent::tearDown();
     }
 
     public function testRenderer(): void
     {
-        foreach ($this->initSqlCommands as $sqlCommand) {
-            $this->connection->query($sqlCommand);
-        }
-
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
             $this->connection
@@ -111,10 +107,6 @@ class UrlsReadActionTest extends TestCase
 
     public function testUrlsReadAction(): void
     {
-        foreach ($this->initSqlCommands as $sqlCommand) {
-            $this->connection->query($sqlCommand);
-        }
-
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
             $this->connection
@@ -131,7 +123,7 @@ class UrlsReadActionTest extends TestCase
         }
 
         $urlCheckRepository = new UrlCheckRepository($this->connection);
-        $urlCheckInfo['first']['urlId'] = $urlId;
+        $urlCheckInfo['first']['url_id'] = $urlId;
         $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
         $urlCheckRepository = new UrlCheckRepository($this->connection);

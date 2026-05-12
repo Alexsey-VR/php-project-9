@@ -28,13 +28,9 @@ class UrlCheckActionTest extends TestCase
 {
     private PDO $connection;
 
-    /**
-     * @var array<int,string>
-     */
-    private array $initSqlCommands;
-
-    public function setUp(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         $databaseUrl = getenv('DATABASE_URL');
         $databaseInfo = parse_url(
             htmlspecialchars(
@@ -54,16 +50,17 @@ class UrlCheckActionTest extends TestCase
         $this->connection = new PDO($dsn);
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-        $sqlData = file_get_contents(__DIR__ . '/../../database.sql');
-        $this->initSqlCommands = DatabaseInitHelper::getSQLCommands($sqlData !== false ? $sqlData : "");
+        $this->connection->beginTransaction();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->connection->rollBack();
+        parent::tearDown();
     }
 
     public function testRouter(): void
     {
-        foreach ($this->initSqlCommands as $sqlCommand) {
-            $this->connection->query($sqlCommand);
-        }
-
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
             $this->connection
@@ -101,10 +98,6 @@ class UrlCheckActionTest extends TestCase
 
     public function testSuccessInvoke(): void
     {
-        foreach ($this->initSqlCommands as $sqlCommand) {
-            $this->connection->query($sqlCommand);
-        }
-
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
             $this->connection
@@ -154,10 +147,6 @@ class UrlCheckActionTest extends TestCase
 
     public function testWrongInvoke(): void
     {
-        foreach ($this->initSqlCommands as $sqlCommand) {
-            $this->connection->query($sqlCommand);
-        }
-
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
             $this->connection

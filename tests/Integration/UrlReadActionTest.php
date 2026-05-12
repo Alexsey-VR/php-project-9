@@ -26,12 +26,7 @@ class UrlReadActionTest extends TestCase
 {
     private PDO $connection;
 
-    /**
-     * @var array<int,string>
-     */
-    private array $initSqlCommands;
-
-    public function setUp(): void
+    protected function setUp(): void
     {
         $databaseUrl = getenv('DATABASE_URL');
         $databaseInfo = parse_url(
@@ -52,16 +47,17 @@ class UrlReadActionTest extends TestCase
         $this->connection = new PDO($dsn);
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-        $sqlData = file_get_contents(__DIR__ . '/../../database.sql');
-        $this->initSqlCommands = DatabaseInitHelper::getSQLCommands($sqlData !== false ? $sqlData : "");
+        $this->connection->beginTransaction();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->connection->rollBack();
+        parent::tearDown();
     }
 
     public function testRenderer(): void
     {
-        foreach ($this->initSqlCommands as $sqlCommand) {
-            $this->connection->query($sqlCommand);
-        }
-
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
             $this->connection
@@ -94,10 +90,6 @@ class UrlReadActionTest extends TestCase
 
     public function testFetchTemplate(): void
     {
-        foreach ($this->initSqlCommands as $sqlCommand) {
-            $this->connection->query($sqlCommand);
-        }
-
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
             $this->connection
@@ -138,10 +130,6 @@ class UrlReadActionTest extends TestCase
 
     public function testReadAction(): void
     {
-        foreach ($this->initSqlCommands as $sqlCommand) {
-            $this->connection->query($sqlCommand);
-        }
-
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
             $this->connection
@@ -157,7 +145,7 @@ class UrlReadActionTest extends TestCase
             $urlCheckInfo = json_decode($urlCheckInfoData, flags:JSON_OBJECT_AS_ARRAY);
         }
 
-        $urlCheckInfo['first']['urlId'] = $urlId;
+        $urlCheckInfo['first']['url_id'] = $urlId;
         $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
         $urlCheckRepository = new UrlCheckRepository($this->connection);
@@ -197,10 +185,6 @@ class UrlReadActionTest extends TestCase
 
     public function testWrongUrlId(): void
     {
-        foreach ($this->initSqlCommands as $sqlCommand) {
-            $this->connection->query($sqlCommand);
-        }
-
         $validatedUrlRepository = new ValidatedUrlRepository(
             new UrlRepository($this->connection),
             $this->connection
@@ -216,7 +200,7 @@ class UrlReadActionTest extends TestCase
             $urlCheckInfo = json_decode($urlCheckInfoData, flags:JSON_OBJECT_AS_ARRAY);
         }
 
-        $urlCheckInfo['first']['urlId'] = $urlId;
+        $urlCheckInfo['first']['url_id'] = $urlId;
         $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
         $urlCheckRepository = new UrlCheckRepository($this->connection);
