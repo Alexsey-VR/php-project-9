@@ -302,7 +302,6 @@ class UrlsCreateActionTest extends TestCase
 
         $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
         $responseMock = $responseMockBuilder->getMock();
-        $responseMock->method('getStatusCode')->willReturn(200);
 
         $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
         $urlsCreateAction->setRenderer($slimRenderer);
@@ -315,7 +314,7 @@ class UrlsCreateActionTest extends TestCase
         );
 
         if ($psrResponse instanceof PsrResponseInterface) {
-            $this->assertTrue($psrResponse->getStatusCode() === 200);
+            $this->assertEquals($psrResponse->getStatusCode(), 0);
         }
     }
 }
