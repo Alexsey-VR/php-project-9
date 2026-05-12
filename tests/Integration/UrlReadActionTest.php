@@ -159,6 +159,7 @@ class UrlReadActionTest extends TestCase
 
         $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
         $responseMock = $responseMockBuilder->getMock();
+        $responseMock->method('getStatusCode')->willReturn(200);
 
         $serverRequestInterfaceMockBuilder = $this->getMockBuilder(ServerRequestInterface::class);
         $serverRequestInterfaceMock = $serverRequestInterfaceMockBuilder->getMock();
@@ -173,7 +174,7 @@ class UrlReadActionTest extends TestCase
             ['id' => $urlId]
         );
 
-        $this->assertEquals($psrResponse->getStatusCode(), 0);
+        $this->assertEquals($psrResponse->getStatusCode(), 200);
     }
 
     public function testWrongUrlId(): void
