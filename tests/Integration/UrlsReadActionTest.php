@@ -150,6 +150,7 @@ class UrlsReadActionTest extends TestCase
 
         $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
         $responseMock = $responseMockBuilder->getMock();
+        $responseMock->method('getStatusCode')->willReturn(200);
 
         $psrResponse = $urlsReadAction->__invoke(
             $serverRequestMock,
@@ -157,6 +158,6 @@ class UrlsReadActionTest extends TestCase
             []
         );
 
-        $this->assertEquals($psrResponse->getStatusCode(), 0);
+        $this->assertEquals($psrResponse->getStatusCode(), 200);
     }
 }
