@@ -22,6 +22,4 @@ interface UrlCheckRepositoryInterface
      * @return array<int,UrlCheckInterface>
      */
     public function getEntitiesByUrlId(int $urlId): array;
-
-    public function getConnection(): PDO;
 }
