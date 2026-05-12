@@ -103,12 +103,6 @@ class UrlsCreateActionTest extends TestCase
             $this->connection
         );
 
-        $urlInfo = ['name' => 'https://ru.hexlet.io'];
-
-        $url = Url::fromArray($urlInfo);
-        $validatedUrlRepository->save($url);
-        $urlId = $url->getId();
-
         $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
@@ -163,7 +157,6 @@ class UrlsCreateActionTest extends TestCase
 
         $url = Url::fromArray($urlInfo);
         $validatedUrlRepository->save($url);
-        $urlId = $url->getId();
 
         $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
@@ -215,7 +208,6 @@ class UrlsCreateActionTest extends TestCase
 
         $url = Url::fromArray($urlInfo);
         $validatedUrlRepository->save($url);
-        $urlId = $url->getId();
 
         $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
@@ -267,7 +259,6 @@ class UrlsCreateActionTest extends TestCase
 
         $url = Url::fromArray($urlInfo);
         $validatedUrlRepository->save($url);
-        $urlId = $url->getId();
 
         $serverRequestMock->method('getParsedBodyParam')->willReturn(['name' => 'wrong.url']);
 
@@ -293,7 +284,6 @@ class UrlsCreateActionTest extends TestCase
 
         $url = Url::fromArray($urlInfo);
         $validatedUrlRepository->save($url);
-        $urlId = $url->getId();
 
         $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);

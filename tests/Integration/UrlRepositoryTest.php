@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\{CoversClass, CoversMethod};
 use Analyzer\Url\Url as Url;
 use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository};
 use PDO;
+use PDOStatement;
 use Analyzer\Exceptions\UrlException;
 use Analyzer\Tests\Fixtures\DatabaseInitHelper;
 
@@ -65,200 +66,168 @@ class UrlRepositoryTest extends TestCase
 
     public function testCreate(): void
     {
-        if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
-            $urlInfo = json_decode(
-                $urlInfoData,
-                flags:JSON_OBJECT_AS_ARRAY
-            );
-            $url = Url::fromArray($urlInfo['mail']);
+        $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
+        $urlInfo = json_decode(
+            $urlInfoData !== false ? $urlInfoData : '',
+            flags:JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
 
-            $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->connection),
-                $this->connection
-            );
-            $urlRepository->save($url);
-            $id = $url->getId();
-            $urlTemp = $urlRepository->find(
-                is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
-            );
-        }
+        $urlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->connection),
+            $this->connection
+        );
+        $urlRepository->save($url);
+        $id = $url->getId();
+        $urlTemp = $urlRepository->find(
+            is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
+        );
 
-        if (
-            isset($urlTemp) &&
-            isset($urlInfo)
-        ) {
-            $this->assertTrue($urlTemp->exists());
-            $this->assertEquals($urlInfo['mail']['name'], $urlTemp->getUrl());
-        }
+        $this->assertTrue(isset($urlTemp) ? $urlTemp->exists() : false);
+        $this->assertEquals($urlInfo['mail']['name'], $urlTemp->getUrl());
     }
 
     public function testCreateException(): void
     {
-        $sql = "FALSE REQUEST";
-        $stmt = $this->connection->prepare($sql);
-        if ($stmt) {
-            $builder = $this->getMockBuilder($stmt::class);
-            $stmtStub = $builder->getMock();
-            $stmtStub->method('bindParam')->willReturn(true);
-            $stmtStub->method('execute')->willReturn(true);
+        $stmtStub = $this->createMock(PDOStatement::class);
+        $stmtStub->method('bindParam')->willReturn(true);
+        $stmtStub->method('execute')->willReturn(true);
 
-            $connStub = $this->createConfiguredStub(
-                $this->connection::class,
-                [
-                    'prepare' => $stmtStub,
-                    'lastInsertId' => false
-                ]
-            );
-        }
+        $connStub = $this->createConfiguredStub(
+            $this->connection::class,
+            [
+                'prepare' => $stmtStub,
+                'lastInsertId' => false
+            ]
+        );
 
-        if (isset($connStub)) {
-            $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($connStub),
-                $connStub
-            );
-        }
+        $urlRepository = new ValidatedUrlRepository(
+            new UrlRepository($connStub),
+            $connStub
+        );
 
-        if (
-            isset($urlRepository) &&
-            $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")
-        ) {
-            $urlInfo = json_decode(
-                $urlInfoData,
-                flags:JSON_OBJECT_AS_ARRAY
-            );
-            $url = Url::fromArray($urlInfo['mail']);
+        $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
+        $urlInfo = json_decode(
+            $urlInfoData !== false ? $urlInfoData : '',
+            flags:JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
 
-            $urlRepository->save($url);
-        }
+        $urlRepository->save($url);
 
-        if (isset($urlRepository)) {
-            $this->assertEquals($urlRepository->getMessage(), "PDO error: can't get last insert id");
-        }
+        $this->assertEquals($urlRepository->getMessage(), "PDO error: can't get last insert id");
     }
 
     public function testUpdate(): void
     {
-        if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
-            $urlInfo = json_decode(
-                $urlInfoData,
-                flags:JSON_OBJECT_AS_ARRAY
-            );
-            $url = Url::fromArray($urlInfo['mail']);
+        $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
+        $urlInfo = json_decode(
+            $urlInfoData !== false ? $urlInfoData : '',
+            flags:JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
 
-            $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->connection),
-                $this->connection
-            );
-            $urlRepository->save($url);
-        }
+        $urlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->connection),
+            $this->connection
+        );
+        $urlRepository->save($url);
 
-        if (isset($url) && isset($urlRepository)) {
-            $id = $url->getId();
-            $urlTemp = $urlRepository->find(
-                is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
-            );
-        }
-        if (isset($urlTemp) && isset($urlInfo) && isset($urlRepository) && isset($id)) {
+        $id = $url->getId();
+        $urlTemp = $urlRepository->find(
+            is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
+        );
+
+        if ($urlTemp instanceof Url) {
             $urlTemp->setUrl($urlInfo['yandex']['name']);
             $urlRepository->save($urlTemp);
-            $url = $urlRepository->find($id);
         }
+        $url = $urlRepository->find($id);
 
-        if (isset($urlInfo) && isset($url)) {
-            $this->assertEquals(
-                $urlInfo['yandex']['name'],
-                $url->getUrl()
-            );
-        }
+        $this->assertEquals(
+            $urlInfo['yandex']['name'],
+            ($url instanceof Url) ? $url->getUrl() : ''
+        );
     }
 
     public function testUnique(): void
     {
-        if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
-            $urlInfo = json_decode(
-                $urlInfoData,
-                flags:JSON_OBJECT_AS_ARRAY
-            );
-            $url = Url::fromArray($urlInfo['mail']);
-            $sameUrl = Url::fromArray($urlInfo['mail']);
+        $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
+        $urlInfo = json_decode(
+            $urlInfoData !== false ? $urlInfoData : '',
+            flags:JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
+        $sameUrl = Url::fromArray($urlInfo['mail']);
 
-            $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->connection),
-                $this->connection
-            );
-            $urlRepository->save($url);
-            $id = $url->getId();
-        }
+        $urlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->connection),
+            $this->connection
+        );
+        $urlRepository->save($url);
+        $id = $url->getId();
 
-        if (isset($url) && isset($sameUrl) && isset($urlRepository)) {
-            $urlRepository->save($sameUrl);
-            $sameId = $url->getId();
-        }
+        $urlRepository->save($sameUrl);
+        $sameId = $url->getId();
 
-        if (isset($id) && isset($sameId) && isset($urlRepository)) {
-            $this->assertEquals($id, $sameId);
-            $this->assertEquals(
-                $urlRepository->getMessage(),
-                "Страница уже существует"
-            );
-        }
+        $this->assertEquals($id, $sameId);
+        $this->assertEquals(
+            $urlRepository->getMessage(),
+            "Страница уже существует"
+        );
     }
 
     public function testDelete(): void
     {
-        if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
-            $urlInfo = json_decode(
-                $urlInfoData,
-                flags:JSON_OBJECT_AS_ARRAY
-            );
-            $url = Url::fromArray($urlInfo['mail']);
+        $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
+        $urlInfo = json_decode(
+            $urlInfoData !== false ? $urlInfoData : '',
+            flags:JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
 
-            $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->connection),
-                $this->connection
-            );
-            $urlRepository->save($url);
-            $id = $url->getId();
-        }
+        $urlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->connection),
+            $this->connection
+        );
+        $urlRepository->save($url);
+        $id = $url->getId();
 
-        if (isset($urlRepository) && isset($id)) {
-            $urlFound = $urlRepository->find($id);
-            $urlRepository->delete($id);
-            $urlDeleted = $urlRepository->find($id);
+        $urlFound = $urlRepository->find(
+            is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
+        );
+        $urlRepository->delete($id);
+        $urlDeleted = $urlRepository->find(
+            $id
+        );
 
-            $this->assertTrue(
-                (isset($urlFound) ? $urlFound->exists() : false) &&
-                is_null($urlDeleted)
-            );
-        }
+        $this->assertTrue(
+            (isset($urlFound) ? $urlFound->exists() : false) &&
+            is_null($urlDeleted)
+        );
     }
 
     public function testGetEntities(): void
     {
-        if ($urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json")) {
-            $urlInfo = json_decode(
-                $urlInfoData,
-                flags:JSON_OBJECT_AS_ARRAY
-            );
-            $url = Url::fromArray($urlInfo['mail']);
+        $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
+        $urlInfo = json_decode(
+            $urlInfoData !== false ? $urlInfoData : '',
+            flags:JSON_OBJECT_AS_ARRAY
+        );
+        $url = Url::fromArray($urlInfo['mail']);
 
-            $urlRepository = new ValidatedUrlRepository(
-                new UrlRepository($this->connection),
-                $this->connection
-            );
+        $urlRepository = new ValidatedUrlRepository(
+            new UrlRepository($this->connection),
+            $this->connection
+        );
 
-            $urlRepository->save($url);
-        }
+        $urlRepository->save($url);
 
-        if (isset($urlRepository)) {
-            $entities = $urlRepository->getEntities();
-        }
+        $entities = $urlRepository->getEntities();
 
-        if (isset($urlInfo) && isset($entities)) {
-            $this->assertEquals(
-                $urlInfo['mail']['name'],
-                $entities[0]->getUrl()
-            );
-        }
+        $this->assertEquals(
+            $urlInfo['mail']['name'],
+            $entities[0]->getUrl()
+        );
     }
 }

@@ -63,12 +63,6 @@ class UrlReadActionTest extends TestCase
             $this->connection
         );
 
-        $urlInfo = ['name' => 'https://ru.hexlet.io'];
-
-        $url = Url::fromArray($urlInfo);
-        $validatedUrlRepository->save($url);
-        $urlId = $url->getId();
-
         $urlCheckRepository = new UrlCheckRepository($this->connection);
 
         $messagesMock = $this->createMock(Messages::class);
@@ -99,7 +93,6 @@ class UrlReadActionTest extends TestCase
 
         $url = Url::fromArray($urlInfo);
         $validatedUrlRepository->save($url);
-        $urlId = $url->getId();
 
         $urlCheckRepository = new UrlCheckRepository($this->connection);
 

@@ -12,15 +12,13 @@ start: init
 	PHP_CLI_SERVER_WORKERS=5 php -d output_buffering=4096 -S 0.0.0.0:$(PORT) -t public
 
 test: init
-#	XDEBUG_MODE=coverage composer exec --verbose phpunit tests -- --coverage-text
 	XDEBUG_MODE=coverage vendor/bin/paratest tests --coverage-text --processes=auto
 
 test-dev:
-#	XDEBUG_MODE=coverage composer exec --verbose phpunit tests -- --coverage-html ./reports
 	XDEBUG_MODE=coverage vendor/bin/paratest tests --coverage-html ./reports --processes=auto
 
 test-sonar:
-	XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover=coverage.xml tests
+	XDEBUG_MODE=coverage vendor/bin/paratest --coverage-clover=coverage.xml tests
 
 init:
 	psql -a -d $(DATABASE_URL) -f database.sql
