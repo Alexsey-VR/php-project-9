@@ -11,20 +11,18 @@ class MainAction
 {
     private Messages $flash;
     private PhpRenderer $renderer;
-    private string $template;
 
-    public function __construct(Messages $flash)
-    {
+    public function __construct(
+        Messages $flash,
+        PhpRenderer $renderer
+    ) {
         $this->flash = $flash;
+        $this->renderer = $renderer;
     }
 
-    /**
-     * @param array<string,mixed> $args
-     */
     public function __invoke(
         ServerRequestInterface $request,
         PsrResponseInterface $response,
-        array $args
     ): PsrResponseInterface {
         $messages = $this->flash->getMessages();
 
@@ -33,30 +31,6 @@ class MainAction
             'errors' => []
         ];
 
-        return $this->renderer->render($response, $this->template, $params);
-    }
-
-    public function setTemplate(string $template): MainAction
-    {
-        $this->template = $template;
-
-        return $this;
-    }
-
-    public function getTemplate(): string
-    {
-        return $this->template;
-    }
-
-    public function setRenderer(PhpRenderer $renderer): MainAction
-    {
-        $this->renderer = $renderer;
-
-        return $this;
-    }
-
-    public function getRenderer(): PhpRenderer
-    {
-        return $this->renderer;
+        return $this->renderer->render($response, 'index.phtml', $params);
     }
 }

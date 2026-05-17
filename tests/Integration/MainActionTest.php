@@ -18,35 +18,15 @@ use Analyzer\Controllers\MainAction;
 #[CoversClass(MainAction::class)]
 class MainActionTest extends TestCase
 {
-    public function testTemplate(): void
-    {
-        $messagesMock = $this->createMock(Messages::class);
-        $messagesMock->method('getMessages')->willReturn(['OK']);
-        $mainAction = new MainAction($messagesMock);
-        $mainAction->setTemplate('index.phtml');
-
-        $this->assertTrue($mainAction->getTemplate() === 'index.phtml');
-    }
-
-    public function testRenderer(): void
-    {
-        $messagesMock = $this->createMock(Messages::class);
-        $messagesMock->method('getMessages')->willReturn(['OK']);
-        $mainAction = new MainAction($messagesMock);
-        $templatePath = __DIR__ . '/../../templates';
-        $slimRenderer = new PhpRenderer($templatePath);
-        $result = $mainAction->setRenderer($slimRenderer);
-
-        $this->assertTrue(
-            mb_strpos($result->getRenderer()->getTemplatePath(), $templatePath) !== false
-        );
-    }
-
     public function testInvoke(): void
     {
         $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
-        $mainAction = new MainAction($messagesMock);
+
+        $templatePath = __DIR__ . '/../../templates';
+        $slimRenderer = new PhpRenderer($templatePath);
+
+        $mainAction = new MainAction($messagesMock, $slimRenderer);
 
         $serverRequestMockBuilder = $this->getMockBuilder(ServerRequestInterface::class);
         $serverRequestMock = $serverRequestMockBuilder->getMock();
@@ -54,15 +34,9 @@ class MainActionTest extends TestCase
         $app = AppFactory::create();
         $response = $app->getResponseFactory()->CreateResponse();
 
-        $templatePath = __DIR__ . '/../../templates';
-        $slimRenderer = new PhpRenderer($templatePath);
-        $mainAction = $mainAction->setRenderer($slimRenderer);
-
-        $mainAction->setTemplate('index.phtml');
         $psrResponse = $mainAction->__invoke(
             $serverRequestMock,
-            $response,
-            []
+            $response
         );
 
         $this->assertTrue($psrResponse->getStatusCode() === 200);

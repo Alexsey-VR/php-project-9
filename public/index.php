@@ -25,7 +25,7 @@ session_start();
  * @var \DI\Container
  */
 $container = new Container();
-$container->set('renderer', function () {
+$container->set(PhpRenderer::class, function () {
     // As a parameter the base directory is used to contain a templates
     return new PhpRenderer(__DIR__ . '/../templates');
 });
@@ -88,25 +88,19 @@ $errorMiddleware = $app->addErrorMiddleware(false, true, true);
 $errorMiddleware->setDefaultErrorHandler($urlErrorHandler);
 $urlErrorRenderer = $container->get(UrlErrorRenderer::class);
 $urlErrorRenderer->setRenderer(
-    $container->get('renderer')
+    $container->get(PhpRenderer::class)
 );
 $urlErrorHandler->registerErrorRenderer('text/html', $urlErrorRenderer);
 
 $router = $app->getRouteCollector()->getRouteParser();
 
-$mainAction = $container->get(MainAction::class);
-$app->get(
-    '/',
-    $mainAction->setRenderer(
-        $container->get('renderer')
-    )->setTemplate('index.phtml')
-)->setName('mainPage');
+$app->get('/', MainAction::class)->setName('mainPage');
 
 $urlsCreateAction = $container->get(UrlsCreateAction::class);
 $app->post(
     '/urls',
     $urlsCreateAction->setRenderer(
-        $container->get('renderer')
+        $container->get(PhpRenderer::class)
     )->setTemplate('index.phtml')
     ->setRouter(
         $app->getRouteCollector()->getRouteParser()
@@ -117,7 +111,7 @@ $urlsReadAction = $container->get(UrlsReadAction::class);
 $app->get(
     '/urls',
     $urlsReadAction->setRenderer(
-        $container->get('renderer')
+        $container->get(PhpRenderer::class)
     )->setTemplate(template: 'Urls/urls.phtml')
 )->setName('urlsList');
 
@@ -125,7 +119,7 @@ $urlReadAction = $container->get(UrlReadAction::class);
 $app->get(
     '/urls/{id: [0-9]{1,9}}',
     $urlReadAction->setRenderer(
-        $container->get('renderer')
+        $container->get(PhpRenderer::class)
     )->setTemplate(template: 'Urls/url.phtml')
 )->setName('urlInfo');
 
