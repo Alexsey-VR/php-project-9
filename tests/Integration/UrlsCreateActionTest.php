@@ -60,92 +60,6 @@ class UrlsCreateActionTest extends TestCase
         parent::tearDown();
     }
 
-    public function testTemplate(): void
-    {
-        $validatedUrlRepository = new ValidatedUrlRepository(
-            new UrlRepository($this->connection),
-            $this->connection
-        );
-
-        $messagesMock = $this->createMock(Messages::class);
-        $messagesMock->method('getMessages')->willReturn(['OK']);
-        $urlsCreateAction = new UrlsCreateAction(
-            $validatedUrlRepository,
-            $messagesMock
-        );
-        $urlsCreateAction->setTemplate('index.phtml');
-
-        $this->assertTrue($urlsCreateAction->getTemplate() === 'index.phtml');
-    }
-
-    public function testRoute(): void
-    {
-        $validatedUrlRepository = new ValidatedUrlRepository(
-            new UrlRepository($this->connection),
-            $this->connection
-        );
-
-        $messagesMock = $this->createMock(Messages::class);
-        $messagesMock->method('getMessages')->willReturn(['OK']);
-        $urlsCreateAction = new UrlsCreateAction(
-            $validatedUrlRepository,
-            $messagesMock
-        );
-        $urlsCreateAction->setRouteName('urlInfo');
-
-        $this->assertTrue(mb_strpos($urlsCreateAction->getRouteName(), 'urlInfo') !== false);
-    }
-
-    public function testRouter(): void
-    {
-        $validatedUrlRepository = new ValidatedUrlRepository(
-            new UrlRepository($this->connection),
-            $this->connection
-        );
-
-        $messagesMock = $this->createMock(Messages::class);
-        $messagesMock->method('getMessages')->willReturn(['OK']);
-
-        $urlsCreateAction = new UrlsCreateAction(
-            $validatedUrlRepository,
-            $messagesMock
-        );
-
-        $phpRouterMockBuilder = $this->getMockBuilder(RouteParserInterface::class);
-        $phpRouterMock = $phpRouterMockBuilder->getMock();
-
-        $testRoute = 'testRoute';
-        $urlsCreateAction = $urlsCreateAction->setRouter($phpRouterMock)
-                                       ->setRouteName($testRoute);
-
-        $result = $urlsCreateAction->getRouter();
-
-        $this->assertTrue($result->urlFor('testRoute') === '');
-        $this->assertTrue($urlsCreateAction->getRouteName() === $testRoute);
-    }
-
-    public function testRenderer(): void
-    {
-        $validatedUrlRepository = new ValidatedUrlRepository(
-            new UrlRepository($this->connection),
-            $this->connection
-        );
-
-        $messagesMock = $this->createMock(Messages::class);
-        $messagesMock->method('getMessages')->willReturn(['OK']);
-        $urlsCreateAction = new UrlsCreateAction(
-            $validatedUrlRepository,
-            $messagesMock
-        );
-        $templatePath = __DIR__ . '/../../templates';
-        $slimRenderer = new PhpRenderer($templatePath);
-        $result = $urlsCreateAction->setRenderer($slimRenderer);
-
-        $this->assertTrue(
-            mb_strpos($result->getRenderer()->getTemplatePath(), $templatePath) !== false
-        );
-    }
-
     public function testInvokeWithCreate(): void
     {
         $validatedUrlRepository = new ValidatedUrlRepository(
@@ -161,16 +75,17 @@ class UrlsCreateActionTest extends TestCase
         $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
-        $urlsCreateAction = new UrlsCreateAction(
-            $validatedUrlRepository,
-            $messagesMock
-        );
-
         $phpRouterMockBuilder = $this->getMockBuilder(RouteParserInterface::class);
         $phpRouterMock = $phpRouterMockBuilder->getMock();
 
-        $urlsCreateAction = $urlsCreateAction->setRouter($phpRouterMock)
-                                        ->setRouteName('testRoute');
+        $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
+
+        $urlsCreateAction = new UrlsCreateAction(
+            $validatedUrlRepository,
+            $slimRenderer,
+            $messagesMock,
+            $phpRouterMock
+        );
 
         $serverRequestInterfaceMockBuilder = $this->getMockBuilder(ServerRequestInterface::class);
         $serverRequestInterfaceMock = $serverRequestInterfaceMockBuilder->getMock();
@@ -188,8 +103,7 @@ class UrlsCreateActionTest extends TestCase
 
         $psrResponse = $urlsCreateAction->__invoke(
             $serverRequestMock,
-            $responseMock,
-            []
+            $responseMock
         );
 
         if ($psrResponse instanceof PsrResponseInterface) {
@@ -212,16 +126,17 @@ class UrlsCreateActionTest extends TestCase
         $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
-        $urlsCreateAction = new UrlsCreateAction(
-            $validatedUrlRepository,
-            $messagesMock
-        );
-
         $phpRouterMockBuilder = $this->getMockBuilder(RouteParserInterface::class);
         $phpRouterMock = $phpRouterMockBuilder->getMock();
 
-        $urlsCreateAction = $urlsCreateAction->setRouter($phpRouterMock)
-                                        ->setRouteName('testRoute');
+        $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
+
+        $urlsCreateAction = new UrlsCreateAction(
+            $validatedUrlRepository,
+            $slimRenderer,
+            $messagesMock,
+            $phpRouterMock
+        );
 
         $serverRequestInterfaceMockBuilder = $this->getMockBuilder(ServerRequestInterface::class);
         $serverRequestInterfaceMock = $serverRequestInterfaceMockBuilder->getMock();
@@ -239,20 +154,14 @@ class UrlsCreateActionTest extends TestCase
 
         $psrResponse = $urlsCreateAction->__invoke(
             $serverRequestMock,
-            $responseMock,
-            []
+            $responseMock
         );
-
-        $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
-        $urlsCreateAction->setRenderer($slimRenderer);
-        $urlsCreateAction->setTemplate('index.phtml');
 
         $responseMock->method('withStatus')->willReturnSelf();
 
         $psrResponse = $urlsCreateAction->__invoke(
             $serverRequestMock,
-            $responseMock,
-            []
+            $responseMock
         );
 
         $urlInfo = ['name' => 'https://ru.hexlet.io'];
@@ -264,8 +173,7 @@ class UrlsCreateActionTest extends TestCase
 
         $psrResponse = $urlsCreateAction->__invoke(
             $serverRequestMock,
-            $responseMock,
-            []
+            $responseMock
         );
 
         if ($psrResponse instanceof PsrResponseInterface) {
@@ -288,9 +196,16 @@ class UrlsCreateActionTest extends TestCase
         $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
+        $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
+
+        $phpRouterMockBuilder = $this->getMockBuilder(RouteParserInterface::class);
+        $phpRouterMock = $phpRouterMockBuilder->getMock();
+
         $urlsCreateAction = new UrlsCreateAction(
             $validatedUrlRepository,
-            $messagesMock
+            $slimRenderer,
+            $messagesMock,
+            $phpRouterMock
         );
 
         $serverRequestInterfaceMockBuilder = $this->getMockBuilder(ServerRequestInterface::class);
@@ -303,14 +218,9 @@ class UrlsCreateActionTest extends TestCase
         $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
         $responseMock = $responseMockBuilder->getMock();
 
-        $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
-        $urlsCreateAction->setRenderer($slimRenderer);
-        $urlsCreateAction->setTemplate('index.phtml');
-
         $psrResponse = $urlsCreateAction->__invoke(
             $serverRequestMock,
-            $responseMock,
-            []
+            $responseMock
         );
 
         if ($psrResponse instanceof PsrResponseInterface) {

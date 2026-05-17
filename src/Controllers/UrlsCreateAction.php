@@ -19,24 +19,22 @@ class UrlsCreateAction
     private Messages $flash;
     private RouteParserInterface $router;
     private PhpRenderer $renderer;
-    private string $template;
-    private string $routeName;
 
     public function __construct(
         ValidatedUrlRepository $urlRepository,
-        Messages $flash
+        PhpRenderer $renderer,
+        Messages $flash,
+        RouteParserInterface $router
     ) {
         $this->urlRepository = $urlRepository;
         $this->flash = $flash;
+        $this->renderer = $renderer;
+        $this->router = $router;
     }
 
-    /**
-     * @param array<string,mixed> $args
-     */
     public function __invoke(
         ServerRequest $request,
         SlimResponseInterface $response,
-        array $args
     ): ?PsrResponseInterface {
         ['name' => $urlName] = $request->getParsedBodyParam("url");
         $urlInfo = ['name' => htmlspecialchars(
@@ -53,7 +51,7 @@ class UrlsCreateAction
             );
 
             $toUrlInfo = $this->router->urlFor(
-                $this->routeName,
+                'urlInfo',
                 ['id' => "{$url->getId()}"]
             );
             return $response->withRedirect($toUrlInfo);
@@ -66,7 +64,7 @@ class UrlsCreateAction
             );
 
             $toUrlInfo = $this->router->urlFor(
-                $this->routeName,
+                'urlInfo',
                 ['id' => "{$url->getId()}"]
             );
             $response = $response->withStatus(422);
@@ -82,58 +80,8 @@ class UrlsCreateAction
 
         return $this->renderer->render(
             $response,
-            $this->template,
+            'index.phtml',
             $params
         );
-    }
-
-    public function setRenderer(PhpRenderer $renderer): UrlsCreateAction
-    {
-        $this->renderer = $renderer;
-
-        return $this;
-    }
-
-    public function getRenderer(): PhpRenderer
-    {
-        return $this->renderer;
-    }
-
-    public function setTemplate(string $template): UrlsCreateAction
-    {
-        $this->template = $template;
-
-        return $this;
-    }
-
-    public function getTemplate(): string
-    {
-        return $this->template;
-    }
-
-    public function setRouter(
-        RouteParserInterface $router
-    ): UrlsCreateAction {
-        $this->router = $router;
-
-        return $this;
-    }
-
-    public function getRouter(): RouteParserInterface
-    {
-        return $this->router;
-    }
-
-    public function setRouteName(
-        string $routeName
-    ): UrlsCreateAction {
-        $this->routeName = $routeName;
-
-        return $this;
-    }
-
-    public function getRouteName(): string
-    {
-        return $this->routeName;
     }
 }

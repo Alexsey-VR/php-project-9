@@ -6,6 +6,7 @@ use Slim\Factory\AppFactory;
 use DI\Container;
 use Slim\Views\PhpRenderer;
 use Slim\Flash\Messages;
+use Slim\Interfaces\RouteParserInterface;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
 use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository};
@@ -79,6 +80,10 @@ $app = AppFactory::createFromContainer($container);
 
 $app->addRoutingMiddleware();
 
+$container->set(RouteParserInterface::class, function () use ($app) {
+    return $app->getRouteCollector()->getRouteParser();
+});
+
 $urlErrorHandler = new UrlErrorHandler(
     $app->getCallableResolver(),
     $app->getResponseFactory(),
@@ -95,17 +100,7 @@ $urlErrorHandler->registerErrorRenderer('text/html', $urlErrorRenderer);
 $router = $app->getRouteCollector()->getRouteParser();
 
 $app->get('/', MainAction::class)->setName('mainPage');
-
-$urlsCreateAction = $container->get(UrlsCreateAction::class);
-$app->post(
-    '/urls',
-    $urlsCreateAction->setRenderer(
-        $container->get(PhpRenderer::class)
-    )->setTemplate('index.phtml')
-    ->setRouter(
-        $app->getRouteCollector()->getRouteParser()
-    )->setRouteName('urlInfo')
-)->setName('createUrl');
+$app->post('/urls', UrlsCreateAction::class)->setName('createUrl');
 
 $urlsReadAction = $container->get(UrlsReadAction::class);
 $app->get(
