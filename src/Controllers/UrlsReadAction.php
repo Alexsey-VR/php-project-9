@@ -16,25 +16,22 @@ class UrlsReadAction
     private UrlCheckRepository $urlCheckRepository;
     private Messages $flash;
     private PhpRenderer $renderer;
-    private string $template;
 
     public function __construct(
         ValidatedUrlRepository $urlRepository,
         UrlCheckRepository $urlCheckRepository,
+        PhpRenderer $renderer,
         Messages $flash
     ) {
         $this->urlRepository = $urlRepository;
         $this->urlCheckRepository = $urlCheckRepository;
         $this->flash = $flash;
+        $this->renderer = $renderer;
     }
 
-    /**
-     * @param array<string,mixed> $args
-     */
     public function __invoke(
         ServerRequestInterface $request,
-        ResponseInterface $response,
-        array $args
+        ResponseInterface $response
     ): PsrResponseInterface {
         $urls = $this->urlRepository->getEntities();
         $urlItems = [];
@@ -59,32 +56,8 @@ class UrlsReadAction
 
         return $this->renderer->render(
             $response,
-            $this->template,
+            'Urls/urls.phtml',
             $params
         );
-    }
-
-    public function setRenderer(PhpRenderer $renderer): UrlsReadAction
-    {
-        $this->renderer = $renderer;
-
-        return $this;
-    }
-
-    public function getRenderer(): PhpRenderer
-    {
-        return $this->renderer;
-    }
-
-    public function setTemplate(string $template): UrlsReadAction
-    {
-        $this->template = $template;
-
-        return $this;
-    }
-
-    public function getTemplate(): string
-    {
-        return $this->template;
     }
 }
