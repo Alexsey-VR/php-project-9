@@ -18,16 +18,17 @@ class UrlCheckAction
     private UrlCheckRepository $urlCheckRepository;
     private RouteParserInterface $router;
     private Messages $flash;
-    private string $routeName;
 
     public function __construct(
         ValidatedUrlRepository $urlRepository,
         UrlCheckRepository $urlCheckRepository,
-        Messages $flash
+        Messages $flash,
+        RouteParserInterface $router
     ) {
         $this->urlRepository = $urlRepository;
         $this->urlCheckRepository = $urlCheckRepository;
         $this->flash = $flash;
+        $this->router = $router;
     }
 
     /**
@@ -64,34 +65,8 @@ class UrlCheckAction
             $this->flash->addMessage('error', $urlCheck->getMessage());
         }
 
-        $toUrlInfo = $this->router->urlFor($this->routeName, ['id' => "{$url->getId()}"]);
+        $toUrlInfo = $this->router->urlFor('urlInfo', ['id' => "{$url->getId()}"]);
 
         return $response->withRedirect($toUrlInfo);
-    }
-
-    public function setRouter(
-        RouteParserInterface $router
-    ): UrlCheckAction {
-        $this->router = $router;
-
-        return $this;
-    }
-
-    public function getRouter(): RouteParserInterface
-    {
-        return $this->router;
-    }
-
-    public function setRouteName(
-        string $routeName
-    ): UrlCheckAction {
-        $this->routeName = $routeName;
-
-        return $this;
-    }
-
-    public function getRouteName(): string
-    {
-        return $this->routeName;
     }
 }

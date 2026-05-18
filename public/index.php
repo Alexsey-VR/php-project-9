@@ -103,13 +103,6 @@ $app->get('/', MainAction::class)->setName('mainPage');
 $app->post('/urls', UrlsCreateAction::class)->setName('createUrl');
 $app->get('/urls', UrlsReadAction::class)->setName('urlsList');
 $app->get('/urls/{id: [0-9]{1,9}}', UrlReadAction::class)->setName('urlInfo');
-
-$urlCheckAction = $container->get(UrlCheckAction::class);
-$app->post(
-    '/urls/{id: [0-9]{1,9}}/checks',
-    $urlCheckAction->setRouter(
-        $app->getRouteCollector()->getRouteParser()
-    )->setRouteName(routeName: 'urlInfo')
-);
+$app->post('/urls/{id: [0-9]{1,9}}/checks', UrlCheckAction::class);
 
 $app->run();

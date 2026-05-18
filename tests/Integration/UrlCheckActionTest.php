@@ -59,37 +59,6 @@ class UrlCheckActionTest extends TestCase
         parent::tearDown();
     }
 
-    public function testRouter(): void
-    {
-        $validatedUrlRepository = new ValidatedUrlRepository(
-            new UrlRepository($this->connection),
-            $this->connection
-        );
-
-        $urlCheckRepository = new UrlCheckRepository($this->connection);
-
-        $messagesMock = $this->createMock(Messages::class);
-        $messagesMock->method('getMessages')->willReturn(['OK']);
-
-        $urlCheckAction = new UrlCheckAction(
-            $validatedUrlRepository,
-            $urlCheckRepository,
-            $messagesMock
-        );
-
-        $phpRouterMockBuilder = $this->getMockBuilder(RouteParserInterface::class);
-        $phpRouterMock = $phpRouterMockBuilder->getMock();
-
-        $testRoute = 'testRoute';
-        $urlCheckAction = $urlCheckAction->setRouter($phpRouterMock)
-                                       ->setRouteName($testRoute);
-
-        $result = $urlCheckAction->getRouter();
-
-        $this->assertTrue($result->urlFor('testRoute') === '');
-        $this->assertTrue($urlCheckAction->getRouteName() === $testRoute);
-    }
-
     public function testSuccessInvoke(): void
     {
         $validatedUrlRepository = new ValidatedUrlRepository(
@@ -108,10 +77,14 @@ class UrlCheckActionTest extends TestCase
         $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
+        $phpRouterMockBuilder = $this->getMockBuilder(RouteParserInterface::class);
+        $phpRouterMock = $phpRouterMockBuilder->getMock();
+
         $urlCheckAction = new UrlCheckAction(
             $validatedUrlRepository,
             $urlCheckRepository,
-            $messagesMock
+            $messagesMock,
+            $phpRouterMock
         );
 
         $serverRequestMockBuilder = $this->getMockBuilder(ServerRequestInterface::class);
@@ -123,12 +96,6 @@ class UrlCheckActionTest extends TestCase
         $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
         $responseMock = $responseMockBuilder->getMock();
         $responseMock->method('withRedirect')->willReturn($response);
-
-        $phpRouterMockBuilder = $this->getMockBuilder(RouteParserInterface::class);
-        $phpRouterMock = $phpRouterMockBuilder->getMock();
-
-        $urlCheckAction = $urlCheckAction->setRouter($phpRouterMock)
-                                        ->setRouteName('testRoute');
 
         $psrResponse = $urlCheckAction->__invoke(
             $serverRequestMock,
@@ -157,10 +124,14 @@ class UrlCheckActionTest extends TestCase
         $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
+        $phpRouterMockBuilder = $this->getMockBuilder(RouteParserInterface::class);
+        $phpRouterMock = $phpRouterMockBuilder->getMock();
+
         $urlCheckAction = new UrlCheckAction(
             $validatedUrlRepository,
             $urlCheckRepository,
-            $messagesMock
+            $messagesMock,
+            $phpRouterMock
         );
 
         $serverRequestMockBuilder = $this->getMockBuilder(ServerRequestInterface::class);
@@ -172,12 +143,6 @@ class UrlCheckActionTest extends TestCase
         $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
         $responseMock = $responseMockBuilder->getMock();
         $responseMock->method('withRedirect')->willReturn($response);
-
-        $phpRouterMockBuilder = $this->getMockBuilder(RouteParserInterface::class);
-        $phpRouterMock = $phpRouterMockBuilder->getMock();
-
-        $urlCheckAction = $urlCheckAction->setRouter($phpRouterMock)
-                                        ->setRouteName('testRoute');
 
         $wrongPsrResponse = $urlCheckAction->__invoke(
             $serverRequestMock,
