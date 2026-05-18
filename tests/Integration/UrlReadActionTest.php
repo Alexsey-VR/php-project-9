@@ -56,71 +56,6 @@ class UrlReadActionTest extends TestCase
         parent::tearDown();
     }
 
-    public function testRenderer(): void
-    {
-        $validatedUrlRepository = new ValidatedUrlRepository(
-            new UrlRepository($this->connection),
-            $this->connection
-        );
-
-        $urlCheckRepository = new UrlCheckRepository($this->connection);
-
-        $messagesMock = $this->createMock(Messages::class);
-        $messagesMock->method('getMessages')->willReturn(['OK']);
-
-        $readAction = new UrlReadAction(
-            $validatedUrlRepository,
-            $urlCheckRepository,
-            $messagesMock
-        );
-        $templatePath = __DIR__ . '/../../templates';
-        $slimRenderer = new PhpRenderer($templatePath);
-        $result = $readAction->setRenderer($slimRenderer);
-
-        $this->assertTrue(
-            mb_strpos($result->getRenderer()->getTemplatePath(), $templatePath) !== false
-        );
-    }
-
-    public function testFetchTemplate(): void
-    {
-        $validatedUrlRepository = new ValidatedUrlRepository(
-            new UrlRepository($this->connection),
-            $this->connection
-        );
-
-        $urlInfo = ['name' => 'https://ru.hexlet.io'];
-
-        $url = Url::fromArray($urlInfo);
-        $validatedUrlRepository->save($url);
-
-        $urlCheckRepository = new UrlCheckRepository($this->connection);
-
-        $messagesMock = $this->createMock(Messages::class);
-        $messagesMock->method('getMessages')->willReturn(['OK']);
-
-        $readAction = new UrlReadAction(
-            $validatedUrlRepository,
-            $urlCheckRepository,
-            $messagesMock
-        );
-
-        $templatePath = __DIR__ . '/../../templates';
-        $slimRenderer = new PhpRenderer($templatePath);
-        $result = $readAction->setRenderer($slimRenderer)
-                            ->setTemplate('Urls/url.phtml');
-
-        $this->assertTrue(
-            mb_strpos(
-                $result->getRenderer()->fetch(
-                    $result->getTemplate(),
-                    ['id' => '']
-                ),
-                $urlInfo['name']
-            ) !== false
-        );
-    }
-
     public function testReadAction(): void
     {
         $validatedUrlRepository = new ValidatedUrlRepository(
@@ -147,15 +82,14 @@ class UrlReadActionTest extends TestCase
         $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
+        $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
+
         $urlReadAction = new UrlReadAction(
             $validatedUrlRepository,
             $urlCheckRepository,
+            $slimRenderer,
             $messagesMock
         );
-
-        $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
-        $urlReadAction->setRenderer($slimRenderer);
-        $urlReadAction->setTemplate('Urls/url.phtml');
 
         $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
         $responseMock = $responseMockBuilder->getMock();
@@ -203,15 +137,14 @@ class UrlReadActionTest extends TestCase
         $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
+        $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
+
         $urlReadAction = new UrlReadAction(
             $validatedUrlRepository,
             $urlCheckRepository,
+            $slimRenderer,
             $messagesMock
         );
-
-        $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
-        $urlReadAction->setRenderer($slimRenderer);
-        $urlReadAction->setTemplate('Urls/url.phtml');
 
         $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
         $responseMock = $responseMockBuilder->getMock();

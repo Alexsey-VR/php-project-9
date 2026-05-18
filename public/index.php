@@ -102,14 +102,7 @@ $router = $app->getRouteCollector()->getRouteParser();
 $app->get('/', MainAction::class)->setName('mainPage');
 $app->post('/urls', UrlsCreateAction::class)->setName('createUrl');
 $app->get('/urls', UrlsReadAction::class)->setName('urlsList');
-
-$urlReadAction = $container->get(UrlReadAction::class);
-$app->get(
-    '/urls/{id: [0-9]{1,9}}',
-    $urlReadAction->setRenderer(
-        $container->get(PhpRenderer::class)
-    )->setTemplate(template: 'Urls/url.phtml')
-)->setName('urlInfo');
+$app->get('/urls/{id: [0-9]{1,9}}', UrlReadAction::class)->setName('urlInfo');
 
 $urlCheckAction = $container->get(UrlCheckAction::class);
 $app->post(

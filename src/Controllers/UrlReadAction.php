@@ -17,16 +17,17 @@ class UrlReadAction
     private UrlCheckRepository $urlCheckRepository;
     private Messages $flash;
     private PhpRenderer $renderer;
-    private string $template;
 
     public function __construct(
         ValidatedUrlRepository $urlRepository,
         UrlCheckRepository $urlCheckRepository,
+        PhpRenderer $renderer,
         Messages $flash
     ) {
         $this->urlRepository = $urlRepository;
         $this->urlCheckRepository = $urlCheckRepository;
         $this->flash = $flash;
+        $this->renderer = $renderer;
     }
 
     /**
@@ -66,7 +67,7 @@ class UrlReadAction
             return $this->renderer
                 ->render(
                     $response,
-                    $this->template,
+                    'Urls/url.phtml',
                     $params
                 );
         }
@@ -82,29 +83,5 @@ class UrlReadAction
             '/Exceptions/urlException.phtml',
             $params
         );
-    }
-
-    public function setTemplate(string $template): UrlReadAction
-    {
-        $this->template = $template;
-
-        return $this;
-    }
-
-    public function getTemplate(): string
-    {
-        return $this->template;
-    }
-
-    public function setRenderer(PhpRenderer $renderer): UrlReadAction
-    {
-        $this->renderer = $renderer;
-
-        return $this;
-    }
-
-    public function getRenderer(): PhpRenderer
-    {
-        return $this->renderer;
     }
 }
