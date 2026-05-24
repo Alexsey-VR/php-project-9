@@ -53,7 +53,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
         $id = intval($this->connection->lastInsertId());
         $urlCheck->setId(
-            $id ? $id : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
+            $id ?: throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
         );
         $urlCheck->setTimestamp(
             is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
@@ -121,18 +121,14 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
         $stmt->execute();
     }
 
-    public function getEntities(): array
+    /**
+     * @param array<mixed> $dbData
+     * @return array<int, UrlCheckInterface>
+     */
+    private function getUrlCheckList(array $dbData): array
     {
-        $sql = "SELECT * FROM url_checks ORDER BY created_at DESC";
-        $stmt = $this->connection->query($sql);
-
-        $items = [];
-        if ($stmt) {
-            $items = $stmt->fetchAll(PDO::FETCH_DEFAULT);
-        }
-
         $urlChecks = [];
-        foreach ($items as $item) {
+        foreach ($dbData as $item) {
             if (is_array($item)) {
                 $urlCheck = UrlCheck::fromArray($item);
                 $foundId = $item['id'];
@@ -150,6 +146,16 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
         return $urlChecks;
     }
 
+    public function getEntities(): array
+    {
+        $sql = "SELECT * FROM url_checks ORDER BY created_at DESC";
+        $stmt = $this->connection->query($sql);
+
+        return $this->getUrlCheckList(
+            $stmt !== false ? $stmt->fetchAll(PDO::FETCH_DEFAULT) : []
+        );
+    }
+
     public function getEntitiesByUrlId(int $urlId): array
     {
         $sql = "SELECT * FROM url_checks WHERE url_id = :url_id ORDER BY created_at DESC";
@@ -157,27 +163,8 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
         $stmt->bindParam(':url_id', $urlId);
         $stmt->execute();
 
-        $items = [];
-        if ($stmt) {
-            $items = $stmt->fetchAll(PDO::FETCH_DEFAULT);
-        }
-
-        $urlChecks = [];
-        foreach ($items as $item) {
-            if (is_array($item)) {
-                $urlCheck = UrlCheck::fromArray($item);
-                $foundId = $item['id'];
-                $timestamp = $item['created_at'];
-                $urlCheck->setId(
-                    is_int($foundId) ? $foundId : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
-                );
-                $urlCheck->setTimestamp(
-                    is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
-                );
-                $urlChecks[] = $urlCheck;
-            }
-        }
-
-        return $urlChecks;
+        return $this->getUrlCheckList(
+            $stmt !== false ? $stmt->fetchAll(PDO::FETCH_DEFAULT) : []
+        );
     }
 }
