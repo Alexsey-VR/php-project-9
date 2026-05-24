@@ -154,12 +154,14 @@ class UrlReadActionTest extends TestCase
         $serverRequestMock = $serverRequestMockBuilder->getMock();
         $serverRequestMock->method('getParsedBodyParam')->willReturn(['name' => 'https://vesti.ru']);
 
+        $responseMock->expects($this->once())
+                    ->method('withStatus')
+                    ->with($this->equalTo(404));
+
         $psrResponse = $urlReadAction->__invoke(
             $serverRequestMock,
             $responseMock,
             ['id' => $urlId + 1]
         );
-
-        $this->assertEquals($psrResponse->getStatusCode(), 0);
     }
 }
