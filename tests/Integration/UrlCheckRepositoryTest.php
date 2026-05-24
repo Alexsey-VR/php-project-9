@@ -4,14 +4,12 @@ namespace Analyzer\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\{CoversClass, CoversMethod};
-use PHPUnit\Framework\MockObject\Stub;
 use Analyzer\UrlCheck\UrlCheck as UrlCheck;
 use Analyzer\Url\Url as Url;
 use Analyzer\Repository\{UrlRepository, UrlCheckRepository};
+use Analyzer\Exceptions\UrlException;
 use PDO;
 use PDOStatement;
-use Analyzer\Exceptions\UrlException;
-use Analyzer\Tests\Fixtures\DatabaseInitHelper;
 
 #[CoversClass(Url::class)]
 #[CoversClass(UrlCheck::class)]
@@ -36,11 +34,10 @@ class UrlCheckRepositoryTest extends TestCase
         $databaseUrl = getenv('DATABASE_URL');
         $databaseInfo = parse_url(
             htmlspecialchars(
-                $databaseUrl ? $databaseUrl : ''
+                $databaseUrl ?: ''
             )
         );
 
-        $dbScheme = $databaseInfo['scheme'] ?? '';
         $dbPort = $databaseInfo['port'] ?? '';
         $dbHost = $databaseInfo['host'] ?? '';
         $dbParsedPath = $databaseInfo['path'] ?? '';
@@ -65,7 +62,7 @@ class UrlCheckRepositoryTest extends TestCase
     {
         $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
         $urlInfo = json_decode(
-            $urlInfoData !== false ? $urlInfoData : '',
+            $urlInfoData ?: '',
             flags:JSON_OBJECT_AS_ARRAY
         );
 
@@ -77,7 +74,7 @@ class UrlCheckRepositoryTest extends TestCase
 
         $urlCheckInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlCheckInfo.json");
         $urlCheckInfo = json_decode(
-            $urlCheckInfoData !== false ? $urlCheckInfoData : '',
+            $urlCheckInfoData ?: '',
             flags:JSON_OBJECT_AS_ARRAY
         );
 
@@ -111,7 +108,7 @@ class UrlCheckRepositoryTest extends TestCase
 
         $urlCheckInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlCheckInfo.json");
         $urlCheckInfo = json_decode(
-            $urlCheckInfoData !== false ? $urlCheckInfoData : '',
+            $urlCheckInfoData ?: '',
             flags:JSON_OBJECT_AS_ARRAY
         );
 
@@ -129,7 +126,7 @@ class UrlCheckRepositoryTest extends TestCase
     {
         $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
         $urlInfo = json_decode(
-            $urlInfoData !== false ? $urlInfoData : '',
+            $urlInfoData ?: '',
             flags:JSON_OBJECT_AS_ARRAY
         );
 
@@ -140,7 +137,7 @@ class UrlCheckRepositoryTest extends TestCase
 
         $urlCheckInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlCheckInfo.json");
         $urlCheckInfo = json_decode(
-            $urlCheckInfoData !== false ? $urlCheckInfoData : '',
+            $urlCheckInfoData ?: '',
             flags:JSON_OBJECT_AS_ARRAY
         );
 
@@ -176,7 +173,7 @@ class UrlCheckRepositoryTest extends TestCase
     {
         $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
         $urlInfo = json_decode(
-            $urlInfoData !== false ? $urlInfoData : '',
+            $urlInfoData ?: '',
             flags:JSON_OBJECT_AS_ARRAY
         );
 
@@ -212,7 +209,7 @@ class UrlCheckRepositoryTest extends TestCase
     {
         $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
         $urlInfo = json_decode(
-            $urlInfoData !== false ? $urlInfoData : '',
+            $urlInfoData ?: '',
             flags:JSON_OBJECT_AS_ARRAY
         );
 
@@ -224,7 +221,7 @@ class UrlCheckRepositoryTest extends TestCase
 
         $urlCheckInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlCheckInfo.json");
         $urlCheckInfo = json_decode(
-            $urlCheckInfoData !== false ? $urlCheckInfoData : '',
+            $urlCheckInfoData ?: '',
             flags:JSON_OBJECT_AS_ARRAY
         );
 
