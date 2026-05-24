@@ -9,7 +9,6 @@ use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Repository\{ValidatedUrlRepository, UrlCheckRepository};
 use Analyzer\Interfaces\UrlInterface;
-use Analyzer\Exceptions\UrlException;
 
 class UrlReadAction
 {

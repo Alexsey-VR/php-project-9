@@ -7,11 +7,9 @@ use Slim\Http\Interfaces\ResponseInterface as SlimResponseInterface;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Views\PhpRenderer;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\ServerRequest;
-use Analyzer\Repository\{ValidatedUrlRepository, UrlCheckRepository};
+use Analyzer\Repository\ValidatedUrlRepository;
 use Analyzer\Url\Url;
-use Analyzer\Exceptions\UrlException;
 
 class UrlsCreateAction
 {

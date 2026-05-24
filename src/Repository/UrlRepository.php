@@ -4,18 +4,12 @@ namespace Analyzer\Repository;
 
 use Analyzer\Interfaces\{UrlInterface, UrlRepositoryInterface};
 use Analyzer\Url\Url as Url;
-use PDO as PDO;
 use Analyzer\Exceptions\UrlException as UrlException;
+use PDO;
 
 class UrlRepository implements UrlRepositoryInterface
 {
     private PDO $connection;
-
-    private string $tableName;
-
-    private const string PARAM_ID = ":id";
-    private const string PARAM_NAME = ":name";
-    private const string PARAM_TIMESTAMP = ":timestamp";
 
     private const string ERROR_MESSAGE_FOR_TIMESTAMP = "PDO error: timestamp has a wrong type";
     private const string ERROR_MESSAGE_FOR_ID = "PDO error: can't get last insert id";
@@ -23,7 +17,6 @@ class UrlRepository implements UrlRepositoryInterface
     public function __construct(PDO $connection)
     {
         $this->connection = $connection;
-        $this->tableName = "urls";
         date_default_timezone_set('UTC');
     }
 
@@ -38,20 +31,15 @@ class UrlRepository implements UrlRepositoryInterface
 
     public function create(UrlInterface $url): void
     {
-        $params = implode(',', [
-            self::PARAM_NAME,
-            self::PARAM_TIMESTAMP
-        ]);
-
         try {
-            $sql = "INSERT INTO {$this->tableName} (name, created_at) VALUES ({$params})";
+            $sql = "INSERT INTO urls (name, created_at) VALUES (:name, :timestamp)";
             $stmt = $this->connection->prepare($sql);
 
             $name = $url->getUrl();
             $timestamp = date('Y-m-d H:i:s');
 
-            $stmt->bindParam(self::PARAM_NAME, $name);
-            $stmt->bindParam(self::PARAM_TIMESTAMP, $timestamp);
+            $stmt->bindParam(':name', $name);
+            $stmt->bindParam(':timestamp', $timestamp);
             $stmt->execute();
         } catch (UrlException $e) {
             throw new UrlException(
@@ -71,27 +59,27 @@ class UrlRepository implements UrlRepositoryInterface
 
     public function update(UrlInterface $url): void
     {
-        $sql = "UPDATE {$this->tableName} SET name = " . self::PARAM_NAME .
-               ", created_at = " . self::PARAM_TIMESTAMP .
-               " WHERE id = " . self::PARAM_ID;
+        $sql = "UPDATE urls SET name = :name" .
+               ", created_at = :timestamp" .
+               " WHERE id = :id";
         $stmt = $this->connection->prepare($sql);
 
         $name = $url->getUrl();
         $timestamp = $url->getTimestamp();
         $id = $url->getId();
 
-        $stmt->bindParam(self::PARAM_NAME, $name);
-        $stmt->bindParam(self::PARAM_TIMESTAMP, $timestamp);
-        $stmt->bindParam(self::PARAM_ID, $id);
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':timestamp', $timestamp);
+        $stmt->bindParam(':id', $id);
 
         $stmt->execute();
     }
 
     public function find(int $id): ?UrlInterface
     {
-        $sql = "SELECT * FROM {$this->tableName} WHERE id = " . self::PARAM_ID;
+        $sql = "SELECT * FROM urls WHERE id = :id";
         $stmt = $this->connection->prepare($sql);
-        $stmt->bindParam(self::PARAM_ID, $id);
+        $stmt->bindParam(':id', $id);
         $stmt->execute();
 
         $urlInfo = $stmt->fetch();
@@ -113,15 +101,15 @@ class UrlRepository implements UrlRepositoryInterface
 
     public function delete(int $id): void
     {
-        $sql = "DELETE FROM {$this->tableName} WHERE id = " . self::PARAM_ID;
+        $sql = "DELETE FROM urls WHERE id = :id";
         $stmt = $this->connection->prepare($sql);
-        $stmt->bindParam(self::PARAM_ID, $id);
+        $stmt->bindParam(':id', $id);
         $stmt->execute();
     }
 
     public function getEntities(): array
     {
-        $sql = "SELECT * FROM {$this->tableName} ORDER BY created_at DESC";
+        $sql = "SELECT * FROM urls ORDER BY created_at DESC";
         $stmt = $this->connection->query($sql);
 
         $items = [];

@@ -5,7 +5,6 @@ namespace Analyzer\UrlCheck;
 use Analyzer\Interfaces\{UrlInterface, UrlCheckInterface};
 use Analyzer\Exceptions\UrlException;
 use GuzzleHttp\Client as Client;
-use GuzzleHttp\Psr7;
 use Symfony\Component\DomCrawler\Crawler;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;

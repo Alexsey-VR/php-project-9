@@ -3,28 +3,25 @@
 namespace Analyzer\Repository;
 
 use Analyzer\Interfaces\{UrlInterface, UrlRepositoryInterface};
-use PDO as PDO;
 use Analyzer\Exceptions\UrlException as UrlException;
 use Valitron\Validator;
+use PDO;
 
 class ValidatedUrlRepository implements UrlRepositoryInterface
 {
     private PDO $connection;
     private UrlRepositoryInterface $repo;
-    private string $tableName;
     private string $message;
     private bool $status;
 
     private const string SUCCESS_MESSAGE = "Страница успешно добавлена";
     private const string ERROR_MESSAGE_FOR_UNIQUE = "Страница уже существует";
-    private const string PARAM_URL_NAME = ":name";
     private const int MAX_URL_NAME_LENGTH = 255;
 
     public function __construct(UrlRepositoryInterface $repo, PDO $connection)
     {
         $this->connection = $connection;
         $this->repo = $repo;
-        $this->tableName = "urls";
         $this->message = self::SUCCESS_MESSAGE;
     }
 
@@ -39,8 +36,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
 
     public function isUnique(UrlInterface $url): bool
     {
-        $param = self::PARAM_URL_NAME;
-        $sql = "SELECT * FROM {$this->tableName} WHERE name SIMILAR TO {$param}";
+        $sql = "SELECT * FROM urls WHERE name SIMILAR TO :name";
         $stmt = $this->connection->prepare($sql);
         $name = $url->getUrl();
         $normalizedName = $this->normalize(
@@ -53,7 +49,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
             $onlyDomain = array_key_exists('host', $parsedUrl) ? "%{$parsedUrl['host']}%" : '';
         }
 
-        $stmt->bindParam($param, $onlyDomain);
+        $stmt->bindParam(':name', $onlyDomain);
         $stmt->execute();
         $row = $stmt->fetch();
 

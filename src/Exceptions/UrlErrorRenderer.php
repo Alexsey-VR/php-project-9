@@ -8,7 +8,6 @@ use Throwable;
 
 use function get_class;
 use function htmlentities;
-use function sprintf;
 
 class UrlErrorRenderer extends AbstractErrorRenderer
 {
