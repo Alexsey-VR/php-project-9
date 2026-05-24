@@ -13,7 +13,6 @@ use Slim\Http\ServerRequest;
 use Analyzer\Url\Url;
 use Analyzer\UrlCheck\UrlCheck;
 use Analyzer\Controllers\UrlReadAction;
-use Analyzer\Tests\Fixtures\DatabaseInitHelper;
 use PDO;
 
 #[CoversClass(UrlCheckRepository::class)]
@@ -31,11 +30,10 @@ class UrlReadActionTest extends TestCase
         $databaseUrl = getenv('DATABASE_URL');
         $databaseInfo = parse_url(
             htmlspecialchars(
-                $databaseUrl ? $databaseUrl : ''
+                $databaseUrl ?: ''
             )
         );
 
-        $dbScheme = $databaseInfo['scheme'] ?? '';
         $dbPort = $databaseInfo['port'] ?? '';
         $dbHost = $databaseInfo['host'] ?? '';
         $dbParsedPath = $databaseInfo['path'] ?? '';

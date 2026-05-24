@@ -5,18 +5,14 @@ namespace Analyzer\Tests\Integration;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Slim\Flash\Messages;
-use Slim\Http\Interfaces\ResponseInterface;
 use Slim\Views\PhpRenderer;
-use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository, UrlCheckRepository};
 use Slim\Http\Interfaces\ResponseInterface as SlimResponseInterface;
 use Slim\Http\ServerRequest;
-use Analyzer\Exceptions\UrlException;
 use Analyzer\Url\Url;
 use Analyzer\UrlCheck\UrlCheck;
 use Analyzer\Controllers\UrlsReadAction;
-use Analyzer\Tests\Fixtures\DatabaseInitHelper;
 use PDO;
 
 #[CoversClass(UrlCheckRepository::class)]
@@ -34,11 +30,10 @@ class UrlsReadActionTest extends TestCase
         $databaseUrl = getenv('DATABASE_URL');
         $databaseInfo = parse_url(
             htmlspecialchars(
-                $databaseUrl ? $databaseUrl : ''
+                $databaseUrl ?: ''
             )
         );
 
-        $dbScheme = $databaseInfo['scheme'] ?? '';
         $dbPort = $databaseInfo['port'] ?? '';
         $dbHost = $databaseInfo['host'] ?? '';
         $dbParsedPath = $databaseInfo['path'] ?? '';

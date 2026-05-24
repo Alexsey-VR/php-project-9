@@ -9,7 +9,6 @@ use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository};
 use PDO;
 use PDOStatement;
 use Analyzer\Exceptions\UrlException;
-use Analyzer\Tests\Fixtures\DatabaseInitHelper;
 
 #[CoversClass(Url::class)]
 #[CoversClass(UrlRepository::class)]

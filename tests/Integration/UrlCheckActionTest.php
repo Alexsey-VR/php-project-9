@@ -8,15 +8,12 @@ use Slim\Flash\Messages;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Http\Interfaces\ResponseInterface as SlimResponseInterface;
-use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Repository\{ValidatedUrlRepository, UrlRepository, UrlCheckRepository};
 use Analyzer\Url\Url;
 use Analyzer\UrlCheck\UrlCheck;
-use Analyzer\Exceptions\UrlException;
 use PDO;
 use Analyzer\Controllers\UrlCheckAction;
-use Analyzer\Tests\Fixtures\DatabaseInitHelper;
 
 #[CoversClass(UrlCheckRepository::class)]
 #[CoversClass(UrlRepository::class)]
@@ -34,11 +31,10 @@ class UrlCheckActionTest extends TestCase
         $databaseUrl = getenv('DATABASE_URL');
         $databaseInfo = parse_url(
             htmlspecialchars(
-                $databaseUrl ? $databaseUrl : ''
+                $databaseUrl ?: ''
             )
         );
 
-        $dbScheme = $databaseInfo['scheme'] ?? '';
         $dbPort = $databaseInfo['port'] ?? '';
         $dbHost = $databaseInfo['host'] ?? '';
         $dbParsedPath = $databaseInfo['path'] ?? '';

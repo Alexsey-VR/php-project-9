@@ -6,19 +6,15 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Analyzer\Controllers\UrlsCreateAction;
 use Slim\Flash\Messages;
-use Psr\Http\Message\StreamFactoryInterface;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Views\PhpRenderer;
 use Slim\Http\Interfaces\ResponseInterface as SlimResponseInterface;
-use Slim\Http\Response as SlimResponse;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\ServerRequest;
-use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository, UrlCheckRepository};
+use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository};
 use Analyzer\Url\Url;
-use Analyzer\Exceptions\UrlException;
-use Analyzer\Tests\Fixtures\DatabaseInitHelper;
 use PDO;
 
 #[CoversClass(UrlsCreateAction::class)]
@@ -35,11 +31,10 @@ class UrlsCreateActionTest extends TestCase
         $databaseUrl = getenv('DATABASE_URL');
         $databaseInfo = parse_url(
             htmlspecialchars(
-                $databaseUrl ? $databaseUrl : ''
+                $databaseUrl ?: ''
             )
         );
 
-        $dbScheme = $databaseInfo['scheme'] ?? '';
         $dbPort = $databaseInfo['port'] ?? '';
         $dbHost = $databaseInfo['host'] ?? '';
         $dbParsedPath = $databaseInfo['path'] ?? '';
