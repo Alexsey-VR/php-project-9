@@ -213,13 +213,13 @@ class UrlsCreateActionTest extends TestCase
         $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
         $responseMock = $responseMockBuilder->getMock();
 
+        $responseMock->expects($this->once())
+                    ->method('withStatus')
+                    ->with(422);
+
         $psrResponse = $urlsCreateAction->__invoke(
             $serverRequestMock,
             $responseMock
         );
-
-        if ($psrResponse instanceof PsrResponseInterface) {
-            $this->assertEquals($psrResponse->getStatusCode(), 0);
-        }
     }
 }
