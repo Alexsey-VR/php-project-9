@@ -5,7 +5,6 @@ require_once __DIR__ . "/../vendor/autoload.php";
 use Slim\Factory\AppFactory;
 use DI\Container;
 use Slim\Views\PhpRenderer;
-use Slim\Flash\Messages;
 use Slim\Interfaces\RouteParserInterface;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
@@ -17,8 +16,6 @@ use Analyzer\Controllers\UrlReadAction;
 use Analyzer\Controllers\UrlsReadAction;
 use Analyzer\Controllers\UrlsCreateAction;
 use Analyzer\Controllers\MainAction;
-use Analyzer\Exceptions\UrlException;
-use PDO;
 
 session_start();
 
