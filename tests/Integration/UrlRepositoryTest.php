@@ -39,11 +39,10 @@ class UrlRepositoryTest extends TestCase
         $databaseUrl = getenv('DATABASE_URL');
         $databaseInfo = parse_url(
             htmlspecialchars(
-                $databaseUrl ? $databaseUrl : ''
+                $databaseUrl ?: ''
             )
         );
 
-        $dbScheme = $databaseInfo['scheme'] ?? '';
         $dbPort = $databaseInfo['port'] ?? '';
         $dbHost = $databaseInfo['host'] ?? '';
         $dbParsedPath = $databaseInfo['path'] ?? '';
@@ -68,7 +67,7 @@ class UrlRepositoryTest extends TestCase
     {
         $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
         $urlInfo = json_decode(
-            $urlInfoData !== false ? $urlInfoData : '',
+            $urlInfoData ?: '',
             flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
@@ -108,7 +107,7 @@ class UrlRepositoryTest extends TestCase
 
         $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
         $urlInfo = json_decode(
-            $urlInfoData !== false ? $urlInfoData : '',
+            $urlInfoData ?: '',
             flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
@@ -122,7 +121,7 @@ class UrlRepositoryTest extends TestCase
     {
         $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
         $urlInfo = json_decode(
-            $urlInfoData !== false ? $urlInfoData : '',
+            $urlInfoData ?: '',
             flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
@@ -154,7 +153,7 @@ class UrlRepositoryTest extends TestCase
     {
         $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
         $urlInfo = json_decode(
-            $urlInfoData !== false ? $urlInfoData : '',
+            $urlInfoData ?: '',
             flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
@@ -181,7 +180,7 @@ class UrlRepositoryTest extends TestCase
     {
         $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
         $urlInfo = json_decode(
-            $urlInfoData !== false ? $urlInfoData : '',
+            $urlInfoData ?: '',
             flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);
@@ -197,9 +196,7 @@ class UrlRepositoryTest extends TestCase
             is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
         );
         $urlRepository->delete($id);
-        $urlDeleted = $urlRepository->find(
-            $id
-        );
+        $urlDeleted = $urlRepository->find($id);
 
         $this->assertTrue(
             (isset($urlFound) ? $urlFound->exists() : false) &&
@@ -211,7 +208,7 @@ class UrlRepositoryTest extends TestCase
     {
         $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
         $urlInfo = json_decode(
-            $urlInfoData !== false ? $urlInfoData : '',
+            $urlInfoData ?: '',
             flags:JSON_OBJECT_AS_ARRAY
         );
         $url = Url::fromArray($urlInfo['mail']);

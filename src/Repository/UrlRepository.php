@@ -20,6 +20,31 @@ class UrlRepository implements UrlRepositoryInterface
         date_default_timezone_set('UTC');
     }
 
+    /**
+     * @param array<mixed> $dbData
+     * @return array<int, UrlInterface>
+     */
+    private function getUrlList(array $dbData): array
+    {
+        $urls = [];
+        foreach ($dbData as $item) {
+            if (is_array($item)) {
+                $url = Url::fromArray($item);
+                $foundId = $item['id'];
+                $timestamp = $item['created_at'];
+                $url->setId(
+                    is_int($foundId) ? $foundId : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
+                );
+                $url->setTimestamp(
+                    is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
+                );
+                $urls[] = $url;
+            }
+        }
+
+        return $urls;
+    }
+
     public function save(UrlInterface $url): void
     {
         if ($url->exists()) {
@@ -50,7 +75,7 @@ class UrlRepository implements UrlRepositoryInterface
         $id = intval($this->connection->lastInsertId());
 
         $url->setId(
-            $id ? $id : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
+            $id ?: throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
         );
         $url->setTimestamp(
             is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
@@ -82,21 +107,9 @@ class UrlRepository implements UrlRepositoryInterface
         $stmt->bindParam(':id', $id);
         $stmt->execute();
 
-        $urlInfo = $stmt->fetch();
-        if (is_array($urlInfo)) {
-            $foundId = $urlInfo['id'];
-            $timestamp = $urlInfo['created_at'];
-            $url = Url::fromArray($urlInfo);
-            $url->setId(
-                is_int($foundId) ? $foundId : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
-            );
-            $url->setTimestamp(
-                is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
-            );
-            return $url;
-        }
+        $result = $this->getUrlList([$stmt->fetch()]);
 
-        return null;
+        return isset($result[0]) ? $result[0] : null;
     }
 
     public function delete(int $id): void
@@ -112,27 +125,8 @@ class UrlRepository implements UrlRepositoryInterface
         $sql = "SELECT * FROM urls ORDER BY created_at DESC";
         $stmt = $this->connection->query($sql);
 
-        $items = [];
-        if ($stmt) {
-            $items = $stmt->fetchAll(PDO::FETCH_DEFAULT);
-        }
-
-        $urls = [];
-        foreach ($items as $item) {
-            if (is_array($item)) {
-                $url = Url::fromArray($item);
-                $foundId = $item['id'];
-                $timestamp = $item['created_at'];
-                $url->setId(
-                    is_int($foundId) ? $foundId : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
-                );
-                $url->setTimestamp(
-                    is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
-                );
-                $urls[] = $url;
-            }
-        }
-
-        return $urls;
+        return $this->getUrlList(
+            $stmt !== false ? $stmt->fetchAll(PDO::FETCH_DEFAULT) : []
+        );
     }
 }
