@@ -21,6 +21,31 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
         date_default_timezone_set('UTC');
     }
 
+    /**
+     * @param array<mixed> $dbData
+     * @return array<int, UrlCheckInterface>
+     */
+    private function getUrlCheckList(array $dbData): array
+    {
+        $urlChecks = [];
+        foreach ($dbData as $item) {
+            if (is_array($item)) {
+                $urlCheck = UrlCheck::fromArray($item);
+                $foundId = $item['id'];
+                $timestamp = $item['created_at'];
+                $urlCheck->setId(
+                    is_int($foundId) ? $foundId : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
+                );
+                $urlCheck->setTimestamp(
+                    is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
+                );
+                $urlChecks[] = $urlCheck;
+            }
+        }
+
+        return $urlChecks;
+    }
+
     public function save(UrlCheckInterface $urlCheck): void
     {
         if ($urlCheck->exists()) {
@@ -95,22 +120,9 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
         $stmt->bindParam(':id', $id);
         $stmt->execute();
 
-        $urlCheckInfo = $stmt->fetch();
-        if (is_array($urlCheckInfo)) {
-            $foundId = $urlCheckInfo['id'];
-            $timestamp = $urlCheckInfo['created_at'];
-            $urlCheck = UrlCheck::fromArray($urlCheckInfo);
-            $urlCheck->setId(
-                is_int($foundId) ? $foundId : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
-            );
-            $urlCheck->setTimestamp(
-                is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
-            );
+        $result = $this->getUrlCheckList([$stmt->fetch()]);
 
-            return $urlCheck;
-        }
-
-        return null;
+        return isset($result[0]) ? $result[0] : null;
     }
 
     public function delete(int $id): void
@@ -119,31 +131,6 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
         $stmt = $this->connection->prepare($sql);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
-    }
-
-    /**
-     * @param array<mixed> $dbData
-     * @return array<int, UrlCheckInterface>
-     */
-    private function getUrlCheckList(array $dbData): array
-    {
-        $urlChecks = [];
-        foreach ($dbData as $item) {
-            if (is_array($item)) {
-                $urlCheck = UrlCheck::fromArray($item);
-                $foundId = $item['id'];
-                $timestamp = $item['created_at'];
-                $urlCheck->setId(
-                    is_int($foundId) ? $foundId : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
-                );
-                $urlCheck->setTimestamp(
-                    is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
-                );
-                $urlChecks[] = $urlCheck;
-            }
-        }
-
-        return $urlChecks;
     }
 
     public function getEntities(): array
