@@ -102,7 +102,7 @@ class UrlCheck implements UrlCheckInterface
             $this->message = self::ERROR_MESSAGE;
 
             return false;
-        };
+        }
 
         $this->setCheckInfo($status, $h1, $title, $description);
 
@@ -185,9 +185,7 @@ class UrlCheck implements UrlCheckInterface
             return "{$subInfo}{$postfix}";
         }
 
-        $subInfoUTF8 = mb_convert_encoding($subInfo, 'UTF-8', 'UTF-8');
-
-        return $subInfoUTF8;
+        return mb_convert_encoding($subInfo, 'UTF-8', 'UTF-8');
     }
 
     public function getMessage(): string
