@@ -43,8 +43,8 @@ class UrlsReadAction
             $urlItems[] = [
                 'id' => $id,
                 'name' => $url->getUrl(),
-                'timestamp' => (count($urlChecks) > 0) ? $urlChecks[0]->getTimestamp() : '',
-                'status' => (count($urlChecks) > 0) ? $urlChecks[0]->getStatus() : ''
+                'timestamp' => !empty($urlChecks) ? $urlChecks[0]->getTimestamp() : '',
+                'status' => !empty($urlChecks) ? $urlChecks[0]->getStatus() : ''
             ];
         }
 
