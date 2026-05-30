@@ -29,9 +29,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
     {
         $urlNameUTF8 = mb_convert_encoding($urlName, 'UTF-8');
         $trimmedUrlName = mb_ltrim($urlNameUTF8);
-        $lowercaseUrlName = mb_strtolower($trimmedUrlName);
-
-        return $lowercaseUrlName;
+        return mb_strtolower($trimmedUrlName);
     }
 
     public function isUnique(UrlInterface $url): bool
