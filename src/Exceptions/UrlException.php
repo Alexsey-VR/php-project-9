@@ -2,13 +2,13 @@
 
 namespace Analyzer\Exceptions;
 
-use Exception;
+use Analyzer\Interfaces\AppExceptionInterface;
 use Throwable;
 
-class UrlException extends Exception
+class UrlException extends AppException implements AppExceptionInterface
 {
-    public function __construct(string $message, int $code = 0, ?Throwable $previous = null)
+    public function __construct(int $code, ?Throwable $previous = null)
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct('', $code, $previous);
     }
 }

@@ -24,7 +24,7 @@ class Url implements UrlInterface
         $url = new Url();
 
         $url->setUrl(
-            is_string($urlData) ? $urlData : throw new UrlException('Internal error: URL has a wrong type')
+            is_string($urlData) ? $urlData : throw new UrlException(50001)
         );
 
         return $url;
