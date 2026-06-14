@@ -11,7 +11,8 @@ use Slim\Http\ServerRequest;
 use Analyzer\Repository\ValidatedUrlRepository;
 use Analyzer\Url\Url;
 use Analyzer\Interfaces\AppExceptionInterface;
-use Analyzer\Exceptions\{UrlException, UrlRepositoryException, UrlsCreateActionException};
+use Analyzer\Exceptions\{UrlException, UrlRepositoryException};
+use Analyzer\Exceptions\UrlsCreateActionException;
 
 class UrlsCreateAction
 {
@@ -87,9 +88,10 @@ class UrlsCreateAction
         } catch (AppExceptionInterface $exception) {
             $data = file_get_contents(__DIR__ . "/../Exceptions/errorCodesInfo.json");
             $errorCodesInfo = json_decode(
-                $data ?: '', flags:JSON_OBJECT_AS_ARRAY
+                $data ?: '',
+                flags:JSON_OBJECT_AS_ARRAY
             );
-            $errorCode = strval($exception->getErrorCode());            
+            $errorCode = strval($exception->getErrorCode());
             $debugMessage = $errorCodesInfo[$errorCode];
 
             if (
@@ -97,13 +99,17 @@ class UrlsCreateAction
                 $exception instanceof UrlRepositoryException
             ) {
                 throw new UrlsCreateActionException(
-                    $debugMessage ?: "Неизвестная ошибка",
+                    $debugMessage,
                     intval(mb_substr($errorCode, 0, 3)),
                     $exception
                 );
             }
 
-            return parrent::respond();
+            throw new UrlsCreateActionException(
+                "Неизвестная ошибка",
+                intval(mb_substr($errorCode, 0, 3)),
+                $exception
+            );
         }
     }
 }
