@@ -3,11 +3,9 @@
 namespace Analyzer\UrlCheck;
 
 use Analyzer\Interfaces\{UrlInterface, UrlCheckInterface};
-use Analyzer\Exceptions\UrlException;
+use Analyzer\Exceptions\UrlCheckException;
 use GuzzleHttp\Client as Client;
 use Symfony\Component\DomCrawler\Crawler;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\RequestException;
 
 class UrlCheck implements UrlCheckInterface
 {
@@ -19,13 +17,10 @@ class UrlCheck implements UrlCheckInterface
     private string|null $title;
     private string|null $description;
     private string|null $timestamp;
-    private string $message;
 
     private const int STORE_LEN = 200;
     private const string STRING_POSTFIX = "...";
     private const float CONNECTION_TIMEOUT_S = 2.0;
-    private const string SUCCESS_MESSAGE = "Страница успешно проверена";
-    private const string ERROR_MESSAGE = "Произошла ошибка при проверке, не удалось подключиться";
 
     public function __construct()
     {
@@ -36,7 +31,6 @@ class UrlCheck implements UrlCheckInterface
         $this->title = null;
         $this->description = null;
         $this->timestamp = null;
-        $this->message = self::SUCCESS_MESSAGE;
     }
 
     public static function fromArray(array $urlCheckInfo): UrlCheckInterface
@@ -51,7 +45,7 @@ class UrlCheck implements UrlCheckInterface
         $urlCheck = new UrlCheck();
 
         $urlCheck->setUrlId(
-            is_int($urlId) ? $urlId : throw new UrlException('Internal error: URL ID has a wrong type')
+            is_int($urlId) ? $urlId : throw new UrlCheckException(50001)
         );
 
         $urlCheck->setCheckInfo($status, $h1, $title, $description);
@@ -72,7 +66,7 @@ class UrlCheck implements UrlCheckInterface
 
         $urlId = $url->getId();
         $urlCheck->setUrlId(
-            is_int($urlId) ? $urlId : throw new UrlException('Internal error: URL ID has a wrong type')
+            is_int($urlId) ? $urlId : throw new UrlCheckException(50001)
         );
 
         return $urlCheck;
@@ -84,25 +78,18 @@ class UrlCheck implements UrlCheckInterface
         $h1 = "";
         $title = "";
         $description = "";
-        try {
-            $response = $this->client->request('GET');
-            $status = $response->getStatusCode();
-            $bodyContent = $response->getBody()->getContents();
-            $crawler = new Crawler();
-            $crawler->addHTMLContent($bodyContent, 'UTF-8');
 
-            $h1 = $crawler->filterXPath("//h1")->text('', false);
-            $title = $crawler->filterXPath("//title")->text('', false);
-            $description = "";
-            $content = $crawler->filterXPath('//meta[contains(@name, "description")]')->evaluate('@content');
-            $description = ($content instanceof Crawler) ? $content->text('', false) : '';
+        $response = $this->client->request('GET');
+        $status = $response->getStatusCode();
+        $bodyContent = $response->getBody()->getContents();
+        $crawler = new Crawler();
+        $crawler->addHTMLContent($bodyContent, 'UTF-8');
 
-            $this->message = self::SUCCESS_MESSAGE;
-        } catch (ConnectException | RequestException $e) {
-            $this->message = self::ERROR_MESSAGE;
-
-            return false;
-        }
+        $h1 = $crawler->filterXPath("//h1")->text('', false);
+        $title = $crawler->filterXPath("//title")->text('', false);
+        $description = "";
+        $content = $crawler->filterXPath('//meta[contains(@name, "description")]')->evaluate('@content');
+        $description = ($content instanceof Crawler) ? $content->text('', false) : '';
 
         $this->setCheckInfo($status, $h1, $title, $description);
 
@@ -186,10 +173,5 @@ class UrlCheck implements UrlCheckInterface
         }
 
         return mb_convert_encoding($subInfo, 'UTF-8', 'UTF-8');
-    }
-
-    public function getMessage(): string
-    {
-        return $this->message;
     }
 }

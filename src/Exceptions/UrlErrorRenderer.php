@@ -30,14 +30,14 @@ class UrlErrorRenderer extends AbstractErrorRenderer
         if ($displayErrorDetails) {
             $debugMessage = htmlentities($exception->getMessage());
             $params = [
-            'details' => $displayErrorDetails,
-            'type' => isset($type) ? $type : '',
-            'code' => isset($code) ? $code : '',
-            'message' => $debugMessage,
-            'file' => isset($file) ? $file : '',
-            'line' => isset($line) ? $line : '',
-            'trace' => isset($trace) ? $trace : ''
-        ];
+                'details' => $displayErrorDetails,
+                'type' => $type,
+                'code' => $code,
+                'message' => $debugMessage,
+                'file' => $file,
+                'line' => $line,
+                'trace' => $trace
+            ];
         }
 
         return $this->renderer->fetch('/Exceptions/urlException.phtml', $params);
