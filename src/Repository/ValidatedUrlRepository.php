@@ -3,7 +3,7 @@
 namespace Analyzer\Repository;
 
 use Analyzer\Interfaces\{UrlInterface, UrlRepositoryInterface};
-use Analyzer\Exceptions\UrlException as UrlException;
+use Analyzer\Exceptions\UrlRepositoryException as UrlRepositoryException;
 use Valitron\Validator;
 use PDO;
 
@@ -57,7 +57,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
 
         $id = $row['id'];
         $url->setId(
-            is_int($id) ? $id : throw new UrlException("PDO error: found ID has wrond type")
+            is_int($id) ? $id : throw new UrlRepositoryException(50001)
         );
 
         $this->status = false;
@@ -125,14 +125,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
                 $url->getUrl() ?? ''
             );
             $url->setUrl($normalizedUrlName);
-            try {
-                $this->repo->create($url);
-            } catch (UrlException $e) {
-                $this->status = false;
-                $this->setMessage(
-                    $e->getMessage()
-                );
-            }
+            $this->repo->create($url);
         }
 
         if (!$this->status) {
