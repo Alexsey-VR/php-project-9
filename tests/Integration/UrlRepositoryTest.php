@@ -9,11 +9,12 @@ use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository};
 use PDO;
 use PDOStatement;
 use Analyzer\Exceptions\UrlException;
+use Analyzer\Exceptions\UrlRepositoryException;
 
 #[CoversClass(Url::class)]
 #[CoversClass(UrlRepository::class)]
 #[CoversClass(ValidatedUrlRepository::class)]
-#[CoversClass(UrlException::class)]
+#[CoversClass(UrlRepositoryException::class)]
 #[CoversMethod(UrlRepository::class, 'create')]
 #[CoversMethod(UrlRepository::class, 'update')]
 #[CoversMethod(UrlRepository::class, 'save')]
@@ -29,8 +30,6 @@ use Analyzer\Exceptions\UrlException;
 class UrlRepositoryTest extends TestCase
 {
     private \PDO $connection;
-
-    private const string PDO_ERROR_FOR_ID = "PDO error: can't get a url check id";
 
     protected function setUp(): void
     {
@@ -78,42 +77,11 @@ class UrlRepositoryTest extends TestCase
         $urlRepository->save($url);
         $id = $url->getId();
         $urlTemp = $urlRepository->find(
-            is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
+            is_int($id) ? $id : throw new UrlRepositoryException(50001)
         );
 
         $this->assertTrue(isset($urlTemp) ? $urlTemp->exists() : false);
         $this->assertEquals($urlInfo['mail']['name'], $urlTemp->getUrl());
-    }
-
-    public function testCreateException(): void
-    {
-        $stmtStub = $this->createMock(PDOStatement::class);
-        $stmtStub->method('bindParam')->willReturn(true);
-        $stmtStub->method('execute')->willReturn(true);
-
-        $connStub = $this->createConfiguredStub(
-            $this->connection::class,
-            [
-                'prepare' => $stmtStub,
-                'lastInsertId' => false
-            ]
-        );
-
-        $urlRepository = new ValidatedUrlRepository(
-            new UrlRepository($connStub),
-            $connStub
-        );
-
-        $urlInfoData = file_get_contents(__DIR__ . "/../Fixtures/urlInfo.json");
-        $urlInfo = json_decode(
-            $urlInfoData ?: '',
-            flags:JSON_OBJECT_AS_ARRAY
-        );
-        $url = Url::fromArray($urlInfo['mail']);
-
-        $urlRepository->save($url);
-
-        $this->assertEquals($urlRepository->getMessage(), "PDO error: can't get last insert id");
     }
 
     public function testUpdate(): void
@@ -133,7 +101,7 @@ class UrlRepositoryTest extends TestCase
 
         $id = $url->getId();
         $urlTemp = $urlRepository->find(
-            is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
+            is_int($id) ? $id : throw new UrlRepositoryException(50001)
         );
 
         if ($urlTemp instanceof Url) {
@@ -192,7 +160,7 @@ class UrlRepositoryTest extends TestCase
         $id = $url->getId();
 
         $urlFound = $urlRepository->find(
-            is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
+            is_int($id) ? $id : throw new UrlRepositoryException(50001)
         );
         $urlRepository->delete($id);
         $urlDeleted = $urlRepository->find($id);

@@ -3,16 +3,14 @@
 namespace Analyzer\Repository;
 
 use Analyzer\Interfaces\{UrlInterface, UrlRepositoryInterface};
+use Analyzer\Interfaces\AppExceptionInterface;
 use Analyzer\Url\Url as Url;
-use Analyzer\Exceptions\UrlException as UrlException;
+use Analyzer\Exceptions\UrlRepositoryException as UrlRepositoryException;
 use PDO;
 
 class UrlRepository implements UrlRepositoryInterface
 {
     private PDO $connection;
-
-    private const string ERROR_MESSAGE_FOR_TIMESTAMP = "PDO error: timestamp has a wrong type";
-    private const string ERROR_MESSAGE_FOR_ID = "PDO error: can't get last insert id";
 
     public function __construct(PDO $connection)
     {
@@ -33,10 +31,10 @@ class UrlRepository implements UrlRepositoryInterface
                 $foundId = $item['id'];
                 $timestamp = $item['created_at'];
                 $url->setId(
-                    is_int($foundId) ? $foundId : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
+                    is_int($foundId) ? $foundId : throw new UrlRepositoryException(50001)
                 );
                 $url->setTimestamp(
-                    is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
+                    is_string($timestamp) ? $timestamp : throw new UrlRepositoryException(50002)
                 );
                 $urls[] = $url;
             }
@@ -66,19 +64,17 @@ class UrlRepository implements UrlRepositoryInterface
             $stmt->bindParam(':name', $name);
             $stmt->bindParam(':timestamp', $timestamp);
             $stmt->execute();
-        } catch (UrlException $e) {
-            throw new UrlException(
-                $e->getMessage()
-            );
+        } catch (AppExceptionInterface $e) {
+            throw new UrlRepositoryException(40401);
         }
 
         $id = intval($this->connection->lastInsertId());
 
         $url->setId(
-            $id ?: throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
+            $id ?: throw new UrlRepositoryException(50003)
         );
         $url->setTimestamp(
-            is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
+            is_string($timestamp) ? $timestamp : throw new UrlRepositoryException(50002)
         );
     }
 
