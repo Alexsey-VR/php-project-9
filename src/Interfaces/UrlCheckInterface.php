@@ -30,5 +30,4 @@ interface UrlCheckInterface
     public function exists(): bool;
     public function normalize(string $info): string;
     public function execute(): bool;
-    public function getMessage(): string;
 }

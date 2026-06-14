@@ -5,15 +5,12 @@ namespace Analyzer\Repository;
 use Analyzer\Interfaces\UrlCheckRepositoryInterface;
 use Analyzer\Interfaces\UrlCheckInterface;
 use Analyzer\UrlCheck\UrlCheck as UrlCheck;
-use Analyzer\Exceptions\UrlException as UrlException;
+use Analyzer\Exceptions\UrlCheckRepositoryException as UrlCheckRepositoryException;
 use PDO;
 
 class UrlCheckRepository implements UrlCheckRepositoryInterface
 {
     private PDO $connection;
-
-    private const string ERROR_MESSAGE_FOR_TIMESTAMP = "PDO error: timestamp has a wrong type";
-    private const string ERROR_MESSAGE_FOR_ID = "PDO error: can't get last insert id";
 
     public function __construct(PDO $connection)
     {
@@ -34,10 +31,10 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
                 $foundId = $item['id'];
                 $timestamp = $item['created_at'];
                 $urlCheck->setId(
-                    is_int($foundId) ? $foundId : throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
+                    is_int($foundId) ? $foundId : throw new UrlCheckRepositoryException(50001)
                 );
                 $urlCheck->setTimestamp(
-                    is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
+                    is_string($timestamp) ? $timestamp : throw new UrlCheckRepositoryException(50002)
                 );
                 $urlChecks[] = $urlCheck;
             }
@@ -78,10 +75,11 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
         $id = intval($this->connection->lastInsertId());
         $urlCheck->setId(
-            $id ?: throw new UrlException(self::ERROR_MESSAGE_FOR_ID)
+            $id ?: throw new UrlCheckRepositoryException(50003)
         );
+
         $urlCheck->setTimestamp(
-            is_string($timestamp) ? $timestamp : throw new UrlException(self::ERROR_MESSAGE_FOR_TIMESTAMP)
+            is_string($timestamp) ? $timestamp : throw new UrlCheckRepositoryException(50002)
         );
     }
 

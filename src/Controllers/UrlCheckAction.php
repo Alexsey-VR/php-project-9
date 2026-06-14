@@ -8,9 +8,13 @@ use Slim\Interfaces\RouteParserInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Repository\{ValidatedUrlRepository, UrlCheckRepository};
-use Analyzer\Interfaces\UrlInterface;
+use Analyzer\Interfaces\{UrlInterface, UrlCheckInterface};
 use Analyzer\UrlCheck\UrlCheck;
-use Analyzer\Exceptions\UrlException;
+use Analyzer\Interfaces\AppExceptionInterface;
+use Analyzer\Exceptions\UrlCheckActionException;
+use Analyzer\Exceptions\{UrlException, UrlCheckException};
+use Analyzer\Exceptions\UrlCheckRepositoryException;
+use GuzzleHttp\Exception\{ConnectException, RequestException};
 
 class UrlCheckAction
 {
@@ -18,6 +22,8 @@ class UrlCheckAction
     private UrlCheckRepository $urlCheckRepository;
     private RouteParserInterface $router;
     private Messages $flash;
+    private ?UrlInterface $url;
+    private UrlCheckInterface $urlCheck;
 
     public function __construct(
         ValidatedUrlRepository $urlRepository,
@@ -39,34 +45,65 @@ class UrlCheckAction
         ResponseInterface $response,
         array $args
     ): PsrResponseInterface {
-        $id = intval(
-            is_string($args['id']) ? $args['id'] : null
-        );
-
-        $url = $this->urlRepository->find($id);
-
-        $urlCheck = UrlCheck::fromUrl(
-            ($url instanceof UrlInterface) ?
-                $url : throw new UrlException("Internal error: can't get a url interface on checks")
-        );
-
-        if ($urlCheck->execute()) {
-            $this->urlCheckRepository->save($urlCheck);
-
-            $timestamp = $urlCheck->getTimestamp();
-            $url->setTimestamp(
-                is_string($timestamp) ?
-                    $timestamp : throw new UrlException("Internal error: can't get a timestamp on checks")
+        try {
+            $id = intval(
+                is_string($args['id']) ? $args['id'] : null
             );
-            $this->urlRepository->save($url);
 
-            $this->flash->addMessage('success', $urlCheck->getMessage());
-        } else {
-            $this->flash->addMessage('error', $urlCheck->getMessage());
+            $this->url = $this->urlRepository->find($id);
+
+            $this->urlCheck = UrlCheck::fromUrl(
+                ($this->url instanceof UrlInterface) ?
+                    $this->url : throw new UrlException(50004)
+            );
+
+            $this->urlCheck->execute();
+            $this->urlCheckRepository->save($this->urlCheck);
+
+            $timestamp = $this->urlCheck->getTimestamp();
+
+            $this->url->setTimestamp(
+                is_string($timestamp) ?
+                    $timestamp : throw new UrlException(50002)
+            );
+            $this->urlRepository->save($this->url);
+
+            $toUrlInfo = $this->router->urlFor('urlInfo', ['id' => "{$this->url->getId()}"]);
+
+            $this->flash->addMessage("success", "Страница успешно проверена");
+
+            return $response->withRedirect($toUrlInfo);
+        } catch (ConnectException | RequestException $e) {
+            $this->flash->addMessage("error", "Произошла ошибка при проверке, не удалось подключиться");
+
+            $toUrlInfo = $this->router->urlFor('urlInfo', ['id' => "{$this->url->getId()}"]);
+            return $response->withRedirect($toUrlInfo);
+        } catch (AppExceptionInterface $exception) {
+            $data = file_get_contents(__DIR__ . "/../Exceptions/errorCodesInfo.json");
+            $errorCodesInfo = json_decode(
+                $data ?: '',
+                flags:JSON_OBJECT_AS_ARRAY
+            );
+            $errorCode = strval($exception->getErrorCode());
+            $debugMessage = $errorCodesInfo[$errorCode];
+
+            if (
+                $exception instanceof UrlException ||
+                $exception instanceof UrlCheckException ||
+                $exception instanceof UrlCheckRepositoryException
+            ) {
+                throw new UrlCheckActionException(
+                    $debugMessage,
+                    intval(mb_substr($errorCode, 0, 3)),
+                    $exception
+                );
+            }
+
+            throw new UrlCheckActionException(
+                "Неизвестная ошибка",
+                intval(mb_substr($errorCode, 0, 3)),
+                $exception
+            );
         }
-
-        $toUrlInfo = $this->router->urlFor('urlInfo', ['id' => "{$url->getId()}"]);
-
-        return $response->withRedirect($toUrlInfo);
     }
 }

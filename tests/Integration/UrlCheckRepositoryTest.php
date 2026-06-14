@@ -8,6 +8,7 @@ use Analyzer\UrlCheck\UrlCheck as UrlCheck;
 use Analyzer\Url\Url as Url;
 use Analyzer\Repository\{UrlRepository, UrlCheckRepository};
 use Analyzer\Exceptions\UrlException;
+use Analyzer\Exceptions\UrlCheckRepositoryException;
 use PDO;
 use PDOStatement;
 
@@ -15,7 +16,7 @@ use PDOStatement;
 #[CoversClass(UrlCheck::class)]
 #[CoversClass(UrlRepository::class)]
 #[CoversClass(UrlCheckRepository::class)]
-#[CoversClass(UrlException::class)]
+#[CoversClass(UrlCheckRepositoryException::class)]
 #[CoversMethod(UrlCheckRepository::class, 'create')]
 #[CoversMethod(UrlCheckRepository::class, 'update')]
 #[CoversMethod(UrlCheckRepository::class, 'save')]
@@ -25,8 +26,6 @@ use PDOStatement;
 class UrlCheckRepositoryTest extends TestCase
 {
     private PDO $connection;
-
-    private const string PDO_ERROR_FOR_ID = "PDO error: can't get a url check id";
 
     protected function setUp(): void
     {
@@ -115,7 +114,7 @@ class UrlCheckRepositoryTest extends TestCase
         $urlCheck = UrlCheck::fromArray($urlCheckInfo['first']);
 
         $this->expectException(
-            UrlException::class
+            UrlCheckRepositoryException::class
         );
 
         $urlCheckRepository = new UrlCheckRepository($connStub);
@@ -149,7 +148,7 @@ class UrlCheckRepositoryTest extends TestCase
         $urlCheckRepository->save($urlCheck);
         $id = $urlCheck->getId();
         $urlCheckTemp = $urlCheckRepository->find(
-            is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
+            is_int($id) ? $id : throw new UrlCheckRepositoryException(50001)
         );
 
         if ($urlCheckTemp instanceof UrlCheck) {
@@ -195,7 +194,7 @@ class UrlCheckRepositoryTest extends TestCase
         $id = $urlCheck->getId();
 
         $urlCheckFound = $urlCheckRepository->find(
-            is_int($id) ? $id : throw new UrlException(self::PDO_ERROR_FOR_ID)
+            is_int($id) ? $id : throw new UrlCheckRepositoryException(50001)
         );
         $this->assertInstanceOf(UrlCheck::class, $urlCheckFound);
 
