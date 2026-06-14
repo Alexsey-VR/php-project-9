@@ -22,17 +22,23 @@ class UrlErrorRenderer extends AbstractErrorRenderer
             $line = $exception->getLine();
             $trace = htmlentities($exception->getTraceAsString());
         }
-        $message = htmlentities($exception->getMessage());
 
         $params = [
             'details' => $displayErrorDetails,
+            'message' => "Ошибка уже в обработке. Приносим извинения за неудобства.",
+        ];
+        if ($displayErrorDetails) {
+            $debugMessage = htmlentities($exception->getMessage());
+            $params = [
+            'details' => $displayErrorDetails,
             'type' => isset($type) ? $type : '',
             'code' => isset($code) ? $code : '',
-            'message' => $message,
+            'message' => $debugMessage,
             'file' => isset($file) ? $file : '',
             'line' => isset($line) ? $line : '',
             'trace' => isset($trace) ? $trace : ''
         ];
+        }
 
         return $this->renderer->fetch('/Exceptions/urlException.phtml', $params);
     }
