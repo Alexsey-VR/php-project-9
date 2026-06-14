@@ -8,7 +8,7 @@ use Slim\Views\PhpRenderer;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Repository\{ValidatedUrlRepository, UrlCheckRepository};
-use Analyzer\Exceptions\UrlException;
+use Analyzer\Exceptions\UrlCheckRepositoryException;
 
 class UrlsReadAction
 {
@@ -38,7 +38,7 @@ class UrlsReadAction
         foreach ($urls as $url) {
             $id = $url->getId();
             $urlChecks = $this->urlCheckRepository->getEntitiesByUrlId(
-                is_int($id) ? $id : throw new UrlException("PDO error: can't get url ID")
+                is_int($id) ? $id : throw new UrlCheckRepositoryException(50001)
             );
             $urlItems[] = [
                 'id' => $id,
