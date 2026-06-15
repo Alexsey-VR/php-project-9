@@ -85,22 +85,14 @@ class UrlCheckAction
                 flags:JSON_OBJECT_AS_ARRAY
             );
             $errorCode = strval($exception->getErrorCode());
-            $debugMessage = $errorCodesInfo[$errorCode];
 
-            if (
-                $exception instanceof UrlException ||
+            $debugMessage = ($exception instanceof UrlException ||
                 $exception instanceof UrlCheckException ||
-                $exception instanceof UrlCheckRepositoryException
-            ) {
-                throw new UrlCheckActionException(
-                    $debugMessage,
-                    intval(mb_substr($errorCode, 0, 3)),
-                    $exception
-                );
-            }
+                $exception instanceof UrlCheckRepositoryException) ?
+                $errorCodesInfo[$errorCode] : "Неизвестная ошибка";
 
             throw new UrlCheckActionException(
-                "Неизвестная ошибка",
+                $debugMessage,
                 intval(mb_substr($errorCode, 0, 3)),
                 $exception
             );
