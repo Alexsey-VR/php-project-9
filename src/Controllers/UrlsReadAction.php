@@ -8,7 +8,8 @@ use Slim\Views\PhpRenderer;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Repository\{ValidatedUrlRepository, UrlCheckRepository};
-use Analyzer\Exceptions\UrlCheckRepositoryException;
+use Analyzer\Interfaces\AppExceptionInterface;
+use Analyzer\Exceptions\{UrlCheckRepositoryException, UrlCheckActionException};
 
 class UrlsReadAction
 {
@@ -33,31 +34,48 @@ class UrlsReadAction
         ServerRequestInterface $request,
         ResponseInterface $response
     ): PsrResponseInterface {
-        $urls = $this->urlRepository->getEntities();
-        $urlItems = [];
-        foreach ($urls as $url) {
-            $id = $url->getId();
-            $urlChecks = $this->urlCheckRepository->getEntitiesByUrlId(
-                is_int($id) ? $id : throw new UrlCheckRepositoryException(50001)
-            );
-            $urlItems[] = [
-                'id' => $id,
-                'name' => $url->getUrl(),
-                'timestamp' => !empty($urlChecks) ? $urlChecks[0]->getTimestamp() : '',
-                'status' => !empty($urlChecks) ? $urlChecks[0]->getStatus() : ''
+        try {
+            $urls = $this->urlRepository->getEntities();
+            $urlItems = [];
+            foreach ($urls as $url) {
+                $id = $url->getId();
+                $urlChecks = $this->urlCheckRepository->getEntitiesByUrlId(
+                    is_int($id) ? $id : throw new UrlCheckRepositoryException(50001)
+                );
+                $urlItems[] = [
+                    'id' => $id,
+                    'name' => $url->getUrl(),
+                    'timestamp' => !empty($urlChecks) ? $urlChecks[0]->getTimestamp() : '',
+                    'status' => !empty($urlChecks) ? $urlChecks[0]->getStatus() : ''
+                ];
+            }
+
+            $messages = $this->flash->getMessages();
+            $params = [
+                'urls' => $urlItems,
+                'messages' => $messages
             ];
+
+            return $this->renderer->render(
+                $response,
+                'Urls/urls.phtml',
+                $params
+            );
+        } catch (AppExceptionInterface $exception) {
+            $data = file_get_contents(__DIR__ . "/../Exceptions/errorCodesInfo.json");
+            $errorCodesInfo = json_decode(
+                $data ?: '',
+                flags:JSON_OBJECT_AS_ARRAY
+            );
+            $errorCode = strval($exception->getErrorCode());
+            $debugMessage = $exception instanceof UrlCheckRepositoryException ?
+                $errorCodesInfo[$errorCode] : "Неизвестная ошибка";
+
+            throw new UrlCheckActionException(
+                $debugMessage,
+                intval(mb_substr($errorCode, 0, 3)),
+                $exception
+            );
         }
-
-        $messages = $this->flash->getMessages();
-        $params = [
-            'urls' => $urlItems,
-            'messages' => $messages
-        ];
-
-        return $this->renderer->render(
-            $response,
-            'Urls/urls.phtml',
-            $params
-        );
     }
 }
