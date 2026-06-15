@@ -10,7 +10,7 @@ use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
 use Analyzer\Repository\{UrlRepository, ValidatedUrlRepository};
 use Analyzer\Exceptions\UrlErrorRenderer;
-use Analyzer\Exceptions\UrlErrorHandler;
+use Analyzer\Handlers\UrlErrorHandler;
 use Analyzer\Controllers\UrlCheckAction;
 use Analyzer\Controllers\UrlReadAction;
 use Analyzer\Controllers\UrlsReadAction;

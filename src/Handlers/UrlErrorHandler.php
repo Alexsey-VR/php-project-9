@@ -1,6 +1,6 @@
 <?php
 
-namespace Analyzer\Exceptions;
+namespace Analyzer\Handlers;
 
 use Slim\Handlers\ErrorHandler;
 use Slim\Exception\HttpException;

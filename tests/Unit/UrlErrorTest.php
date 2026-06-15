@@ -8,7 +8,7 @@ use Slim\Interfaces\CallableResolverInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Analyzer\Exceptions\UrlErrorRenderer;
-use Analyzer\Exceptions\UrlErrorHandler;
+use Analyzer\Handlers\UrlErrorHandler;
 use Slim\Views\PhpRenderer;
 use Exception;
 
