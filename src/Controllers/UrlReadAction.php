@@ -94,23 +94,14 @@ class UrlReadAction
                 flags:JSON_OBJECT_AS_ARRAY
             );
             $errorCode = strval($exception->getErrorCode());
-            $debugMessage = $errorCodesInfo[$errorCode];
-
-            if (
-                $exception instanceof UrlException ||
-                $exception instanceof UrlRepositoryException ||
-                $exception instanceof UrlCheckException ||
-                $exception instanceof UrlCheckRepositoryException
-            ) {
-                throw new UrlsReadActionException(
-                    $debugMessage,
-                    intval(mb_substr($errorCode, 0, 3)),
-                    $exception
-                );
-            }
+            $debugMessage = ($exception instanceof UrlException ||
+                            $exception instanceof UrlRepositoryException ||
+                            $exception instanceof UrlCheckException ||
+                            $exception instanceof UrlCheckRepositoryException) ?
+                            $errorCodesInfo[$errorCode] : "Неизвестная ошибка";
 
             throw new UrlsReadActionException(
-                "Неизвестная ошибка",
+                $debugMessage,
                 intval(mb_substr($errorCode, 0, 3)),
                 $exception
             );
