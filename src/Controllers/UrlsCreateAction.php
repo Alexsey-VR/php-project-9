@@ -92,21 +92,12 @@ class UrlsCreateAction
                 flags:JSON_OBJECT_AS_ARRAY
             );
             $errorCode = strval($exception->getErrorCode());
-            $debugMessage = $errorCodesInfo[$errorCode];
-
-            if (
-                $exception instanceof UrlException ||
-                $exception instanceof UrlRepositoryException
-            ) {
-                throw new UrlsCreateActionException(
-                    $debugMessage,
-                    intval(mb_substr($errorCode, 0, 3)),
-                    $exception
-                );
-            }
+            $debugMessage = ($exception instanceof UrlException ||
+                            $exception instanceof UrlRepositoryException) ?
+                            $errorCodesInfo[$errorCode] : "Неизвестная ошибка";
 
             throw new UrlsCreateActionException(
-                "Неизвестная ошибка",
+                $debugMessage,
                 intval(mb_substr($errorCode, 0, 3)),
                 $exception
             );
