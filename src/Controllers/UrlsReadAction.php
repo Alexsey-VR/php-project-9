@@ -9,7 +9,7 @@ use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Repository\{ValidatedUrlRepository, UrlCheckRepository};
 use Analyzer\Interfaces\AppExceptionInterface;
-use Analyzer\Exceptions\{UrlCheckRepositoryException, UrlCheckActionException};
+use Analyzer\Exceptions\{UrlCheckRepositoryException, UrlsReadActionException};
 
 class UrlsReadAction
 {
@@ -71,7 +71,7 @@ class UrlsReadAction
             $debugMessage = $exception instanceof UrlCheckRepositoryException ?
                 $errorCodesInfo[$errorCode] : "Неизвестная ошибка";
 
-            throw new UrlCheckActionException(
+            throw new UrlsReadActionException(
                 $debugMessage,
                 intval(mb_substr($errorCode, 0, 3)),
                 $exception

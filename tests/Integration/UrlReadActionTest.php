@@ -14,6 +14,9 @@ use Analyzer\Url\Url;
 use Analyzer\UrlCheck\UrlCheck;
 use Analyzer\Controllers\UrlReadAction;
 use PDO;
+use PDOStatement;
+use Analyzer\Exceptions\UrlReadActionException;
+use Analyzer\Exceptions\{AppException, UrlException, UrlRepositoryException};
 
 #[CoversClass(UrlCheckRepository::class)]
 #[CoversClass(UrlRepository::class)]
@@ -21,6 +24,10 @@ use PDO;
 #[CoversClass(UrlReadAction::class)]
 #[CoversClass(Url::class)]
 #[CoversClass(UrlCheck::class)]
+#[CoversClass(AppException::class)]
+#[CoversClass(UrlException::class)]
+#[CoversClass(UrlReadActionException::class)]
+#[CoversClass(UrlRepositoryException::class)]
 class UrlReadActionTest extends TestCase
 {
     private PDO $connection;
@@ -162,6 +169,47 @@ class UrlReadActionTest extends TestCase
             $serverRequestMock,
             $responseMock,
             ['id' => $urlId + 1]
+        );
+    }
+
+    public function testException(): void
+    {
+        $pdoStatementMock = $this->createMock(PDOStatement::class);
+        $pdoStatementMock->method('fetch')->willReturn([
+            'id' => null,
+            'name' => 'urlMock',
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+        $pdoMock = $this->createMock(PDO::class);
+        $pdoMock->method('prepare')->willReturn($pdoStatementMock);
+        $validatedUrlRepository = new ValidatedUrlRepository(
+            new UrlRepository($pdoMock),
+            $pdoMock
+        );
+
+        $urlCheckRepositoryMock = $this->createMock(UrlCheckRepository::class);
+        $messagesMock = $this->createMock(Messages::class);
+        $phpRendererMockBuilder = $this->getMockBuilder(PhpRenderer::class);
+        $phpRendererMock = $phpRendererMockBuilder->getMock();
+
+        $urlReadAction = new UrlReadAction(
+            $validatedUrlRepository,
+            $urlCheckRepositoryMock,
+            $phpRendererMock,
+            $messagesMock,
+        );
+
+        $serverRequestMockBuilder = $this->getMockBuilder(ServerRequestInterface::class);
+        $serverRequestMock = $serverRequestMockBuilder->getMock();
+        $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
+        $responseMock = $responseMockBuilder->getMock();
+
+        $this->expectException(UrlReadActionException::class);
+
+        $urlReadAction->__invoke(
+            $serverRequestMock,
+            $responseMock,
+            ['id' => 0]
         );
     }
 }
