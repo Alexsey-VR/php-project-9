@@ -14,6 +14,7 @@ use Analyzer\Url\Url;
 use Analyzer\UrlCheck\UrlCheck;
 use PDO;
 use Analyzer\Controllers\UrlCheckAction;
+use Analyzer\Exceptions\{UrlException, AppException, UrlCheckActionException};
 
 #[CoversClass(UrlCheckRepository::class)]
 #[CoversClass(UrlRepository::class)]
@@ -21,6 +22,9 @@ use Analyzer\Controllers\UrlCheckAction;
 #[CoversClass(UrlCheckAction::class)]
 #[CoversClass(UrlCheck::class)]
 #[CoversClass(Url::class)]
+#[CoversClass(UrlException::class)]
+#[CoversClass(AppException::class)]
+#[CoversClass(UrlCheckActionException::class)]
 class UrlCheckActionTest extends TestCase
 {
     private PDO $connection;
@@ -147,5 +151,36 @@ class UrlCheckActionTest extends TestCase
         );
 
         $this->assertTrue($wrongPsrResponse->getStatusCode() === 200);
+    }
+
+    public function testException(): void
+    {
+        $validatedUrlRepositoryMock = $this->createMock(ValidatedUrlRepository::class);
+        $validatedUrlRepositoryMock->method('find')->willReturn(null);
+
+        $urlCheckRepositoryMock = $this->createMock(UrlCheckRepository::class);
+        $messagesMock = $this->createMock(Messages::class);
+        $phpRouterMockBuilder = $this->getMockBuilder(RouteParserInterface::class);
+        $phpRouterMock = $phpRouterMockBuilder->getMock();
+
+        $urlCheckAction = new UrlCheckAction(
+            $validatedUrlRepositoryMock,
+            $urlCheckRepositoryMock,
+            $messagesMock,
+            $phpRouterMock
+        );
+
+        $serverRequestMockBuilder = $this->getMockBuilder(ServerRequestInterface::class);
+        $serverRequestMock = $serverRequestMockBuilder->getMock();
+        $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
+        $responseMock = $responseMockBuilder->getMock();
+
+        $this->expectException(UrlCheckActionException::class);
+
+        $urlCheckAction->__invoke(
+            $serverRequestMock,
+            $responseMock,
+            ['id' => '']
+        );
     }
 }
