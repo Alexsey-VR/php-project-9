@@ -14,6 +14,9 @@ use Analyzer\Url\Url;
 use Analyzer\UrlCheck\UrlCheck;
 use Analyzer\Controllers\UrlsReadAction;
 use PDO;
+use PDOStatement;
+use Analyzer\Exceptions\UrlsReadActionException;
+use Analyzer\Exceptions\{AppException, UrlCheckRepositoryException};
 
 #[CoversClass(UrlCheckRepository::class)]
 #[CoversClass(UrlRepository::class)]
@@ -21,6 +24,9 @@ use PDO;
 #[CoversClass(UrlsReadAction::class)]
 #[CoversClass(Url::class)]
 #[CoversClass(UrlCheck::class)]
+#[CoversClass(UrlsReadActionException::class)]
+#[CoversClass(AppException::class)]
+#[CoversClass(UrlCheckRepositoryException::class)]
 class UrlsReadActionTest extends TestCase
 {
     private PDO $connection;
@@ -106,5 +112,37 @@ class UrlsReadActionTest extends TestCase
         );
 
         $this->assertEquals($psrResponse->getStatusCode(), 200);
+    }
+
+    public function testException(): void
+    {
+        $urlMock = $this->createMock(Url::class);
+        $urlMock->method('getId')->willReturn(null);
+        $validatedUrlRepositoryMock = $this->createMock(ValidatedUrlRepository::class);
+        $validatedUrlRepositoryMock->method('getEntities')->willReturn([$urlMock]);
+
+        $urlCheckRepositoryMock = $this->createMock(UrlCheckRepository::class);
+        $messagesMock = $this->createMock(Messages::class);
+        $phpRendererMockBuilder = $this->getMockBuilder(PhpRenderer::class);
+        $phpRendererMock = $phpRendererMockBuilder->getMock();
+
+        $urlsReadAction = new UrlsReadAction(
+            $validatedUrlRepositoryMock,
+            $urlCheckRepositoryMock,
+            $phpRendererMock,
+            $messagesMock,
+        );
+
+        $serverRequestMockBuilder = $this->getMockBuilder(ServerRequestInterface::class);
+        $serverRequestMock = $serverRequestMockBuilder->getMock();
+        $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
+        $responseMock = $responseMockBuilder->getMock();
+
+        $this->expectException(UrlsReadActionException::class);
+
+        $urlsReadAction->__invoke(
+            $serverRequestMock,
+            $responseMock
+        );
     }
 }
