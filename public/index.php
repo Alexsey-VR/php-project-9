@@ -22,56 +22,54 @@ session_start();
 /**
  * @var \DI\Container
  */
-$container = new Container();
-$container->set(PhpRenderer::class, function () {
-    // As a parameter the base directory is used to contain a templates
-    return new PhpRenderer(__DIR__ . '/../templates');
-});
+$container = new Container([
+    PhpRenderer::class => function () {
+        // As a parameter the base directory is used to contain a templates
+        return new PhpRenderer(__DIR__ . '/../templates');
+    },
+    PDO::class => function () {
+        if ($databaseUrl = getenv('DATABASE_URL')) {
+            $databaseInfo = parse_url(
+                htmlspecialchars($databaseUrl)
+            );
+        }
+        $dbPort = $databaseInfo['port'] ?? '';
+        $dbHost = $databaseInfo['host'] ?? '';
+        $dbParsedPath = $databaseInfo['path'] ?? '';
+        $dbPath = ltrim($dbParsedPath, '/');
+        $dbUser = $databaseInfo['user'] ?? '';
+        $dbPasswd = $databaseInfo['pass'] ?? '';
+        $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbPath};user={$dbUser};password={$dbPasswd}";
+        $connection = new PDO($dsn);
+        $connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-$container->set(PDO::class, function () {
-    if ($databaseUrl = getenv('DATABASE_URL')) {
-        $databaseInfo = parse_url(
-            htmlspecialchars($databaseUrl)
+        return $connection;
+    },
+    ValidatedUrlRepository::class => function ($container) {
+        return new ValidatedUrlRepository(
+            $container->get(UrlRepository::class),
+            $container->get(PDO::class)
         );
+    },
+    Logger::class => function () {
+        $logger = new Logger('app');
+
+        $logDir = __DIR__ . '/../log';
+        $logFilePath = $logDir . '/errors.log';
+
+        $logFileHandler = new RotatingFileHandler(
+            $logFilePath,
+            maxFiles: 7,
+            level: Logger::ERROR,
+            filePermission: 644,
+            useLocking: true
+        );
+
+        $logger->pushHandler($logFileHandler);
+
+        return $logger;
     }
-    $dbPort = $databaseInfo['port'] ?? '';
-    $dbHost = $databaseInfo['host'] ?? '';
-    $dbParsedPath = $databaseInfo['path'] ?? '';
-    $dbPath = ltrim($dbParsedPath, '/');
-    $dbUser = $databaseInfo['user'] ?? '';
-    $dbPasswd = $databaseInfo['pass'] ?? '';
-    $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbPath};user={$dbUser};password={$dbPasswd}";
-    $connection = new PDO($dsn);
-    $connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-
-    return $connection;
-});
-
-$container->set(ValidatedUrlRepository::class, function ($container) {
-    return new ValidatedUrlRepository(
-        $container->get(UrlRepository::class),
-        $container->get(PDO::class)
-    );
-});
-
-$container->set(Logger::class, function () {
-    $logger = new Logger('app');
-
-    $logDir = __DIR__ . '/../log';
-    $logFilePath = $logDir . '/errors.log';
-
-    $logFileHandler = new RotatingFileHandler(
-        $logFilePath,
-        maxFiles: 7,
-        level: Logger::ERROR,
-        filePermission: 644,
-        useLocking: true
-    );
-
-    $logger->pushHandler($logFileHandler);
-
-    return $logger;
-});
+]);
 
 $app = AppFactory::createFromContainer($container);
 
