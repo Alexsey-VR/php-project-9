@@ -15,8 +15,7 @@ use Analyzer\UrlCheck\UrlCheck;
 use Analyzer\Controllers\UrlReadAction;
 use PDO;
 use PDOStatement;
-use Analyzer\Exceptions\UrlReadActionException;
-use Analyzer\Exceptions\{AppException, UrlException, UrlRepositoryException};
+use Analyzer\Exceptions\{AppException, UrlRepositoryException};
 
 #[CoversClass(UrlCheckRepository::class)]
 #[CoversClass(UrlRepository::class)]
@@ -25,8 +24,6 @@ use Analyzer\Exceptions\{AppException, UrlException, UrlRepositoryException};
 #[CoversClass(Url::class)]
 #[CoversClass(UrlCheck::class)]
 #[CoversClass(AppException::class)]
-#[CoversClass(UrlException::class)]
-#[CoversClass(UrlReadActionException::class)]
 #[CoversClass(UrlRepositoryException::class)]
 class UrlReadActionTest extends TestCase
 {
@@ -204,7 +201,7 @@ class UrlReadActionTest extends TestCase
         $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
         $responseMock = $responseMockBuilder->getMock();
 
-        $this->expectException(UrlReadActionException::class);
+        $this->expectException(UrlRepositoryException::class);
 
         $urlReadAction->__invoke(
             $serverRequestMock,

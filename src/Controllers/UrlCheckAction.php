@@ -10,10 +10,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Repository\{ValidatedUrlRepository, UrlCheckRepository};
 use Analyzer\Interfaces\{UrlInterface, UrlCheckInterface};
 use Analyzer\UrlCheck\UrlCheck;
-use Analyzer\Interfaces\AppExceptionInterface;
-use Analyzer\Exceptions\UrlCheckActionException;
-use Analyzer\Exceptions\{UrlException, UrlCheckException};
-use Analyzer\Exceptions\UrlCheckRepositoryException;
+use Analyzer\Exceptions\UrlException;
 use GuzzleHttp\Exception\{ConnectException, RequestException};
 
 class UrlCheckAction
@@ -78,24 +75,6 @@ class UrlCheckAction
 
             $toUrlInfo = $this->router->urlFor('urlInfo', ['id' => "{$this->url->getId()}"]);
             return $response->withRedirect($toUrlInfo);
-        } catch (AppExceptionInterface $exception) {
-            $data = file_get_contents(__DIR__ . "/../Exceptions/errorCodesInfo.json");
-            $errorCodesInfo = json_decode(
-                $data ?: '',
-                flags:JSON_OBJECT_AS_ARRAY
-            );
-            $errorCode = strval($exception->getErrorCode());
-
-            $debugMessage = ($exception instanceof UrlException ||
-                $exception instanceof UrlCheckException ||
-                $exception instanceof UrlCheckRepositoryException) ?
-                $errorCodesInfo[$errorCode] : "Неизвестная ошибка";
-
-            throw new UrlCheckActionException(
-                $debugMessage,
-                intval(mb_substr($errorCode, 0, 3)),
-                $exception
-            );
         }
     }
 }

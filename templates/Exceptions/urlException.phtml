@@ -29,13 +29,8 @@
           <h1 class="card-title">Произошла ошибка</h1>
           <?php if ($details === true): ?>
             <p>Приложение не работает по следующим причинам:</p>
-            <div><strong>Тип: </strong><?= $type ?></div>
             <div><strong>Код: </strong><?= $code ?></div>
             <div><strong>Сообщение: </strong><?= $message ?></div>
-            <div><strong>Файл: </strong><?= $file ?></div>
-            <div><strong>Строка: </strong><?= $line ?></div>
-            <h2>Стек вызовов</h2>
-            <pre><?= $trace ?></pre>
           <?php else: ?>
             <div><strong>Сообщение: </strong><?= $message ?></div>
           <?php endif ?>

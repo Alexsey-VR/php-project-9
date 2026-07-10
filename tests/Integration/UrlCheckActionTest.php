@@ -14,7 +14,7 @@ use Analyzer\Url\Url;
 use Analyzer\UrlCheck\UrlCheck;
 use PDO;
 use Analyzer\Controllers\UrlCheckAction;
-use Analyzer\Exceptions\{UrlException, AppException, UrlCheckActionException};
+use Analyzer\Exceptions\{UrlException, AppException};
 
 #[CoversClass(UrlCheckRepository::class)]
 #[CoversClass(UrlRepository::class)]
@@ -24,7 +24,6 @@ use Analyzer\Exceptions\{UrlException, AppException, UrlCheckActionException};
 #[CoversClass(Url::class)]
 #[CoversClass(UrlException::class)]
 #[CoversClass(AppException::class)]
-#[CoversClass(UrlCheckActionException::class)]
 class UrlCheckActionTest extends TestCase
 {
     private PDO $connection;
@@ -175,7 +174,7 @@ class UrlCheckActionTest extends TestCase
         $responseMockBuilder = $this->getMockBuilder(SlimResponseInterface::class);
         $responseMock = $responseMockBuilder->getMock();
 
-        $this->expectException(UrlCheckActionException::class);
+        $this->expectException(UrlException::class);
 
         $urlCheckAction->__invoke(
             $serverRequestMock,
