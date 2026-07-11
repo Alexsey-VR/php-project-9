@@ -29,6 +29,9 @@
           <h1 class="card-title">Произошла ошибка</h1>
           <?php if ($details === true): ?>
             <p>Приложение не работает по следующим причинам:</p>
+            <?php if (isset($type)): ?>
+              <div><strong>Тип: </strong><?= $type ?></dev>
+            <?php endif ?>
             <div><strong>Код: </strong><?= $code ?></div>
             <div><strong>Сообщение: </strong><?= $message ?></div>
           <?php else: ?>

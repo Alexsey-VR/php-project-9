@@ -80,6 +80,7 @@ $container->set(RouteParserInterface::class, function () use ($app) {
 });
 
 $urlErrorHandler = new UrlErrorHandler(
+    $container->get(PhpRenderer::class),
     $app->getCallableResolver(),
     $app->getResponseFactory(),
     $container->get(Logger::class)

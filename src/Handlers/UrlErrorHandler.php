@@ -11,15 +11,25 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Analyzer\Exceptions\{UrlException, UrlRepositoryException};
 use Analyzer\Exceptions\{UrlCheckException, UrlCheckRepositoryException};
+use Slim\Views\PhpRenderer;
 use PDOException;
 
 class UrlErrorHandler extends ErrorHandler
 {
+    private const array ERROR_CODES_INFO = [
+        "50001" => "URL ID имеет не корректный тип данных",
+        "50002" => "URL Timestamp имеет не корректный тип данных",
+        "50003" => "PDO не возвращает ID последнего сохранённого элемента",
+        "50004" => "Не возможно получить объект UrlInterface в проверке"
+    ];
+
     public function __construct(
+        private PhpRenderer $renderer,
         CallableResolverInterface $callableResolver,
         ResponseFactoryInterface $responseFactory,
         ?LoggerInterface $logger = null
     ) {
+        $this->renderer = $renderer;
         parent::__construct(
             $callableResolver,
             $responseFactory,
@@ -35,17 +45,26 @@ class UrlErrorHandler extends ErrorHandler
             || $this->exception instanceof UrlCheckRepositoryException
             || $this->exception instanceof UrlRepositoryException
         ) {
-            $this->statusCode = $this->exception->getCode() ?: 500;
+            $code = $this->exception->getErrorCode();
             $response = $this->responseFactory->createResponse($this->statusCode);
             $response = $response->withHeader('Content-type', $this->defaultErrorRendererContentType);
-            $renderer = $this->determineRenderer();
-            $body = call_user_func($renderer, $this->exception, $this->displayErrorDetails);
-            if ($body !== false) {
-                /** @var string $body */
-                $response->getBody()->write($body);
+
+            $message = "Ошибка уже в обработке. Приносим извинения за неудобства.";
+            if ($this->displayErrorDetails) {
+                $message = self::ERROR_CODES_INFO[$code] ?? 'неизвестная ошибка';
             }
 
-            return $response;
+            $params = [
+                'details' => $this->displayErrorDetails,
+                'code' => intval(mb_substr(strval($code), 0, 3)),
+                'message' => $message
+            ];
+
+            return $this->renderer->render(
+                $response,
+                '/Exceptions/urlException.phtml',
+                $params
+            );
         } else {
             return parent::respond();
         }
