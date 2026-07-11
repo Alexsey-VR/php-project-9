@@ -44,9 +44,8 @@ class UrlCheck implements UrlCheckInterface
         ] = $urlCheckInfo;
         $urlCheck = new UrlCheck();
 
-        $urlCheck->setUrlId(
-            is_int($urlId) ? $urlId : throw new UrlCheckException(50001)
-        );
+        $urlId = is_int($urlId) ? $urlId : throw new UrlCheckException(50001);
+        $urlCheck->setUrlId($urlId);
 
         $urlCheck->setCheckInfo($status, $h1, $title, $description);
 
@@ -64,10 +63,8 @@ class UrlCheck implements UrlCheckInterface
             ]
         );
 
-        $urlId = $url->getId();
-        $urlCheck->setUrlId(
-            is_int($urlId) ? $urlId : throw new UrlCheckException(50001)
-        );
+        $urlId = is_int($urlId = $url->getId()) ? $urlId : throw new UrlCheckException(50001);
+        $urlCheck->setUrlId($urlId);
 
         return $urlCheck;
     }

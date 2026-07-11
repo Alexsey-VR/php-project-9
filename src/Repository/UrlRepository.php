@@ -28,14 +28,12 @@ class UrlRepository implements UrlRepositoryInterface
         foreach ($dbData as $item) {
             if (is_array($item)) {
                 $url = Url::fromArray($item);
-                $foundId = $item['id'];
-                $timestamp = $item['created_at'];
-                $url->setId(
-                    is_int($foundId) ? $foundId : throw new UrlRepositoryException(50001)
-                );
-                $url->setTimestamp(
-                    is_string($timestamp) ? $timestamp : throw new UrlRepositoryException(50002)
-                );
+                $foundId = is_int($foundId = $item['id']) ?
+                    $foundId : throw new UrlRepositoryException(50001);
+                $timestamp = is_string($timestamp = $item['created_at']) ?
+                    $timestamp : throw new UrlRepositoryException(50002);
+                $url->setId($foundId);
+                $url->setTimestamp($timestamp);
                 $urls[] = $url;
             }
         }
@@ -68,7 +66,7 @@ class UrlRepository implements UrlRepositoryInterface
             throw new UrlRepositoryException(40401);
         }
 
-        $id = intval($this->connection->lastInsertId()) ?: throw new UrlRepositoryException(50003);
+        $id = ($lstId = $this->connection->lastInsertId()) ? intval($lstId) : throw new UrlRepositoryException(50003);
         $url->setId($id);
         $url->setTimestamp($timestamp);
     }

@@ -73,7 +73,8 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
         $stmt->bindParam(':timestamp', $timestamp);
         $stmt->execute();
 
-        $id = intval($this->connection->lastInsertId()) ?: throw new UrlCheckRepositoryException(50003);
+        $id = ($lstId = $this->connection->lastInsertId()) ?
+            intval($lstId) : throw new UrlCheckRepositoryException(50003);
         $urlCheck->setId($id);
         $urlCheck->setTimestamp($timestamp);
     }

@@ -49,20 +49,15 @@ class UrlCheckAction
 
             $this->url = $this->urlRepository->find($id);
 
-            $this->urlCheck = UrlCheck::fromUrl(
-                ($this->url instanceof UrlInterface) ?
-                    $this->url : throw new UrlException(50004)
-            );
+            $url = ($this->url instanceof UrlInterface) ? $this->url : throw new UrlException(50004);
+            $this->urlCheck = UrlCheck::fromUrl($url);
 
             $this->urlCheck->execute();
             $this->urlCheckRepository->save($this->urlCheck);
 
-            $timestamp = $this->urlCheck->getTimestamp();
+            $timestamp = is_string($tstmp = $this->urlCheck->getTimestamp()) ? $tstmp : throw new UrlException(50002);
 
-            $this->url->setTimestamp(
-                is_string($timestamp) ?
-                    $timestamp : throw new UrlException(50002)
-            );
+            $this->url->setTimestamp($timestamp);
             $this->urlRepository->save($this->url);
 
             $toUrlInfo = $this->router->urlFor('urlInfo', ['id' => "{$this->url->getId()}"]);
