@@ -22,4 +22,9 @@ interface UrlCheckRepositoryInterface
      * @return array<int,UrlCheckInterface>
      */
     public function getEntitiesByUrlId(int $urlId): array;
+
+    /**
+     * @return array<int,UrlCheckInterface>
+     */
+    public function getLastEntities(): array;
 }

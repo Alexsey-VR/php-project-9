@@ -35,14 +35,22 @@ class UrlsReadAction
     ): PsrResponseInterface {
         $urls = $this->urlRepository->getEntities();
         $urlItems = [];
+        $checkEntities = $this->urlCheckRepository->getLastEntities();
         foreach ($urls as $url) {
             $id = is_int($id = $url->getId()) ? $id : throw new UrlCheckRepositoryException(50001);
-            $urlChecks = $this->urlCheckRepository->getEntitiesByUrlId($id);
+            $currentCheck = null;
+            foreach ($checkEntities as $check) {
+                if ($check->getUrlId() === $id) {
+                    $currentCheck = $check;
+                } else {
+                    continue;
+                }
+            }
             $urlItems[] = [
                 'id' => $id,
                 'name' => $url->getUrl(),
-                'timestamp' => !empty($urlChecks) ? $urlChecks[0]->getTimestamp() : '',
-                'status' => !empty($urlChecks) ? $urlChecks[0]->getStatus() : ''
+                'timestamp' => !is_null($currentCheck) ? $currentCheck->getTimestamp() : '',
+                'status' => !is_null($currentCheck) ? $currentCheck->getStatus() : ''
             ];
         }
 

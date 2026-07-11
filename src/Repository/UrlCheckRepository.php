@@ -148,4 +148,14 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
             $stmt !== false ? $stmt->fetchAll() : []
         );
     }
+
+    public function getLastEntities(): array
+    {
+        $sql = "SELECT DISTINCT ON (url_id) * FROM url_checks ORDER BY url_id, created_at DESC";
+        $stmt = $this->connection->query($sql);
+
+        return $this->getUrlCheckList(
+            $stmt !== false ? $stmt->fetchAll() : []
+        );
+    }
 }
