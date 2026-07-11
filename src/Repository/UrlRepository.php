@@ -122,7 +122,7 @@ class UrlRepository implements UrlRepositoryInterface
         $stmt = $this->connection->query($sql);
 
         return $this->getUrlList(
-            $stmt !== false ? $stmt->fetchAll(PDO::FETCH_DEFAULT) : []
+            $stmt !== false ? $stmt->fetchAll() : []
         );
     }
 }

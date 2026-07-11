@@ -137,7 +137,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
         $stmt = $this->connection->query($sql);
 
         return $this->getUrlCheckList(
-            $stmt !== false ? $stmt->fetchAll(PDO::FETCH_DEFAULT) : []
+            $stmt !== false ? $stmt->fetchAll() : []
         );
     }
 
@@ -149,7 +149,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
         $stmt->execute();
 
         return $this->getUrlCheckList(
-            $stmt !== false ? $stmt->fetchAll(PDO::FETCH_DEFAULT) : []
+            $stmt !== false ? $stmt->fetchAll() : []
         );
     }
 }
