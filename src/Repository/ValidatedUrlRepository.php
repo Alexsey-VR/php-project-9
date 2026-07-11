@@ -55,10 +55,8 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
             return true;
         }
 
-        $id = $row['id'];
-        $url->setId(
-            is_int($id) ? $id : throw new UrlRepositoryException(50001)
-        );
+        $id = is_int($id = $row['id']) ? $id : throw new UrlRepositoryException(50001);
+        $url->setId($id);
 
         $this->status = false;
         $this->setMessage(self::ERROR_MESSAGE_FOR_UNIQUE);

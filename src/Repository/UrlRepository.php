@@ -68,14 +68,9 @@ class UrlRepository implements UrlRepositoryInterface
             throw new UrlRepositoryException(40401);
         }
 
-        $id = intval($this->connection->lastInsertId());
-
-        $url->setId(
-            $id ?: throw new UrlRepositoryException(50003)
-        );
-        $url->setTimestamp(
-            is_string($timestamp) ? $timestamp : throw new UrlRepositoryException(50002)
-        );
+        $id = intval($this->connection->lastInsertId()) ?: throw new UrlRepositoryException(50003);
+        $url->setId($id);
+        $url->setTimestamp($timestamp);
     }
 
     public function update(UrlInterface $url): void
