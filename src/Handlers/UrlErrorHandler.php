@@ -12,7 +12,6 @@ use Psr\Log\LoggerInterface;
 use Analyzer\Exceptions\{UrlException, UrlRepositoryException};
 use Analyzer\Exceptions\{UrlCheckException, UrlCheckRepositoryException};
 use Slim\Views\PhpRenderer;
-use PDOException;
 
 class UrlErrorHandler extends ErrorHandler
 {
