@@ -21,7 +21,7 @@ class Url implements UrlInterface
     public static function fromArray(array $urlInfo): UrlInterface
     {
         ['name' => $urlData] = $urlInfo;
-        $urlData = is_string($urlData) ? $urlData : throw new UrlException(50001);
+        $urlData = is_string($urlData) ? $urlData : throw new UrlException(50005);
         $url = new Url();
 
         $url->setUrl($urlData);
