@@ -9,6 +9,7 @@ use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Repository\{ValidatedUrlRepository, UrlCheckRepository};
 use Analyzer\Interfaces\UrlInterface;
+use Analyzer\Exceptions\UrlException;
 
 class UrlReadAction
 {
@@ -37,7 +38,7 @@ class UrlReadAction
         ResponseInterface $response,
         array $args
     ): PsrResponseInterface {
-        $id = $args['id'];
+        $id = is_numeric($args['id']) ? intval($args['id']) : throw new UrlException(50001);
 
         $url = $this->urlRepository->find($id);
         $messages = $this->flash->getMessages();
