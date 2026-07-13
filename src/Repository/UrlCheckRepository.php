@@ -30,12 +30,10 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
                 $urlCheck = UrlCheck::fromArray($item);
                 $foundId = $item['id'];
                 $timestamp = $item['created_at'];
-                $urlCheck->setId(
-                    is_int($foundId) ? $foundId : throw new UrlCheckRepositoryException(50001)
-                );
-                $urlCheck->setTimestamp(
-                    is_string($timestamp) ? $timestamp : throw new UrlCheckRepositoryException(50002)
-                );
+                $validId = is_int($foundId) ? $foundId : throw new UrlCheckRepositoryException(50001);
+                $urlCheck->setId($validId);
+                $validTimestamp = is_string($timestamp) ? $timestamp : throw new UrlCheckRepositoryException(50002);
+                $urlCheck->setTimestamp($validTimestamp);
                 $urlChecks[] = $urlCheck;
             }
         }
@@ -73,9 +71,13 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
         $stmt->bindParam(':timestamp', $timestamp);
         $stmt->execute();
 
-        $id = ($lstId = $this->connection->lastInsertId()) ?
-            intval($lstId) : throw new UrlCheckRepositoryException(50003);
-        $urlCheck->setId($id);
+        $validId = (
+            ($lastId = $this->connection->lastInsertId()) !== false
+        )
+        ? intval($lastId)
+        : throw new UrlCheckRepositoryException(50003);
+
+        $urlCheck->setId($validId);
         $urlCheck->setTimestamp($timestamp);
     }
 
@@ -116,7 +118,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
         $result = $this->getUrlCheckList([$stmt->fetch()]);
 
-        return isset($result[0]) ? $result[0] : null;
+        return array_first($result);
     }
 
     public function delete(int $id): void
