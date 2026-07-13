@@ -3,3 +3,4 @@
 /reports/
 /.phpunit.cache/
 /log/
+/.continue/

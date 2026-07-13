@@ -30,10 +30,13 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
                 $urlCheck = UrlCheck::fromArray($item);
                 $foundId = $item['id'];
                 $timestamp = $item['created_at'];
+
                 $validId = is_int($foundId) ? $foundId : throw new UrlCheckRepositoryException(50001);
                 $urlCheck->setId($validId);
+
                 $validTimestamp = is_string($timestamp) ? $timestamp : throw new UrlCheckRepositoryException(50002);
                 $urlCheck->setTimestamp($validTimestamp);
+
                 $urlChecks[] = $urlCheck;
             }
         }
