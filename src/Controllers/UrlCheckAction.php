@@ -44,7 +44,7 @@ class UrlCheckAction
     ): PsrResponseInterface {
         try {
             $id = intval(
-                is_string($args['id']) ? $args['id'] : null
+                is_numeric($args['id']) ? $args['id'] : throw new UrlException(50001)
             );
 
             $this->url = $this->urlRepository->find($id);
@@ -55,7 +55,7 @@ class UrlCheckAction
             $this->urlCheck->execute();
             $this->urlCheckRepository->save($this->urlCheck);
 
-            $timestamp = is_string($tstmp = $this->urlCheck->getTimestamp()) ? $tstmp : throw new UrlException(50002);
+            $timestamp = $this->urlCheck->getTimestamp() ?? throw new UrlException(50002);
 
             $this->url->setTimestamp($timestamp);
             $this->urlRepository->save($this->url);
