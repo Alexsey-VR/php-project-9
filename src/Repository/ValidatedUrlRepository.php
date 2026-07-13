@@ -29,6 +29,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
     {
         $urlNameUTF8 = mb_convert_encoding($urlName, 'UTF-8');
         $trimmedUrlName = mb_ltrim($urlNameUTF8);
+
         return mb_strtolower($trimmedUrlName);
     }
 
@@ -38,7 +39,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         $stmt = $this->connection->prepare($sql);
         $name = $url->getUrl();
         $normalizedName = $this->normalize(
-            is_string($name) ? $name : ''
+            $name ?: ''
         );
 
         $parsedUrl = parse_url($normalizedName);
@@ -78,6 +79,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         if (!$result) {
             $this->setMessage("URL не должен быть пустым");
             $this->status = false;
+
             return $this->status;
         }
 
@@ -94,6 +96,7 @@ class ValidatedUrlRepository implements UrlRepositoryInterface
         if (!$result) {
             $this->setMessage("URL превышает 255 символов");
             $this->status = false;
+
             return $this->status;
         }
 
