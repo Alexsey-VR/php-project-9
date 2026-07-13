@@ -28,10 +28,12 @@ class UrlRepository implements UrlRepositoryInterface
         foreach ($dbData as $item) {
             if (is_array($item)) {
                 $url = Url::fromArray($item);
-                $foundId = is_int($foundId = $item['id']) ?
-                    $foundId : throw new UrlRepositoryException(50001);
-                $timestamp = is_string($timestamp = $item['created_at']) ?
-                    $timestamp : throw new UrlRepositoryException(50002);
+                $foundId = is_int($foundId = $item['id'])
+                    ? $foundId
+                    : throw new UrlRepositoryException(50001);
+                $timestamp = is_string($timestamp = $item['created_at'])
+                    ? $timestamp
+                    : throw new UrlRepositoryException(50002);
                 $url->setId($foundId);
                 $url->setTimestamp($timestamp);
                 $urls[] = $url;
@@ -66,7 +68,9 @@ class UrlRepository implements UrlRepositoryInterface
             throw new UrlRepositoryException(40401);
         }
 
-        $id = ($lstId = $this->connection->lastInsertId()) ? intval($lstId) : throw new UrlRepositoryException(50003);
+        $id = ($lastId = $this->connection->lastInsertId()) !== false
+            ? intval($lastId)
+            : throw new UrlRepositoryException(50003);
         $url->setId($id);
         $url->setTimestamp($timestamp);
     }
@@ -98,7 +102,7 @@ class UrlRepository implements UrlRepositoryInterface
 
         $result = $this->getUrlList([$stmt->fetch()]);
 
-        return isset($result[0]) ? $result[0] : null;
+        return array_first($result);
     }
 
     public function delete(int $id): void
