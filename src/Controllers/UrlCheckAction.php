@@ -43,10 +43,7 @@ class UrlCheckAction
         array $args
     ): PsrResponseInterface {
         try {
-            $id = intval(
-                is_numeric($args['id']) ? $args['id'] : throw new UrlException(50001)
-            );
-
+            $id = $args['id'];
             $this->url = $this->urlRepository->find($id);
 
             $url = ($this->url instanceof UrlInterface) ? $this->url : throw new UrlException(50004);
