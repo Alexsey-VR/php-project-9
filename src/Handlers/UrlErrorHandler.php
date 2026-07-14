@@ -52,7 +52,7 @@ class UrlErrorHandler extends ErrorHandler
 
             $message = "Ошибка уже в обработке. Приносим извинения за неудобства.";
             if ($this->displayErrorDetails) {
-                $message = self::ERROR_CODES_INFO[$code] ?? 'неизвестная ошибка';
+                $message = self::ERROR_CODES_INFO[$code] ?? 'Неизвестная ошибка';
             }
 
             $params = [
