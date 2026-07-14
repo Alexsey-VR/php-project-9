@@ -46,7 +46,8 @@ class UrlErrorHandler extends ErrorHandler
             || $this->exception instanceof UrlRepositoryException
         ) {
             $code = $this->exception->getErrorCode();
-            $response = $this->responseFactory->createResponse($this->statusCode);
+            $responseErrorCode = intval(mb_substr(strval($code), 0, 3));
+            $response = $this->responseFactory->createResponse($responseErrorCode);
             $response = $response->withHeader('Content-type', $this->defaultErrorRendererContentType);
 
             $message = "Ошибка уже в обработке. Приносим извинения за неудобства.";
@@ -56,7 +57,7 @@ class UrlErrorHandler extends ErrorHandler
 
             $params = [
                 'details' => $this->displayErrorDetails,
-                'code' => intval(mb_substr(strval($code), 0, 3)),
+                'code' => $responseErrorCode,
                 'message' => $message
             ];
 
