@@ -121,7 +121,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
         $result = $this->getUrlCheckList([$stmt->fetch()]);
 
-        return array_first($result);
+        return array_last($result);
     }
 
     public function delete(int $id): void

@@ -102,7 +102,7 @@ class UrlRepository implements UrlRepositoryInterface
 
         $result = $this->getUrlList([$stmt->fetch()]);
 
-        return array_first($result);
+        return array_last($result);
     }
 
     public function delete(int $id): void
