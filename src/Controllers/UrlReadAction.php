@@ -41,6 +41,20 @@ class UrlReadAction
         $id = is_numeric($args['id']) ? intval($args['id']) : throw new UrlException(50001);
 
         $url = $this->urlRepository->find($id);
+        if (is_null($url)) {
+            $params = [
+                'details' => false,
+                'code' => 404,
+                'message' => 'Not found',
+            ];
+
+            return $this->renderer->render(
+                $response->withStatus(404),
+                'Exceptions/urlException.phtml',
+                $params
+            );
+        }
+
         $messages = $this->flash->getMessages();
         $checks = $this->urlCheckRepository->getEntitiesByUrlId($id);
         $checkItems = [];
@@ -56,32 +70,18 @@ class UrlReadAction
         }
 
         $params = [
-            'name' => ($url instanceof UrlInterface) ? $url->getUrl() : '',
-            'id' => ($url instanceof UrlInterface) ? $url->getId() : '',
-            'timestamp' => ($url instanceof UrlInterface) ? $url->getTimestamp() : '',
+            'name' => $url->getUrl(),
+            'id' => $url->getId(),
+            'timestamp' => $url->getTimestamp(),
             'messages' => $messages,
             'checks' => $checkItems
         ];
 
-        if (!is_null($url)) {
-            return $this->renderer
-                ->render(
-                    $response,
-                    'Urls/url.phtml',
-                    $params
-                );
-        }
-
-        $params = [
-            'details' => false,
-            'code' => 404,
-            'message' => 'Not found',
-        ];
-
-        return $this->renderer->render(
-            $response->withStatus(404),
-            '/Exceptions/urlException.phtml',
-            $params
-        );
+        return $this->renderer
+            ->render(
+                $response,
+                'Urls/url.phtml',
+                $params
+            );
     }
 }
