@@ -62,7 +62,7 @@ class UrlsReadAction
 
         return $this->renderer->render(
             $response,
-            'Urls/urls.phtml',
+            'urls/urls.phtml',
             $params
         );
     }
