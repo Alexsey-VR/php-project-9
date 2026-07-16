@@ -37,7 +37,7 @@ class UrlErrorRenderer extends AbstractErrorRenderer
             ];
         }
 
-        return $this->renderer->fetch('/Exceptions/urlException.phtml', $params);
+        return $this->renderer->fetch('/exceptions/urlException.phtml', $params);
     }
 
     public function setRenderer(PhpRenderer $renderer): void

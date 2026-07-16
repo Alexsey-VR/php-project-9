@@ -63,7 +63,7 @@ class UrlErrorHandler extends ErrorHandler
 
             return $this->renderer->render(
                 $response,
-                '/Exceptions/urlException.phtml',
+                'exceptions/urlException.phtml',
                 $params
             );
         } else {
