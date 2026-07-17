@@ -57,7 +57,7 @@ class UrlCheckAction
             $this->url->setTimestamp($timestamp);
             $this->urlRepository->save($this->url);
 
-            $toUrlInfo = $this->router->urlFor('urlInfo', ['id' => "{$this->url->getId()}"]);
+            $toUrlInfo = $this->router->urlFor('urls.url.show', ['id' => "{$this->url->getId()}"]);
 
             $this->flash->addMessage("success", "Страница успешно проверена");
 
@@ -65,7 +65,7 @@ class UrlCheckAction
         } catch (ConnectException | RequestException $e) {
             $this->flash->addMessage("error", "Произошла ошибка при проверке, не удалось подключиться");
 
-            $toUrlInfo = $this->router->urlFor('urlInfo', ['id' => "{$this->url->getId()}"]);
+            $toUrlInfo = $this->router->urlFor('urls.url.show', ['id' => "{$this->url->getId()}"]);
             return $response->withRedirect($toUrlInfo);
         }
     }

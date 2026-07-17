@@ -74,6 +74,7 @@ class UrlsCreateActionTest extends TestCase
         $phpRouterMock = $phpRouterMockBuilder->getMock();
 
         $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
+        $slimRenderer->addAttribute('router', $phpRouterMock);
 
         $urlsCreateAction = new UrlsCreateAction(
             $validatedUrlRepository,
@@ -125,6 +126,7 @@ class UrlsCreateActionTest extends TestCase
         $phpRouterMock = $phpRouterMockBuilder->getMock();
 
         $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
+        $slimRenderer->addAttribute('router', $phpRouterMock);
 
         $urlsCreateAction = new UrlsCreateAction(
             $validatedUrlRepository,
@@ -191,10 +193,11 @@ class UrlsCreateActionTest extends TestCase
         $messagesMock = $this->createMock(Messages::class);
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
-        $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
-
         $phpRouterMockBuilder = $this->getMockBuilder(RouteParserInterface::class);
         $phpRouterMock = $phpRouterMockBuilder->getMock();
+
+        $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
+        $slimRenderer->addAttribute('router', $phpRouterMock);
 
         $urlsCreateAction = new UrlsCreateAction(
             $validatedUrlRepository,

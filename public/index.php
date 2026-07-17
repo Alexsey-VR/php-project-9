@@ -79,6 +79,11 @@ $container->set(RouteParserInterface::class, function () use ($app) {
     return $app->getRouteCollector()->getRouteParser();
 });
 
+$container->get(PhpRenderer::class)->addAttribute(
+    'router',
+    $container->get(RouteParserInterface::class)
+);
+
 $urlErrorHandler = new UrlErrorHandler(
     $container->get(PhpRenderer::class),
     $app->getCallableResolver(),
@@ -93,12 +98,10 @@ $urlErrorRenderer->setRenderer(
 );
 $urlErrorHandler->registerErrorRenderer('text/html', $urlErrorRenderer);
 
-$router = $app->getRouteCollector()->getRouteParser();
-
-$app->get('/', MainAction::class)->setName('mainPage');
-$app->post('/urls', UrlsCreateAction::class)->setName('createUrl');
-$app->get('/urls', UrlsReadAction::class)->setName('urlsList');
-$app->get('/urls/{id: [0-9]{1,9}}', UrlReadAction::class)->setName('urlInfo');
+$app->get('/', MainAction::class)->setName('index');
+$app->post('/urls', UrlsCreateAction::class)->setName('urls.urls.create');
+$app->get('/urls', UrlsReadAction::class)->setName('urls.urls.show');
+$app->get('/urls/{id: [0-9]{1,9}}', UrlReadAction::class)->setName('urls.url.show');
 $app->post('/urls/{id: [0-9]{1,9}}/checks', UrlCheckAction::class);
 
 $app->run();

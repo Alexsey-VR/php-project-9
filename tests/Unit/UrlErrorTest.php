@@ -11,6 +11,7 @@ use Analyzer\Exceptions\UrlErrorRenderer;
 use Analyzer\Handlers\UrlErrorHandler;
 use Slim\Views\PhpRenderer;
 use Exception;
+use Slim\Interfaces\RouteParserInterface;
 
 use function get_class;
 
@@ -22,6 +23,8 @@ class UrlErrorTest extends TestCase
     {
         $exceptionRenderer = new UrlErrorRenderer();
         $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
+        $routerMock = $this->createMock(RouteParserInterface::class);
+        $slimRenderer->addAttribute('router', $routerMock);
         $exceptionRenderer->setRenderer($slimRenderer);
 
         $builder = $this->getMockBuilder(Exception::class);

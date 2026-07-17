@@ -14,6 +14,7 @@ use Slim\Http\Response;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Analyzer\Controllers\MainAction;
+use Slim\Interfaces\RouteParserInterface;
 
 #[CoversClass(MainAction::class)]
 class MainActionTest extends TestCase
@@ -25,6 +26,8 @@ class MainActionTest extends TestCase
 
         $templatePath = __DIR__ . '/../../templates';
         $slimRenderer = new PhpRenderer($templatePath);
+        $routerMock = $this->createMock(RouteParserInterface::class);
+        $slimRenderer->addAttribute('router', $routerMock);
 
         $mainAction = new MainAction($messagesMock, $slimRenderer);
 

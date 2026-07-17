@@ -16,6 +16,7 @@ use Analyzer\Controllers\UrlReadAction;
 use PDO;
 use PDOStatement;
 use Analyzer\Exceptions\{AppException, UrlRepositoryException};
+use Slim\Interfaces\RouteParserInterface;
 
 #[CoversClass(UrlCheckRepository::class)]
 #[CoversClass(UrlRepository::class)]
@@ -85,6 +86,8 @@ class UrlReadActionTest extends TestCase
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
         $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
+        $routerMock = $this->createMock(RouteParserInterface::class);
+        $slimRenderer->addAttribute('router', $routerMock);
 
         $urlReadAction = new UrlReadAction(
             $validatedUrlRepository,
@@ -140,6 +143,8 @@ class UrlReadActionTest extends TestCase
         $messagesMock->method('getMessages')->willReturn(['OK']);
 
         $slimRenderer = new PhpRenderer(__DIR__ . '/../../templates');
+        $routerMock = $this->createMock(RouteParserInterface::class);
+        $slimRenderer->addAttribute('router', $routerMock);
 
         $urlReadAction = new UrlReadAction(
             $validatedUrlRepository,
