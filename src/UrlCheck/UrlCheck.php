@@ -20,7 +20,7 @@ class UrlCheck implements UrlCheckInterface
 
     private const int STORE_LEN = 200;
     private const string STRING_POSTFIX = "...";
-    private const float CONNECTION_TIMEOUT_S = 2.0;
+    private const float CONNECTION_TIMEOUT_S = 3.0;
 
     public function __construct()
     {
