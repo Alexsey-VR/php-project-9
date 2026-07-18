@@ -71,7 +71,6 @@ class UrlCheck implements UrlCheckInterface
 
     public function execute(): bool
     {
-        $status = 200;
         $h1 = "";
         $title = "";
         $description = "";
