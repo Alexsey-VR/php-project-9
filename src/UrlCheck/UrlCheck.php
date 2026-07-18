@@ -71,10 +71,6 @@ class UrlCheck implements UrlCheckInterface
 
     public function execute(): bool
     {
-        $h1 = "";
-        $title = "";
-        $description = "";
-
         $response = $this->client->request('GET');
         $status = $response->getStatusCode();
         $bodyContent = $response->getBody()->getContents();
