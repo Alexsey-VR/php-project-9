@@ -11,6 +11,22 @@ jobs:
 
     environment: sonar-qube-test
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_HOST: localhost
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,7 +46,7 @@ jobs:
         
       - name: Run unit tests
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: pgsql://postgres:password@localhost:5432/test
         run: make test-sonar
 
       - name: SonarQube Scan
