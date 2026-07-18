@@ -38,14 +38,7 @@ class UrlsReadAction
         $checkEntities = $this->urlCheckRepository->getLastEntities();
         foreach ($urls as $url) {
             $id = $url->getId() ?? throw new UrlCheckRepositoryException(50001);
-            $currentCheck = null;
-            foreach ($checkEntities as $check) {
-                if ($check->getUrlId() === $id) {
-                    $currentCheck = $check;
-                } else {
-                    continue;
-                }
-            }
+            $currentCheck = array_pop($checkEntities);
             $urlItems[] = [
                 'id' => $id,
                 'name' => $url->getUrl(),
