@@ -13,7 +13,7 @@
     <tbody>
       <?php foreach ($urls as $url): ?>
         <tr>
-          <?php $id =  $url['id'] ?>
+          <?php $id = $url['id'] ?>
           <td><?= htmlspecialchars($id ?: '', ENT_QUOTES) ?></td>
           <td>
             <a href="/urls/<?= htmlspecialchars($id ?: '', ENT_QUOTES) ?>"

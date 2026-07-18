@@ -7,9 +7,9 @@
         <div><strong>Тип: </strong><?= $type ?></dev>
       <?php endif ?>
       <div><strong>Код: </strong><?= $code ?></div>
-      <div><strong>Сообщение: </strong><?= $message ?></div>
+      <div><strong>Сообщение: </strong><?= htmlspecialchars($message) ?></div>
     <?php else: ?>
-      <div><strong>Сообщение: </strong><?= $message ?></div>
+      <div><strong>Сообщение: </strong><?= htmlspecialchars($message) ?></div>
     <?php endif ?>
   </div>
 </div>
