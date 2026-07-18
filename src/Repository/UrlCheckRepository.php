@@ -56,7 +56,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
     public function create(UrlCheckInterface $urlCheck): void
     {
         $sql = "INSERT INTO url_checks (url_id, status, h1, title, description, created_at) VALUES " .
-               "(:url_id, :status, :h1, :title, :description, :timestamp)";
+               "(:create_url_id, :status, :h1, :title, :description, :timestamp)";
         $stmt = $this->connection->prepare($sql);
 
         $urlId = $urlCheck->getUrlId();
@@ -66,7 +66,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
         $description = $urlCheck->getDescription();
         $timestamp = date('Y-m-d H:i:s');
 
-        $stmt->bindParam(':url_id', $urlId);
+        $stmt->bindParam(':create_url_id', $urlId);
         $stmt->bindParam(':status', $status);
         $stmt->bindParam(':h1', $h1);
         $stmt->bindParam(':title', $title);
@@ -86,7 +86,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
     public function update(UrlCheckInterface $urlCheck): void
     {
-        $sql = "UPDATE url_checks SET url_id = :url_id, status = :status" .
+        $sql = "UPDATE url_checks SET url_id = :update_url_id, status = :status" .
                ", h1 = :h1, " . "title = :title" .
                ", description = :description" .
                ", created_at = :timestamp" .
@@ -102,7 +102,7 @@ class UrlCheckRepository implements UrlCheckRepositoryInterface
 
         $id = $urlCheck->getId();
 
-        $stmt->bindParam(':url_id', $urlId);
+        $stmt->bindParam(':update_url_id', $urlId);
         $stmt->bindParam(':status', $status);
         $stmt->bindParam(':h1', $h1);
         $stmt->bindParam(':title', $title);
