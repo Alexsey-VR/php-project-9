@@ -22,7 +22,7 @@ class MainAction
 
     public function __invoke(
         ServerRequestInterface $request,
-        PsrResponseInterface $response,
+        PsrResponseInterface $response
     ): PsrResponseInterface {
         $messages = $this->flash->getMessages();
 
