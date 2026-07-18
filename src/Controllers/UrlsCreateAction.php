@@ -33,13 +33,10 @@ class UrlsCreateAction
     public function __invoke(
         ServerRequest $request,
         SlimResponseInterface $response,
-    ): ?PsrResponseInterface {
-        ['name' => $urlName] = $request->getParsedBodyParam("url");
-        $urlInfo = ['name' => htmlspecialchars(
-            is_string($urlName) ? $urlName : ''
-        )];
-
-        $url = Url::fromArray($urlInfo);
+    ): PsrResponseInterface {
+        $url = Url::fromArray(
+            $request->getParsedBodyParam("url")
+        );
         $this->urlRepository->save($url);
 
         if ($this->urlRepository->isValid()) {
@@ -65,7 +62,6 @@ class UrlsCreateAction
                 'urls.url.show',
                 ['id' => "{$url->getId()}"]
             );
-            $response = $response->withStatus(422);
 
             return $response->withRedirect($toUrlInfo);
         }

@@ -102,9 +102,7 @@ class UrlsCreateActionTest extends TestCase
             $responseMock
         );
 
-        if ($psrResponse instanceof PsrResponseInterface) {
-            $this->assertTrue($psrResponse->getStatusCode() === 200);
-        }
+        $this->assertTrue($psrResponse->getStatusCode() === 200);
     }
 
     public function testInvokeWithExists(): void
@@ -173,9 +171,7 @@ class UrlsCreateActionTest extends TestCase
             $responseMock
         );
 
-        if ($psrResponse instanceof PsrResponseInterface) {
-            $this->assertTrue($psrResponse->getStatusCode() === 200);
-        }
+        $this->assertTrue($psrResponse->getStatusCode() === 200);
     }
 
     public function testNotValidUrl(): void
