@@ -19,7 +19,7 @@ class UrlCheckAction
     private UrlCheckRepository $urlCheckRepository;
     private RouteParserInterface $router;
     private Messages $flash;
-    private ?UrlInterface $url;
+    private UrlInterface $url;
     private UrlCheckInterface $urlCheck;
 
     public function __construct(
@@ -44,11 +44,9 @@ class UrlCheckAction
     ): PsrResponseInterface {
         try {
             $id = is_numeric($args['id']) ? intval($args['id']) : throw new UrlException(50001);
-            $this->url = $this->urlRepository->find($id);
+            $this->url = $this->urlRepository->find($id) ?? throw new UrlException(50004);
 
-            $url = ($this->url instanceof UrlInterface) ? $this->url : throw new UrlException(50004);
-            $this->urlCheck = UrlCheck::fromUrl($url);
-
+            $this->urlCheck = UrlCheck::fromUrl($this->url);
             $this->urlCheck->execute();
             $this->urlCheckRepository->save($this->urlCheck);
 
