@@ -1,53 +1,20 @@
-<head>
-  <title>Сервис для проверки сайтов на SEO пригодность</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
-<body>
-  <div class="card" style="height: 100vh">
-    <?php include __DIR__ . "/navbar.phtml" ?>
 
-    <?php if (is_array($messages)): ?>
-      <?php foreach($messages as $key => $message): ?>
-        <?php foreach($message as $item): ?>
-          <?php if ($key === 'error'): ?>
-            <div class="alert alert-danger" role="alert"">
-              <?= htmlspecialchars($item ?: '', ENT_QUOTES) ?>
-            </div>
-          <?php elseif ($key === 'success'): ?>
-            <div class="alert alert-success" role="alert"">
-              <?= htmlspecialchars($item ?: '', ENT_QUOTES) ?>
-            </div>
-          <?php endif ?>
-        <?php endforeach ?>
-      <?php endforeach ?>
-    <?php endif ?>
-
-    <div class="card-body sticky-xl-top">
-      <div class="card text-start mb-3 container" style="width: 38rem; background: #f8f9fb">
-        <div class="card-body">
-          <h1 class="card-title">Анализатор страниц</h1>
-          <p class="card-text">Бесплатно проверяйте сайты на SEO пригодность</p>
-          <form action="/urls" method="post">
-            <div class="input-group mb-3">
-              <input type="text" class="form-control" name="url[name]"
-              aria-label="Recipient’s username" aria-describedby="button-addon2"
-              <?php if (!empty($errors) && isset($errors['url'])): ?>
-                placeholder = <?= htmlspecialchars($errors['url']['name'] ?: '', ENT_QUOTES) ?>
-              <?php else: ?>
-                placeholder = "https://www.example.com"
-              <?php endif ?>
-              >
-              <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Проверить</button>
-            </div>
-          </form>
-        </div>
+<div class="card text-start mb-3 container" style="width: 38rem; background: #f8f9fb">
+  <div class="card-body">
+    <h1 class="card-title">Анализатор страниц</h1>
+    <p class="card-text">Бесплатно проверяйте сайты на SEO пригодность</p>
+    <form action="/urls" method="post">
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" name="url[name]"
+        aria-label="Recipient’s username" aria-describedby="button-addon2"
+        <?php if (!empty($errors) && isset($errors['url'])): ?>
+          placeholder = <?= htmlspecialchars($errors['url']['name'] ?: '', ENT_QUOTES) ?>
+        <?php else: ?>
+          placeholder = "https://www.example.com"
+        <?php endif ?>
+        >
+        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Проверить</button>
       </div>
-    </div>
-
-    <div class="card-footer sticky-bottom text-center text-body-secondary">
-      <a href="https://ru.hexlet.io/pages/about" title="Ссылка для перехода на страницу онлайн школы Хекслет">
-        Hexlet
-      </a>
-    </div>
+    </form>
   </div>
-</body>
+</div>

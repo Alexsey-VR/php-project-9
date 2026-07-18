@@ -1,31 +1,15 @@
-<head>
-  <title>Исключения</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
-<body>
-  <div class="card" style="height: 100vh">
-    <?php include __DIR__ . "/../navbar.phtml" ?>
-
-    <div class="card-body sticky-xl-top">
-      <div class="card text-start mb-3 container" style="width: 38rem; background: #f8f9fb">
-        <div class="card-body">
-          <h1 class="card-title">Произошла ошибка</h1>
-          <?php if ($details === true): ?>
-            <p>Приложение не работает по следующим причинам:</p>
-            <?php if (isset($type)): ?>
-              <div><strong>Тип: </strong><?= $type ?></dev>
-            <?php endif ?>
-            <div><strong>Код: </strong><?= $code ?></div>
-            <div><strong>Сообщение: </strong><?= $message ?></div>
-          <?php else: ?>
-            <div><strong>Сообщение: </strong><?= $message ?></div>
-          <?php endif ?>
-        </div>
-      </div>
-    </div>
-
-    <div class="card-footer sticky-bottom text-center text-body-secondary">
-      <a href="https://ru.hexlet.io/pages/about">Hexlet</a>
-    </div>
+<div class="card text-start mb-3 container" style="width: 38rem; background: #f8f9fb">
+  <div class="card-body">
+    <h1 class="card-title">Произошла ошибка</h1>
+    <?php if ($details === true): ?>
+      <p>Приложение не работает по следующим причинам:</p>
+      <?php if (isset($type)): ?>
+        <div><strong>Тип: </strong><?= $type ?></dev>
+      <?php endif ?>
+      <div><strong>Код: </strong><?= $code ?></div>
+      <div><strong>Сообщение: </strong><?= $message ?></div>
+    <?php else: ?>
+      <div><strong>Сообщение: </strong><?= $message ?></div>
+    <?php endif ?>
   </div>
-</body>
+</div>

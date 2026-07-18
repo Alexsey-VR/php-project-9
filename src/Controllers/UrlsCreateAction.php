@@ -71,6 +71,7 @@ class UrlsCreateAction
         }
 
         $params = [
+            'title' => "Сервис для проверки сайтов на SEO пригодность",
             'messages' => ['error' => [$this->urlRepository->getMessage()]],
             'errors' => ['url' => ['name' => $url->getUrl()]]
         ];

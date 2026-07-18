@@ -56,6 +56,7 @@ class UrlsReadAction
 
         $messages = $this->flash->getMessages();
         $params = [
+            'title' => "Список сайтов",
             'urls' => $urlItems,
             'messages' => $messages
         ];

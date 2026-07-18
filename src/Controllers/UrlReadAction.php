@@ -43,6 +43,7 @@ class UrlReadAction
         $url = $this->urlRepository->find($id);
         if (is_null($url)) {
             $params = [
+                'title' => "Исключения",
                 'details' => false,
                 'code' => 404,
                 'message' => 'Not found',
@@ -70,6 +71,7 @@ class UrlReadAction
         }
 
         $params = [
+            'title' => "Информация о сайте",
             'name' => $url->getUrl(),
             'id' => $url->getId(),
             'timestamp' => $url->getTimestamp(),

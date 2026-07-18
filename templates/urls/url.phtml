@@ -1,82 +1,48 @@
-<head>
-  <title>Информация о сайте</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
-<body>
-  <div class="card" style="height: 100vh">
-    <?php include __DIR__ . "/../navbar.phtml" ?>
+<div class="text-start mb-2 container" style="width: 100vw">
+  <h1>Сайт: <?= htmlspecialchars($name ?: '', ENT_QUOTES) ?></h1>
+  <table class="table table-bordered border-primary" data-test="url">
+    <tr>
+      <th>ID</th>
+      <td><?= htmlspecialchars($id ?: '', ENT_QUOTES) ?></td>
+    </tr>
+    <tr>
+      <th>Имя</th>
+      <td><?= htmlspecialchars($name ?: '', ENT_QUOTES) ?></td>
+    </tr>
+    <tr>
+      <th>Дата создания</th>
+      <td><?= htmlspecialchars($timestamp ?: '', ENT_QUOTES) ?></td>
+    </tr>
+  </table>
+</div>
 
-    <?php if (is_array($messages)): ?>
-      <?php foreach($messages as $key => $message): ?>
-        <?php foreach($message as $item): ?>
-          <?php if ($key === 'error'): ?>
-            <div class="alert alert-danger" role="alert">
-              <?= htmlspecialchars($item ?: '', ENT_QUOTES) ?>
-            </div>
-          <?php elseif ($key === 'success'): ?>
-            <div class="alert alert-success" role="alert">
-              <?= htmlspecialchars($item ?: '', ENT_QUOTES) ?>
-            </div>
-          <?php endif ?>
-        <?php endforeach ?>
+<div class="text-start mb-2 container" style="width: 100vw; margin-top: 4rem">
+  <h1>Проверки</h1>
+  <form action="/urls/<?= htmlspecialchars($id ?: '', ENT_QUOTES) ?>/checks" method='post'>
+    <input type='submit' class="btn btn-primary btn-sm" value='Запустить проверку'>
+  </form>
+  <table class="table table-bordered border-primary" data-test="checks">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Код ответа</th>
+        <th>h1</th>
+        <th>title</th>
+        <th>Description</th>
+        <th>Дата создания</th>
+      </tr>
+    </head>
+    <tbody>
+      <?php foreach ($checks as $check): ?>
+        <tr>
+          <td><?= htmlspecialchars($check['id'] ?: '', ENT_QUOTES) ?></td>
+          <td><?= htmlspecialchars($check['status'] ?: '', ENT_QUOTES) ?></td>
+          <td><?= htmlspecialchars($check['h1'] ?: '', ENT_QUOTES) ?></td>
+          <td><?= htmlspecialchars($check['title'] ?: '', ENT_QUOTES) ?></td>
+          <td><?= htmlspecialchars($check['description'] ?: '', ENT_QUOTES) ?></td>
+          <td><?= htmlspecialchars($check['timestamp'] ?: '', ENT_QUOTES) ?></td>
+        </tr>
       <?php endforeach ?>
-    <?php endif ?>
-
-    <div class="card-body sticky-xl-top">
-      <div class="text-start mb-2 container" style="width: 100vw">
-        <h1>Сайт: <?= htmlspecialchars($name ?: '', ENT_QUOTES) ?></h1>
-        <table class="table table-bordered border-primary" data-test="url">
-          <tr>
-            <th>ID</th>
-            <td><?= htmlspecialchars($id ?: '', ENT_QUOTES) ?></td>
-          </tr>
-          <tr>
-            <th>Имя</th>
-            <td><?= htmlspecialchars($name ?: '', ENT_QUOTES) ?></td>
-          </tr>
-          <tr>
-            <th>Дата создания</th>
-            <td><?= htmlspecialchars($timestamp ?: '', ENT_QUOTES) ?></td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="text-start mb-2 container" style="width: 100vw; margin-top: 4rem">
-        <h1>Проверки</h1>
-        <form action="/urls/<?= htmlspecialchars($id ?: '', ENT_QUOTES) ?>/checks" method='post'>
-          <input type='submit' class="btn btn-primary btn-sm" value='Запустить проверку'>
-        </form>
-        <table class="table table-bordered border-primary" data-test="checks">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Код ответа</th>
-              <th>h1</th>
-              <th>title</th>
-              <th>Description</th>
-              <th>Дата создания</th>
-            </tr>
-          </head>
-          <tbody>
-            <?php foreach ($checks as $check): ?>
-              <tr>
-                <td><?= htmlspecialchars($check['id'] ?: '', ENT_QUOTES) ?></td>
-                <td><?= htmlspecialchars($check['status'] ?: '', ENT_QUOTES) ?></td>
-                <td><?= htmlspecialchars($check['h1'] ?: '', ENT_QUOTES) ?></td>
-                <td><?= htmlspecialchars($check['title'] ?: '', ENT_QUOTES) ?></td>
-                <td><?= htmlspecialchars($check['description'] ?: '', ENT_QUOTES) ?></td>
-                <td><?= htmlspecialchars($check['timestamp'] ?: '', ENT_QUOTES) ?></td>
-              </tr>
-            <?php endforeach ?>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="card-footer sticky-bottom text-center text-body-secondary">
-      <a href="https://ru.hexlet.io/pages/about" title="Ссылка для перехода на страницу онлайн школы Хекслет">
-        Hexlet
-      </a>
-    </div>
-  </div>
-</body>
+    </tbody>
+  </table>
+</div>

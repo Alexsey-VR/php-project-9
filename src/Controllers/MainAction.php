@@ -27,6 +27,7 @@ class MainAction
         $messages = $this->flash->getMessages();
 
         $params = [
+            'title' => "Сервис для проверки сайтов на SEO пригодность",
             'messages' => $messages,
             'errors' => []
         ];

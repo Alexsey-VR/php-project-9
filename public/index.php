@@ -83,6 +83,7 @@ $container->get(PhpRenderer::class)->addAttribute(
     'router',
     $container->get(RouteParserInterface::class)
 );
+$container->get(PhpRenderer::class)->setLayout('layout.phtml');
 
 $urlErrorHandler = new UrlErrorHandler(
     $container->get(PhpRenderer::class),
