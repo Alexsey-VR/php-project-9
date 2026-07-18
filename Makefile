@@ -17,7 +17,7 @@ test: init
 test-dev:
 	XDEBUG_MODE=coverage vendor/bin/paratest tests --coverage-html ./reports --processes=auto
 
-test-sonar:
+test-sonar: init
 	XDEBUG_MODE=coverage vendor/bin/paratest --coverage-clover=coverage.xml tests
 
 init:
