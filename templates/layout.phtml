@@ -5,22 +5,7 @@
 <body>
   <div class="card" style="height: 100vh">
     <?php include __DIR__ . "/navbar.phtml" ?>
-
-    <?php if (is_array($messages)): ?>
-      <?php foreach($messages as $key => $message): ?>
-        <?php foreach($message as $item): ?>
-          <?php if ($key === 'error'): ?>
-            <div class="alert alert-danger" role="alert">
-              <?= htmlspecialchars($item ?: '', ENT_QUOTES) ?>
-            </div>
-          <?php elseif ($key === 'success'): ?>
-            <div class="alert alert-success" role="alert">
-              <?= htmlspecialchars($item ?: '', ENT_QUOTES) ?>
-            </div>
-          <?php endif ?>
-        <?php endforeach ?>
-      <?php endforeach ?>
-    <?php endif ?>
+    <?php include __DIR__ . "/alert.phtml" ?>
 
     <div class="card-body sticky-xl-top">
       <?= $content ?>
