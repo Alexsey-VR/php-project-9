@@ -100,9 +100,9 @@ $urlErrorRenderer->setRenderer(
 $urlErrorHandler->registerErrorRenderer('text/html', $urlErrorRenderer);
 
 $app->get('/', MainAction::class)->setName('index');
-$app->post('/urls', UrlsCreateAction::class)->setName('urls.urls.create');
-$app->get('/urls', UrlsReadAction::class)->setName('urls.urls.show');
-$app->get('/urls/{id: [0-9]{1,9}}', UrlReadAction::class)->setName('urls.url.show');
+$app->post('/urls', UrlsCreateAction::class)->setName('urls.create');
+$app->get('/urls', UrlsReadAction::class)->setName('urls.show');
+$app->get('/urls/{id: [0-9]{1,9}}', UrlReadAction::class)->setName('url.show');
 $app->post('/urls/{id: [0-9]{1,9}}/checks', UrlCheckAction::class);
 
 $app->run();

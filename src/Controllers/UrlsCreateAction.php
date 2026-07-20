@@ -46,7 +46,7 @@ class UrlsCreateAction
             );
 
             $toUrlInfo = $this->router->urlFor(
-                'urls.url.show',
+                'url.show',
                 ['id' => "{$url->getId()}"]
             );
             return $response->withRedirect($toUrlInfo);
@@ -59,7 +59,7 @@ class UrlsCreateAction
             );
 
             $toUrlInfo = $this->router->urlFor(
-                'urls.url.show',
+                'url.show',
                 ['id' => "{$url->getId()}"]
             );
 
