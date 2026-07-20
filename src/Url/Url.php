@@ -7,9 +7,9 @@ use Analyzer\Exceptions\UrlException;
 
 class Url implements UrlInterface
 {
-    private int|null $id;
-    private string|null $url;
-    private string|null $timestamp;
+    private ?int $id;
+    private ?string $url;
+    private ?string $timestamp;
 
     public function __construct()
     {

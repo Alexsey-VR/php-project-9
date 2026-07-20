@@ -10,13 +10,13 @@ use Symfony\Component\DomCrawler\Crawler;
 class UrlCheck implements UrlCheckInterface
 {
     private Client $client;
-    private int|null $id;
-    private int|null $urlId;
-    private int|null $status;
-    private string|null $h1;
-    private string|null $title;
-    private string|null $description;
-    private string|null $timestamp;
+    private ?int $id;
+    private ?int $urlId;
+    private ?int $status;
+    private ?string $h1;
+    private ?string $title;
+    private ?string $description;
+    private ?string $timestamp;
 
     private const int STORE_LEN = 200;
     private const string STRING_POSTFIX = "...";
