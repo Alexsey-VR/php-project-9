@@ -79,7 +79,6 @@ class UrlCheck implements UrlCheckInterface
 
         $h1 = $crawler->filterXPath("//h1")->text('', false);
         $title = $crawler->filterXPath("//title")->text('', false);
-        $description = "";
         $content = $crawler->filterXPath('//meta[contains(@name, "description")]')->evaluate('@content');
         $description = ($content instanceof Crawler) ? $content->text('', false) : '';
 
