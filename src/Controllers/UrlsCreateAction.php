@@ -34,41 +34,24 @@ class UrlsCreateAction
         ServerRequest $request,
         SlimResponseInterface $response,
     ): PsrResponseInterface {
-        $url = Url::fromArray(
-            $request->getParsedBodyParam("url")
-        );
+        $url = Url::fromArray($request->getParsedBodyParam("url"));
         $this->urlRepository->save($url);
 
-        if ($this->urlRepository->isValid()) {
-            $this->flash->addMessage(
-                'success',
-                $this->urlRepository->getMessage()
-            );
+        $isValid = $this->urlRepository->isValid();
+        $message = $this->urlRepository->getMessage();
+        if ($isValid || $url->exists()) {
+            $this->flash->addMessage('success', $message);
 
             $toUrlInfo = $this->router->urlFor(
                 'url.show',
                 ['id' => "{$url->getId()}"]
             );
-            return $response->withRedirect($toUrlInfo);
-        }
-
-        if ($url->exists()) {
-            $this->flash->addMessage(
-                'error',
-                $this->urlRepository->getMessage()
-            );
-
-            $toUrlInfo = $this->router->urlFor(
-                'url.show',
-                ['id' => "{$url->getId()}"]
-            );
-
             return $response->withRedirect($toUrlInfo);
         }
 
         $params = [
             'title' => "Сервис для проверки сайтов на SEO пригодность",
-            'messages' => ['error' => [$this->urlRepository->getMessage()]],
+            'messages' => ['error' => [$message]],
             'errors' => ['url' => ['name' => $url->getUrl()]]
         ];
         $response = $response->withStatus(422);
