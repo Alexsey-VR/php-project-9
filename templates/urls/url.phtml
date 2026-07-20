@@ -18,7 +18,7 @@
 
 <div class="text-start mb-2 container" style="width: 100vw; margin-top: 4rem">
   <h1>Проверки</h1>
-  <form action="/urls/<?= htmlspecialchars($id ?: '', ENT_QUOTES) ?>/checks" method='post'>
+  <form action="<?= $router->urlFor('checks.create', ['id' => htmlspecialchars($id ?: '', ENT_QUOTES)]) ?>" method='post'>
     <input type='submit' class="btn btn-primary btn-sm" value='Запустить проверку'>
   </form>
   <table class="table table-bordered border-primary" data-test="checks">

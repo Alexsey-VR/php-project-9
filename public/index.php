@@ -91,7 +91,7 @@ $urlErrorHandler = new UrlErrorHandler(
     $app->getResponseFactory(),
     $container->get(Logger::class)
 );
-$errorMiddleware = $app->addErrorMiddleware(false, true, true);
+$errorMiddleware = $app->addErrorMiddleware(true, true, true);
 $errorMiddleware->setDefaultErrorHandler($urlErrorHandler);
 $urlErrorRenderer = $container->get(UrlErrorRenderer::class);
 $urlErrorRenderer->setRenderer(
@@ -103,6 +103,6 @@ $app->get('/', MainAction::class)->setName('index');
 $app->post('/urls', UrlsCreateAction::class)->setName('urls.create');
 $app->get('/urls', UrlsReadAction::class)->setName('urls.show');
 $app->get('/urls/{id: [0-9]{1,9}}', UrlReadAction::class)->setName('url.show');
-$app->post('/urls/{id: [0-9]{1,9}}/checks', UrlCheckAction::class);
+$app->post('/urls/{id: [0-9]{1,9}}/checks', UrlCheckAction::class)->setName('checks.create');
 
 $app->run();
