@@ -51,7 +51,7 @@ class UrlReadAction
 
             return $this->renderer->render(
                 $response->withStatus(404),
-                'exceptions/urlException.phtml',
+                'errors/urlException.phtml',
                 $params
             );
         }
